@@ -168,6 +168,31 @@
       "generic": "Something went wrong. Try again."
     }
   },
+  "videoTile": {
+    "openPost": "open post {{title}}"
+  },
+  "ctaPicker": {
+    "staticLabel": "Always opens {{url}}",
+    "dynamicLabel": "Custom link, you provide the URL",
+    "noneLabel": "No CTA",
+    "noneSubLabel": "Post without a link",
+    "linkLabel": "Link",
+    "linkPlaceholder": "https://"
+  },
+  "uploadBanner": {
+    "title": "Upload",
+    "uploading": "Uploading",
+    "failed": "Upload failed, tap to retry",
+    "resumeFrom": "Resume upload from {{whenLabel}}",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "resume": "Resume",
+    "dismiss": "Dismiss",
+    "today": "today",
+    "yesterday": "yesterday",
+    "queueDepth_one": "{{count}} more upload waiting",
+    "queueDepth_other": "{{count}} more uploads waiting"
+  },
   "globalProfile": {
     "memberSince": "Member since {{date}}",
     "emailVerified": "Email verified",
