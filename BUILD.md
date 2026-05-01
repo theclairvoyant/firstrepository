@@ -54,7 +54,8 @@ Bootstrap files are written verbatim to the repo root during Phase 0. The full c
 - `locales/en.json`
 - `locales/ar.json`
 - `locales/hi.json`
-- `locales/ml.json`
+- `locales/es.json`
+- `locales/fr.json`
 
 ---
 
@@ -147,7 +148,7 @@ Run `/check-rules`.
 
 - Verify `lib/api/mocks/__seed.ts` covers every UI state
 - Verify every user-visible string has an i18n key in `locales/en.json`
-- Add a few sample translations to `ar.json`, `hi.json`, `ml.json` to prove the language switcher works (e.g., the welcome screen and Settings labels)
+- Add a few sample translations to `es.json`, `fr.json`, `hi.json`, `ar.json` to prove the language switcher works (e.g., the welcome screen and Settings labels)
 
 Run `/check-rules`.
 

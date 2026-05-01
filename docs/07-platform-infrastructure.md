@@ -4,7 +4,16 @@
 
 Architecture: i18next + react-i18next + expo-localization.
 
-Languages at v1: English (default, fully translated), Arabic, Hindi, Malayalam (scaffolded with same key structure, fall back to English).
+Languages at v1: English (default, fully translated), Spanish, French, Hindi, Arabic (scaffolded with same key structure, fall back to English).
+
+Adding a new language is a 4-step contract:
+
+1. Add the code to `LanguageCode` and `SUPPORTED_LANGUAGES` in `lib/store/languageStore.ts`.
+2. Drop `locales/<code>.json` in the repo (start as `{}` if no translations are ready - English fallback covers the gap).
+3. Import + register the JSON in `lib/i18n/index.ts` (the `resources` map).
+4. Append display + native name keys to `locales/en.json` under `settings.language.<code>` and `settings.language.<code>Native`.
+
+The settings screens iterate `SUPPORTED_LANGUAGES` and look names up by code, so no UI change is needed.
 
 RTL is explicitly not supported. Set `I18nManager.allowRTL(false)` and `forceRTL(false)` at boot. Layout stays LTR for every locale.
 

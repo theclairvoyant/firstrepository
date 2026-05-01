@@ -2,9 +2,10 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import * as Localization from 'expo-localization';
 import en from '@/locales/en.json';
-import ar from '@/locales/ar.json';
+import es from '@/locales/es.json';
+import fr from '@/locales/fr.json';
 import hi from '@/locales/hi.json';
-import ml from '@/locales/ml.json';
+import ar from '@/locales/ar.json';
 import {
   SUPPORTED_LANGUAGES,
   useLanguageStore,
@@ -12,12 +13,16 @@ import {
   type LanguagePreference,
 } from '@/lib/store/languageStore';
 
-const resources = {
+// To add a new language: import the JSON and add an entry below keyed by
+// the LanguageCode. The supported set itself lives in lib/store/languageStore.ts.
+// Untranslated keys fall back to English via fallbackLng.
+const resources: Record<LanguageCode, { translation: Record<string, unknown> }> = {
   en: { translation: en },
-  ar: { translation: ar },
+  es: { translation: es },
+  fr: { translation: fr },
   hi: { translation: hi },
-  ml: { translation: ml },
-} as const;
+  ar: { translation: ar },
+};
 
 function detectDeviceLanguage(): LanguageCode {
   const locales = Localization.getLocales();

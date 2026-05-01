@@ -80,28 +80,10 @@ function nameForCode(
   code: LanguageCode,
   t: (key: string) => string,
 ): { display: string; native: string } {
-  switch (code) {
-    case 'en':
-      return {
-        display: t('settings.language.en'),
-        native: t('settings.language.enNative'),
-      };
-    case 'ar':
-      return {
-        display: t('settings.language.ar'),
-        native: t('settings.language.arNative'),
-      };
-    case 'hi':
-      return {
-        display: t('settings.language.hi'),
-        native: t('settings.language.hiNative'),
-      };
-    case 'ml':
-      return {
-        display: t('settings.language.ml'),
-        native: t('settings.language.mlNative'),
-      };
-  }
+  return {
+    display: t(`settings.language.${code}`),
+    native: t(`settings.language.${code}Native`),
+  };
 }
 
 export default function LanguageSettingsScreen(): React.ReactElement {

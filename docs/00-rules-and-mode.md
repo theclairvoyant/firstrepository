@@ -24,7 +24,7 @@ The app builds out fully but with these specific stubs:
 | SSO buttons | Visible on method screen, tap shows "SSO setup pending" toast |
 | Push notifications | Settings toggle exists but writes only to local prefs |
 | Sentry | `lib/monitoring/sentry.ts` exists with init code commented out |
-| i18n | English fully translated; Arabic, Hindi, Malayalam JSON files have same key structure with empty values (fall back to English) |
+| i18n | English fully translated; Spanish, French, Hindi, Arabic JSON files have same key structure with empty values (fall back to English) |
 
 ### FULL mode
 

@@ -47,7 +47,7 @@ lib/
   deeplinks/          - URL parsing and routing
   monitoring/         - Sentry (stubbed in SCAFFOLD)
   utils/              - format, validators
-locales/              - i18n JSON files (en, ar, hi, ml)
+locales/              - i18n JSON files (en, es, fr, hi, ar)
 docs/                 - the full spec, organized by topic
 .claude/
   agents/             - subagent definitions

@@ -176,16 +176,7 @@ function languageDisplayName(
   code: LanguageCode,
   t: (key: string) => string,
 ): string {
-  switch (code) {
-    case 'en':
-      return t('settings.language.en');
-    case 'ar':
-      return t('settings.language.ar');
-    case 'hi':
-      return t('settings.language.hi');
-    case 'ml':
-      return t('settings.language.ml');
-  }
+  return t(`settings.language.${code}`);
 }
 
 export default function SettingsIndexScreen(): React.ReactElement {

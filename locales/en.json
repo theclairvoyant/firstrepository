@@ -330,13 +330,15 @@
       "system": "System default",
       "systemDescription": "Follow your device language",
       "en": "English",
-      "ar": "Arabic",
+      "es": "Spanish",
+      "fr": "French",
       "hi": "Hindi",
-      "ml": "Malayalam",
+      "ar": "Arabic",
       "enNative": "English",
-      "arNative": "العربية",
+      "esNative": "Español",
+      "frNative": "Français",
       "hiNative": "हिन्दी",
-      "mlNative": "മലയാളം"
+      "arNative": "العربية"
     },
     "notifications": {
       "label": "Notifications",
