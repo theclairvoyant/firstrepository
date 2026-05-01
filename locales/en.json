@@ -106,15 +106,77 @@
     "noWorkspaceBody": "Join a workspace to start posting.",
     "findWorkspace": "Find a workspace",
     "postsCount_one": "{{count}} post",
-    "postsCount_other": "{{count}} posts"
+    "postsCount_other": "{{count}} posts",
+    "stats": {
+      "posts": "Posts",
+      "views": "Views",
+      "clicks": "Clicks"
+    },
+    "banner": {
+      "pendingInvite": "Invite pending. The admin has not yet activated your access.",
+      "pendingRequest": "Request pending. You will be notified when approved.",
+      "revoked": "Access revoked."
+    },
+    "editProfile": "Edit profile",
+    "editProfileSoon": "Profile editor coming soon",
+    "shareProfile": "Share profile",
+    "shareSubject": "Share this link to your profile",
+    "empty": {
+      "title": "No posts yet",
+      "body": "Upload your first short to start building your profile.",
+      "cta": "Upload now"
+    },
+    "errorTitle": "We couldn't load your posts",
+    "errorBody": "Check your connection and try again.",
+    "openPostSoon": "Opening this post is coming soon",
+    "uploadCancelled": "Upload cancelled"
   },
   "uploadTab": {
     "title": "Upload",
     "body": "Pick a video from your gallery or record a new one.",
     "chooseFromGallery": "Choose from gallery",
+    "chooseFromGallerySub": "Browse your library and pick a vertical video.",
     "recordNow": "Record now",
+    "recordNowSub": "Open the camera and record a new clip.",
     "pickerSoon": "Pick from gallery coming next",
-    "recordSoon": "Record coming next"
+    "recordSoon": "Record coming next",
+    "cellularNote": "Heads up: cellular uploads will alert you before sending.",
+    "cancelPending": "Cancel pending upload"
+  },
+  "composer": {
+    "edit": {
+      "title": "Edit post",
+      "close": "close",
+      "sectionTitleAndDescription": "Title and description",
+      "sectionTags": "Tags",
+      "sectionCta": "Conversion",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Give your post a short, catchy title",
+      "titleRequired": "Add a title to continue",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe what viewers will see",
+      "charCounter": "{{current}} / {{max}}",
+      "urlInvalid": "Enter a valid https link",
+      "noCtas": "No CTAs configured",
+      "discardTitle": "Discard changes?",
+      "discardBody": "Your draft will be removed.",
+      "discard": "Discard",
+      "stay": "Stay here",
+      "cancel": "Cancel",
+      "preview": "Preview"
+    },
+    "preview": {
+      "title": "Preview",
+      "edit": "Edit",
+      "sendForApproval": "Send for approval",
+      "publish": "Publish",
+      "posted": "Your post has been submitted",
+      "noMedia": "Pick a video before publishing",
+      "descriptionEmpty": "No description",
+      "ctaUrlPlaceholder": "Link will appear here",
+      "previewPlaceholder": "Video preview coming soon",
+      "back": "Back"
+    }
   },
   "switcher": {
     "title": "Switch workspace",

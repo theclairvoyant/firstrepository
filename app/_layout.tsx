@@ -93,6 +93,10 @@ function RootShell(): React.ReactElement {
           }}
         />
         <Stack.Screen
+          name="composer"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="_design-preview"
           options={{ headerShown: false }}
         />
