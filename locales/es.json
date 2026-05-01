@@ -1,1 +1,42 @@
-{}
+{
+  "common": {
+    "continue": "Continuar",
+    "cancel": "Cancelar",
+    "back": "Atrás",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "retry": "Reintentar",
+    "loading": "Cargando",
+    "error": "Algo salió mal",
+    "tryAgain": "Intentar de nuevo",
+    "close": "Cerrar"
+  },
+  "auth": {
+    "welcome": {
+      "title": "Enterprise Creator",
+      "tagline": "Crea. Publica. Gana.",
+      "getStarted": "Empezar",
+      "haveInviteCode": "Tengo un código de invitación"
+    }
+  },
+  "tabs": {
+    "profile": "Perfil",
+    "upload": "Subir"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "back": "Atrás",
+    "language": {
+      "label": "Idioma",
+      "title": "Idioma",
+      "system": "Predeterminado del sistema",
+      "systemDescription": "Sigue el idioma del dispositivo"
+    },
+    "theme": {
+      "label": "Tema",
+      "system": "Sistema",
+      "light": "Claro",
+      "dark": "Oscuro"
+    }
+  }
+}

@@ -1,1 +1,42 @@
-{}
+{
+  "common": {
+    "continue": "जारी रखें",
+    "cancel": "रद्द करें",
+    "back": "वापस",
+    "save": "सहेजें",
+    "delete": "हटाएं",
+    "retry": "पुनः प्रयास करें",
+    "loading": "लोड हो रहा है",
+    "error": "कुछ गलत हो गया",
+    "tryAgain": "पुनः प्रयास करें",
+    "close": "बंद करें"
+  },
+  "auth": {
+    "welcome": {
+      "title": "Enterprise Creator",
+      "tagline": "बनाएँ. प्रकाशित करें. कमाएँ.",
+      "getStarted": "शुरू करें",
+      "haveInviteCode": "मेरे पास आमंत्रण कोड है"
+    }
+  },
+  "tabs": {
+    "profile": "प्रोफ़ाइल",
+    "upload": "अपलोड"
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "back": "वापस",
+    "language": {
+      "label": "भाषा",
+      "title": "भाषा",
+      "system": "सिस्टम डिफ़ॉल्ट",
+      "systemDescription": "डिवाइस की भाषा का अनुसरण करें"
+    },
+    "theme": {
+      "label": "थीम",
+      "system": "सिस्टम",
+      "light": "हल्का",
+      "dark": "गहरा"
+    }
+  }
+}

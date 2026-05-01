@@ -1,1 +1,42 @@
-{}
+{
+  "common": {
+    "continue": "متابعة",
+    "cancel": "إلغاء",
+    "back": "رجوع",
+    "save": "حفظ",
+    "delete": "حذف",
+    "retry": "إعادة المحاولة",
+    "loading": "جارٍ التحميل",
+    "error": "حدث خطأ ما",
+    "tryAgain": "حاول مرة أخرى",
+    "close": "إغلاق"
+  },
+  "auth": {
+    "welcome": {
+      "title": "Enterprise Creator",
+      "tagline": "أنشئ. انشر. اكسب.",
+      "getStarted": "ابدأ",
+      "haveInviteCode": "لدي رمز دعوة"
+    }
+  },
+  "tabs": {
+    "profile": "الملف الشخصي",
+    "upload": "رفع"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "back": "رجوع",
+    "language": {
+      "label": "اللغة",
+      "title": "اللغة",
+      "system": "افتراضي النظام",
+      "systemDescription": "اتباع لغة الجهاز"
+    },
+    "theme": {
+      "label": "السمة",
+      "system": "النظام",
+      "light": "فاتح",
+      "dark": "داكن"
+    }
+  }
+}
