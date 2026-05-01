@@ -32,6 +32,7 @@ import type {
   CTA,
   DeleteMeResponse,
   DeletePushTokenResponse,
+  DiscoveryByDomainResponse,
   EmailStartResponse,
   EnterpriseCreator,
   IdentityMeResponse,
@@ -199,6 +200,18 @@ export function useResolveInvite(): UseMutationResult<
 > {
   return useMutation({
     mutationFn: (vars) => tenantsApi.resolveInvite(vars.code),
+  });
+}
+
+// Discovery by company email domain. Used by add-tenant. Wrapped as a mutation
+// so the user explicitly triggers the search rather than firing on mount.
+export function useByDomain(): UseMutationResult<
+  DiscoveryByDomainResponse,
+  Error,
+  void
+> {
+  return useMutation({
+    mutationFn: () => tenantsApi.byDomain(),
   });
 }
 

@@ -88,6 +88,100 @@
     },
     "drawer": {
       "close": "close"
+    },
+    "session": {
+      "expired": "Your session has expired. Please sign in again."
     }
+  },
+  "tabs": {
+    "profile": "Profile",
+    "upload": "Upload"
+  },
+  "boot": {
+    "loading": "Loading"
+  },
+  "profileTab": {
+    "title": "Profile",
+    "noWorkspaceTitle": "No workspace selected",
+    "noWorkspaceBody": "Join a workspace to start posting.",
+    "findWorkspace": "Find a workspace",
+    "postsCount_one": "{{count}} post",
+    "postsCount_other": "{{count}} posts"
+  },
+  "uploadTab": {
+    "title": "Upload",
+    "body": "Pick a video from your gallery or record a new one.",
+    "chooseFromGallery": "Choose from gallery",
+    "recordNow": "Record now",
+    "pickerSoon": "Pick from gallery coming next",
+    "recordSoon": "Record coming next"
+  },
+  "switcher": {
+    "title": "Switch workspace",
+    "searchPlaceholder": "Search workspaces",
+    "activeSection": "Active",
+    "pendingSection": "Pending",
+    "addWorkspace": "Add a workspace",
+    "emptyTitle": "No workspaces yet",
+    "emptyBody": "Add a workspace with an invite code or by your work email.",
+    "noResultsTitle": "No matches",
+    "noResultsBody": "Try a different search.",
+    "postsCount_one": "{{count}} post",
+    "postsCount_other": "{{count}} posts",
+    "cancelRequest": "Cancel request",
+    "cancelRequestDone": "Request cancelled",
+    "loadError": "We couldn't load your workspaces.",
+    "selectRow": "select workspace",
+    "pendingInvite": "invite pending",
+    "pendingRequest": "request pending"
+  },
+  "addTenant": {
+    "title": "Add a workspace",
+    "subtitle": "Use an invite code or find by your work email.",
+    "inviteCard": {
+      "title": "Enter invite code",
+      "body": "Your 8 character invite code from an admin.",
+      "label": "Invite code",
+      "placeholder": "ABCD2345",
+      "lookup": "Continue",
+      "redeem": "Add workspace",
+      "wrongCode": "Wrong code",
+      "added": "Workspace added"
+    },
+    "domainCard": {
+      "title": "Find by company email",
+      "body": "We'll list workspaces matched to your work email's domain.",
+      "search": "Search",
+      "resultsTitle": "Available workspaces",
+      "request": "Request invite",
+      "requestPending": "Request pending",
+      "requestSent": "Request sent",
+      "joined": "Joined",
+      "noResults": "No workspaces found for your email domain."
+    },
+    "errors": {
+      "inviteExpired": "This invite has expired. Ask your admin for a new one.",
+      "inviteUsed": "This invite has already been redeemed.",
+      "inviteGeneric": "We couldn't find that invite. Check the code and try again.",
+      "domainNotProvisioned": "Your email domain isn't set up yet. Ask an admin to provision it.",
+      "workspaceFull": "This workspace is at capacity.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
+  "globalProfile": {
+    "memberSince": "Member since {{date}}",
+    "emailVerified": "Email verified",
+    "emailUnverified": "Email not verified",
+    "myWorkspaces": "My workspaces",
+    "myWorkspacesEmpty": "You haven't joined any workspaces yet.",
+    "account": "Account",
+    "editProfile": "Edit profile",
+    "editProfileSoon": "Profile editor coming soon",
+    "settings": "Settings",
+    "settingsSoon": "Settings coming soon",
+    "signOut": "Sign out",
+    "signOutError": "We couldn't sign you out. Try again.",
+    "openPostSoon": "Opening this post is coming soon",
+    "selectWorkspace": "select workspace"
   }
 }
