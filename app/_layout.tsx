@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
+import NetInfo from '@react-native-community/netinfo';
 import { useTranslation } from 'react-i18next';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/lib/theme/ThemeProvider';
@@ -17,6 +18,8 @@ import { setUnauthorizedHandler } from '@/lib/api/navigation';
 import { parseDeeplinkUrl } from '@/lib/deeplinks/parser';
 import { useDeeplinkIntentStore } from '@/lib/deeplinks/intentStore';
 import { showToast } from '@/lib/toast';
+import { useUploadStore } from '@/lib/store/uploadStore';
+import { resumeUpload } from '@/lib/video';
 
 I18nManager.allowRTL(false);
 I18nManager.forceRTL(false);
@@ -48,6 +51,30 @@ function RootShell(): React.ReactElement {
       }
     });
     return () => sub.remove();
+  }, []);
+
+  // Wi-Fi resume listener for uploads queued via "Wait for Wi-Fi". When the
+  // connection transitions to wifi, replay every job currently in
+  // `waiting_wifi` via the upload driver. Jobs whose in-memory inputs were
+  // lost (e.g. force-quit recovery) cannot resume automatically and the user
+  // must use the manual Resume button on the banner.
+  useEffect(() => {
+    const sub = NetInfo.addEventListener((state) => {
+      if (state.type !== 'wifi' || !state.isConnected) return;
+      const waiting = useUploadStore
+        .getState()
+        .jobs.filter((j) => j.state === 'waiting_wifi');
+      for (const job of waiting) {
+        const handle = resumeUpload(job.id);
+        if (handle) {
+          // The waiting_wifi placeholder was already enqueued; remove it now
+          // that the resumed handle has its own fresh job entry.
+          useUploadStore.getState().remove(job.id);
+          void handle.result.catch(() => undefined);
+        }
+      }
+    });
+    return () => sub();
   }, []);
 
   if (!fontsLoaded) {

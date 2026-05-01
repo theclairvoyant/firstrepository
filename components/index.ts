@@ -51,3 +51,5 @@ export { CTAPicker } from './CTAPicker';
 export type { CTAPickerProps } from './CTAPicker';
 export { UploadProgressBanner } from './UploadProgressBanner';
 export type { UploadProgressBannerProps } from './UploadProgressBanner';
+export { CellularWarningSheet } from './CellularWarningSheet';
+export type { CellularWarningSheetProps } from './CellularWarningSheet';

@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
+import NetInfo from '@react-native-community/netinfo';
 import { ChevronLeft, Film } from 'lucide-react-native';
 import { GhostButton } from '@/components/GhostButton';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -10,17 +11,27 @@ import { ScreenContainer } from '@/components/ScreenContainer';
 import { SecondaryButton } from '@/components/SecondaryButton';
 import { TagPill } from '@/components/TagPill';
 import { ThemedText } from '@/components/ThemedText';
+import { CellularWarningSheet } from '@/components/CellularWarningSheet';
 import { useTheme } from '@/lib/theme/useTheme';
 import { useTenantStore } from '@/lib/store/tenantStore';
 import { useDraftStore } from '@/lib/store/draftStore';
 import {
   keys,
-  useCreatePost,
   useTagTopology,
   useWorkspace,
 } from '@/lib/api/queries';
 import { showToast } from '@/lib/toast';
+import {
+  validateMedia,
+  videoErrorI18nKey,
+  isVideoPipelineError,
+  runUpload,
+  enqueueWaitingWifi,
+} from '@/lib/video';
 import type { CTA, CtaStyle } from '@/types/api';
+
+const CELLULAR_THRESHOLD_MB = 25;
+const BYTES_PER_MB = 1024 * 1024;
 
 interface CtaPreviewProps {
   cta: CTA;
@@ -84,7 +95,9 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
   const drafts = useDraftStore((s) => s.drafts);
   const draft = activeWorkspaceId ? (drafts[activeWorkspaceId] ?? null) : null;
 
-  const createPost = useCreatePost();
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [cellularSheetOpen, setCellularSheetOpen] = useState<boolean>(false);
+  const [pendingSizeBytes, setPendingSizeBytes] = useState<number | null>(null);
 
   // Guards: bounce back to edit if the draft is missing critical fields.
   useFocusEffect(
@@ -100,7 +113,6 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
     }, [activeWorkspaceId, router]),
   );
 
-  // Compute selected CTA + tag chips.
   const workspace = workspaceQuery.data ?? null;
   const allowedCtas = workspace?.capabilities.allowedCtas ?? [];
   const selectedCta: CTA | null = useMemo(() => {
@@ -123,43 +135,47 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
   const requireApproval: boolean =
     workspace?.capabilities.requireApproval ?? true;
 
-  const primaryLabel: string = requireApproval
-    ? t('composer.preview.sendForApproval')
-    : t('composer.preview.publish');
+  const primaryLabel: string = submitting
+    ? t('composer.preview.uploading')
+    : requireApproval
+      ? t('composer.preview.sendForApproval')
+      : t('composer.preview.publish');
 
   const handleEdit = useCallback(() => {
     router.back();
   }, [router]);
 
-  const handlePublish = useCallback(() => {
-    if (!activeWorkspaceId || !workspace || !draft) return;
+  // Kicks off the actual upload + post creation flow. Implementation choice:
+  // navigate to Profile immediately so the UploadProgressBanner reflects
+  // progress in place, instead of blocking the preview screen for the full
+  // 3 seconds. The driver's promise still resolves in the background and
+  // invalidates the posts query when done.
+  const startUpload = useCallback(
+    (sizeBytes: number) => {
+      if (!activeWorkspaceId || !workspace || !draft || !draft.localUri) return;
 
-    if (!draft.localUri) {
-      showToast({ variant: 'warning', message: t('composer.preview.noMedia') });
-      return;
-    }
+      setSubmitting(true);
 
-    const mediaKey = `mock_${Date.now()}`;
-    const ctaIdToSubmit: string = draft.ctaId ?? '';
-    const ctaUrlToSubmit: string | undefined =
-      selectedCta && selectedCta.kind === 'dynamic' && draft.ctaUrl
-        ? draft.ctaUrl
-        : undefined;
-
-    createPost.mutate(
-      {
+      const handle = runUpload({
         workspaceId: activeWorkspaceId,
-        input: {
-          title: draft.title.trim(),
-          description: draft.description,
-          tagIds: draft.tagIds,
-          ctaId: ctaIdToSubmit,
-          ctaUrl: ctaUrlToSubmit,
-          mediaKey,
-        },
-      },
-      {
-        onSuccess: () => {
+        localUri: draft.localUri,
+        sizeBytes,
+        mimeType: 'video/mp4',
+        width: draft.width ?? 720,
+        height: draft.height ?? 1280,
+        durationMs: draft.durationMs ?? 0,
+        title: draft.title,
+        description: draft.description,
+        tagIds: draft.tagIds,
+        ctaId: draft.ctaId,
+        ctaUrl:
+          selectedCta && selectedCta.kind === 'dynamic' ? draft.ctaUrl : null,
+      });
+      void handle;
+
+      handle.result
+        .then((res) => {
+          // Clear draft + invalidate the posts grid so it picks up the new tile.
           if (activeWorkspaceId) {
             useDraftStore.getState().clearDraft(activeWorkspaceId);
             void queryClient.invalidateQueries({
@@ -170,29 +186,154 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
             variant: 'success',
             message: t('composer.preview.posted'),
           });
-          if (router.canDismiss()) {
-            router.dismissAll();
+          void res;
+        })
+        .catch((err: unknown) => {
+          if (
+            isVideoPipelineError(err) &&
+            (err.code === 'CANCELLED')
+          ) {
+            // Cancellation is initiated via the banner. Stay quiet here.
+            return;
           }
-          router.replace('/(tabs)/profile');
-        },
-        onError: (err) => {
+          const key = videoErrorI18nKey(err);
+          const params = isVideoPipelineError(err) ? err.params : {};
           showToast({
             variant: 'danger',
-            message: err.message || t('common.error'),
+            message: t(key, params as Record<string, string | number>),
           });
+        });
+
+      // Navigate immediately so the user can see the banner update in real
+      // time on the profile grid.
+      if (router.canDismiss()) {
+        router.dismissAll();
+      }
+      router.replace('/(tabs)/profile');
+    },
+    [
+      activeWorkspaceId,
+      workspace,
+      draft,
+      selectedCta,
+      router,
+      queryClient,
+      t,
+    ],
+  );
+
+  const handlePublish = useCallback(async () => {
+    if (!activeWorkspaceId || !workspace || !draft) return;
+
+    if (!draft.localUri) {
+      showToast({ variant: 'warning', message: t('composer.preview.noMedia') });
+      return;
+    }
+
+    if (submitting) return;
+    setSubmitting(true);
+
+    // Re-validate at submit time so we get a trustworthy sizeBytes (the file
+    // could have been removed between picking and submitting).
+    let sizeBytes: number;
+    try {
+      const validated = await validateMedia(
+        {
+          uri: draft.localUri,
+          width: draft.width ?? 0,
+          height: draft.height ?? 0,
+          durationMs: draft.durationMs ?? 0,
+          fileSize: null,
+          mimeType: 'video/mp4',
         },
-      },
-    );
+        workspace.capabilities,
+      );
+      sizeBytes = validated.sizeBytes;
+    } catch (err) {
+      setSubmitting(false);
+      const key = videoErrorI18nKey(err);
+      const params = isVideoPipelineError(err) ? err.params : {};
+      showToast({
+        variant: 'danger',
+        message: t(key, params as Record<string, string | number>),
+      });
+      return;
+    }
+
+    // Cellular check.
+    try {
+      const net = await NetInfo.fetch();
+      const onCellular = net.type === 'cellular';
+      const sizeMB = sizeBytes / BYTES_PER_MB;
+      if (onCellular && sizeMB > CELLULAR_THRESHOLD_MB) {
+        setPendingSizeBytes(sizeBytes);
+        setCellularSheetOpen(true);
+        setSubmitting(false);
+        return;
+      }
+    } catch {
+      // If NetInfo fetch fails we proceed; the upload itself will surface
+      // network errors.
+    }
+
+    startUpload(sizeBytes);
+  }, [activeWorkspaceId, workspace, draft, submitting, startUpload, t]);
+
+  const handleCellularUploadNow = useCallback(() => {
+    setCellularSheetOpen(false);
+    if (pendingSizeBytes != null) {
+      startUpload(pendingSizeBytes);
+      setPendingSizeBytes(null);
+    }
+  }, [pendingSizeBytes, startUpload]);
+
+  const handleCellularWaitForWifi = useCallback(() => {
+    if (!activeWorkspaceId || !workspace || !draft || !draft.localUri || pendingSizeBytes == null) {
+      setCellularSheetOpen(false);
+      return;
+    }
+    // Enqueue a deferred job in `waiting_wifi` state. The root NetInfo
+    // listener (or the manual Resume button on the banner) replays it once
+    // the connection transitions to Wi-Fi.
+    enqueueWaitingWifi({
+      workspaceId: activeWorkspaceId,
+      localUri: draft.localUri,
+      sizeBytes: pendingSizeBytes,
+      mimeType: 'video/mp4',
+      width: draft.width ?? 720,
+      height: draft.height ?? 1280,
+      durationMs: draft.durationMs ?? 0,
+      title: draft.title,
+      description: draft.description,
+      tagIds: draft.tagIds,
+      ctaId: draft.ctaId,
+      ctaUrl:
+        selectedCta && selectedCta.kind === 'dynamic' ? draft.ctaUrl : null,
+    });
+    setCellularSheetOpen(false);
+    setPendingSizeBytes(null);
+    showToast({
+      variant: 'info',
+      message: t('cellularSheet.queuedForWifi'),
+    });
+    if (router.canDismiss()) {
+      router.dismissAll();
+    }
+    router.replace('/(tabs)/profile');
   }, [
     activeWorkspaceId,
     workspace,
     draft,
     selectedCta,
-    createPost,
+    pendingSizeBytes,
     router,
-    queryClient,
     t,
   ]);
+
+  const handleCellularClose = useCallback(() => {
+    setCellularSheetOpen(false);
+    setPendingSizeBytes(null);
+  }, []);
 
   if (!activeWorkspaceId || !workspace || !draft) {
     return null;
@@ -307,18 +448,28 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
             label={t('composer.preview.edit')}
             accessibilityLabel={t('composer.preview.edit')}
             onPress={handleEdit}
-            disabled={createPost.isPending}
+            disabled={submitting}
           />
         </View>
         <View style={{ flex: 1 }}>
           <PrimaryButton
             label={primaryLabel}
             accessibilityLabel={primaryLabel}
-            onPress={handlePublish}
-            loading={createPost.isPending}
+            onPress={() => {
+              void handlePublish();
+            }}
+            loading={submitting}
           />
         </View>
       </View>
+
+      <CellularWarningSheet
+        visible={cellularSheetOpen}
+        fileSizeMB={(pendingSizeBytes ?? 0) / BYTES_PER_MB}
+        onWaitForWifi={handleCellularWaitForWifi}
+        onUploadNow={handleCellularUploadNow}
+        onClose={handleCellularClose}
+      />
     </ScreenContainer>
   );
 }

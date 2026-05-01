@@ -141,7 +141,9 @@
     "pickerSoon": "Pick from gallery coming next",
     "recordSoon": "Record coming next",
     "cellularNote": "Heads up: cellular uploads will alert you before sending.",
-    "cancelPending": "Cancel pending upload"
+    "cancelPending": "Cancel pending upload",
+    "noWorkspace": "Pick a workspace before uploading.",
+    "openSettingsHint": "Open Settings to grant access."
   },
   "composer": {
     "edit": {
@@ -170,13 +172,49 @@
       "edit": "Edit",
       "sendForApproval": "Send for approval",
       "publish": "Publish",
+      "uploading": "Uploading...",
       "posted": "Your post has been submitted",
       "noMedia": "Pick a video before publishing",
       "descriptionEmpty": "No description",
       "ctaUrlPlaceholder": "Link will appear here",
       "previewPlaceholder": "Video preview coming soon",
       "back": "Back"
+    },
+    "record": {
+      "close": "close camera",
+      "start": "start recording",
+      "stop": "stop recording",
+      "flip": "flip camera",
+      "flashOn": "flash on",
+      "flashOff": "flash off",
+      "micOn": "microphone on",
+      "micOff": "microphone off",
+      "remaining": "{{seconds}}s remaining",
+      "hint": "Tap to start, tap again to stop",
+      "portraitHint": "Hold your device upright",
+      "permissionTitle": "Camera and microphone access required",
+      "permissionBody": "Grant camera and microphone access to record a video.",
+      "openSettings": "Open Settings"
     }
+  },
+  "videoErrors": {
+    "PERMISSION_DENIED": "Permission denied. Grant access to continue.",
+    "FILE_NOT_FOUND": "We couldn't find that video file.",
+    "DURATION_TOO_LONG": "Videos must be {{limit}} seconds or shorter.",
+    "FILE_TOO_LARGE": "Videos must be under {{limitMB}} MB.",
+    "ASPECT_RATIO_INVALID": "Videos must be vertical (9:16).",
+    "UNREADABLE": "We couldn't read that video. Try a different one.",
+    "CANCELLED": "Upload cancelled",
+    "GENERIC": "Something went wrong with the video. Try again."
+  },
+  "cellularSheet": {
+    "title": "Cellular upload",
+    "headline": "Use cellular for this upload?",
+    "body": "This file is {{sizeMB}} MB. Uploading on cellular may use a lot of data.",
+    "waitForWifi": "Wait for Wi-Fi",
+    "uploadNow": "Upload now",
+    "hint": "We'll automatically resume when Wi-Fi is back.",
+    "queuedForWifi": "Queued. Will upload when Wi-Fi is available."
   },
   "switcher": {
     "title": "Switch workspace",

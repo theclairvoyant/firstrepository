@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Image as ImageIcon, Video } from 'lucide-react-native';
 import { Card } from '@/components/Card';
@@ -7,9 +8,19 @@ import { GhostButton } from '@/components/GhostButton';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/lib/theme/useTheme';
+import { useTenantStore } from '@/lib/store/tenantStore';
 import { useUploadStore } from '@/lib/store/uploadStore';
+import { useDraftStore } from '@/lib/store/draftStore';
+import { useWorkspace } from '@/lib/api/queries';
 import type { UploadJob } from '@/lib/store/uploadStore';
 import { showToast } from '@/lib/toast';
+import {
+  pickVideoFromGallery,
+  validateMedia,
+  videoErrorI18nKey,
+  isVideoPipelineError,
+  VideoPipelineError,
+} from '@/lib/video';
 
 interface PickTargetProps {
   icon: React.ReactNode;
@@ -17,6 +28,7 @@ interface PickTargetProps {
   subtitle: string;
   accessibilityLabel: string;
   onPress: () => void;
+  disabled?: boolean;
 }
 
 function PickTarget({
@@ -25,6 +37,7 @@ function PickTarget({
   subtitle,
   accessibilityLabel,
   onPress,
+  disabled = false,
 }: PickTargetProps): React.ReactElement {
   const { spacing } = useTheme();
   return (
@@ -32,9 +45,11 @@ function PickTarget({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       style={({ pressed }) => [
         styles.pickPress,
-        { opacity: pressed ? 0.85 : 1 },
+        { opacity: pressed || disabled ? 0.6 : 1 },
       ]}
     >
       <Card padded>
@@ -60,23 +75,83 @@ function PickTarget({
 
 export default function UploadTabScreen(): React.ReactElement {
   const { t } = useTranslation();
+  const router = useRouter();
   const { spacing, accent } = useTheme();
   const cancelJob = useUploadStore((s) => s.cancel);
   const jobs = useUploadStore((s) => s.jobs);
 
+  const activeWorkspaceId = useTenantStore((s) => s.activeWorkspaceId);
+  const workspaceQuery = useWorkspace(activeWorkspaceId);
+  const workspace = workspaceQuery.data ?? null;
+
   const [activeJob, setActiveJob] = useState<UploadJob | null>(null);
+  const [picking, setPicking] = useState<boolean>(false);
 
   useEffect(() => {
     setActiveJob(useUploadStore.getState().getActive());
   }, [jobs]);
 
-  const handleGallery = useCallback((): void => {
-    showToast({ variant: 'info', message: t('uploadTab.pickerSoon') });
-  }, [t]);
+  const handleGallery = useCallback(async (): Promise<void> => {
+    if (!activeWorkspaceId || !workspace) {
+      showToast({
+        variant: 'warning',
+        message: t('uploadTab.noWorkspace'),
+      });
+      return;
+    }
+    if (picking) return;
+    const maxVideoSeconds = workspace.capabilities.maxVideoSeconds;
+
+    setPicking(true);
+    try {
+      const asset = await pickVideoFromGallery({ maxVideoSeconds });
+      if (!asset) return; // User cancelled.
+      const validated = await validateMedia(asset, workspace.capabilities);
+      useDraftStore.getState().setDraft({
+        workspaceId: activeWorkspaceId,
+        localUri: validated.uri,
+        durationMs: validated.durationMs,
+        width: validated.width,
+        height: validated.height,
+        title: '',
+        description: '',
+        tagIds: [],
+        ctaId: null,
+        ctaUrl: null,
+        updatedAt: new Date().toISOString(),
+      });
+      router.push('/composer/edit');
+    } catch (err) {
+      const key = videoErrorI18nKey(err);
+      const params = isVideoPipelineError(err) ? err.params : {};
+      showToast({
+        variant: 'danger',
+        message: t(key, params as Record<string, string | number>),
+      });
+      if (err instanceof VideoPipelineError && err.code === 'PERMISSION_DENIED') {
+        showToast({
+          variant: 'info',
+          message: t('uploadTab.openSettingsHint'),
+        });
+        // Fire-and-forget secondary call: open OS settings so the user can
+        // grant access. We do not await; the toast above already informs.
+        void Linking.openSettings();
+      }
+    } finally {
+      setPicking(false);
+    }
+  }, [activeWorkspaceId, workspace, picking, router, t]);
 
   const handleRecord = useCallback((): void => {
-    showToast({ variant: 'info', message: t('uploadTab.recordSoon') });
-  }, [t]);
+    if (!activeWorkspaceId) {
+      showToast({
+        variant: 'warning',
+        message: t('uploadTab.noWorkspace'),
+      });
+      return;
+    }
+    router.push('/composer/record');
+  }, [activeWorkspaceId, router, t]);
 
   const handleCancelPending = useCallback((): void => {
     if (!activeJob) return;
@@ -110,7 +185,10 @@ export default function UploadTabScreen(): React.ReactElement {
           title={t('uploadTab.chooseFromGallery')}
           subtitle={t('uploadTab.chooseFromGallerySub')}
           accessibilityLabel={t('uploadTab.chooseFromGallery')}
-          onPress={handleGallery}
+          onPress={() => {
+            void handleGallery();
+          }}
+          disabled={picking || !workspace}
         />
 
         <PickTarget
