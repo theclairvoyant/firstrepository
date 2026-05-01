@@ -1,0 +1,29 @@
+{
+  "common": {
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "back": "Back",
+    "save": "Save",
+    "delete": "Delete",
+    "retry": "Retry",
+    "loading": "Loading",
+    "error": "Something went wrong",
+    "tryAgain": "Try again",
+    "close": "Close"
+  },
+  "auth": {
+    "welcome": {
+      "title": "Enterprise Creator",
+      "tagline": "Create. Publish. Earn.",
+      "getStarted": "Get started",
+      "haveInviteCode": "I have an invite code"
+    }
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "live": "Live",
+    "rejected": "Rejected",
+    "needsEdits": "Edits requested"
+  }
+}
