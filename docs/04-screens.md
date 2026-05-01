@@ -15,7 +15,7 @@ Mirrors an Instagram profile scoped to the active workspace.
    - pending_request: warning color: "Request pending. You will be notified when approved."
    - revoked: danger color: "Access revoked."
 
-4. **Posts grid**: 3-column FlashList, aspectRatio 9/16, gap 2px, paginated via cursor.
+4. **Posts grid**: 2-column FlashList, aspectRatio 9/16, gap 2px, paginated via cursor.
 
 5. **Empty state** (no posts yet, status active): centered icon, "No posts yet", subtext, primary "Upload now". Hidden if status is not active.
 
