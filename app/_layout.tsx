@@ -10,9 +10,11 @@ import { useTheme } from '@/lib/theme/useTheme';
 import { useAppFonts } from '@/lib/theme/fonts';
 import { ToastHost } from '@/components/Toast';
 import { createQueryClient } from '@/lib/api/queries';
+import { initI18n } from '@/lib/i18n';
 
 I18nManager.allowRTL(false);
 I18nManager.forceRTL(false);
+initI18n();
 
 function RootShell(): React.ReactElement {
   const fontsLoaded = useAppFonts();
