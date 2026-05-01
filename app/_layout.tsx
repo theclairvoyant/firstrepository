@@ -124,6 +124,14 @@ function RootShell(): React.ReactElement {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="video/[postId]"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="settings"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="_design-preview"
           options={{ headerShown: false }}
         />

@@ -170,7 +170,10 @@ export default function GlobalProfileScreen(): React.ReactElement {
   };
 
   const handleSettings = (): void => {
-    showToast({ variant: 'info', message: t('globalProfile.settingsSoon') });
+    if (router.canGoBack()) {
+      router.back();
+    }
+    router.push('/settings');
   };
 
   const handleSignOut = async (): Promise<void> => {

@@ -308,5 +308,113 @@
     "signOutError": "We couldn't sign you out. Try again.",
     "openPostSoon": "Opening this post is coming soon",
     "selectWorkspace": "select workspace"
+  },
+  "settings": {
+    "title": "Settings",
+    "back": "back",
+    "sections": {
+      "display": "Display",
+      "notifications": "Notifications and uploads",
+      "legal": "Legal and support",
+      "account": "Account"
+    },
+    "theme": {
+      "label": "Theme",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "language": {
+      "label": "Language",
+      "title": "Language",
+      "system": "System default",
+      "systemDescription": "Follow your device language",
+      "en": "English",
+      "ar": "Arabic",
+      "hi": "Hindi",
+      "ml": "Malayalam",
+      "enNative": "English",
+      "arNative": "العربية",
+      "hiNative": "हिन्दी",
+      "mlNative": "മലയാളം"
+    },
+    "notifications": {
+      "label": "Notifications",
+      "description": "Get alerts when posts are reviewed."
+    },
+    "cellular": {
+      "label": "Warn on cellular uploads",
+      "description": "Confirm before sending large videos over cellular."
+    },
+    "privacyTitle": "Privacy Policy",
+    "termsTitle": "Terms of Service",
+    "privacyLabel": "Privacy Policy",
+    "termsLabel": "Terms of Service",
+    "support": {
+      "label": "Help and support",
+      "notConfigured": "Support email is not configured.",
+      "mailSubject": "Enterprise Creator support"
+    },
+    "about": {
+      "label": "About",
+      "version": "Version {{version}}",
+      "build": "Build {{build}}"
+    },
+    "deleteAccount": {
+      "label": "Delete account",
+      "title": "Delete your account",
+      "body": "This permanently removes your profile, your workspaces and every post you have published. This cannot be undone.",
+      "confirmHint": "Type DELETE to confirm.",
+      "confirmPlaceholder": "Type DELETE to confirm",
+      "confirmAction": "Delete my account",
+      "deleted": "Your account has been deleted.",
+      "cancel": "Cancel",
+      "error": "We couldn't delete your account. Try again."
+    },
+    "signOut": {
+      "label": "Sign out",
+      "error": "We couldn't sign you out. Try again."
+    },
+    "legal": {
+      "notConfiguredTitle": "Document not configured",
+      "notConfiguredBody": "This document has not been set up yet. Try again later.",
+      "loading": "Loading"
+    }
+  },
+  "video": {
+    "title": "Post",
+    "back": "back",
+    "prev": "previous post",
+    "next": "next post",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "delete": "Delete",
+    "deleteTitle": "Delete this post?",
+    "deleteBody": "This permanently removes the post and its stats. This cannot be undone.",
+    "deleteConfirm": "Delete",
+    "deleteCancel": "Cancel",
+    "deleted": "Post deleted",
+    "linkCopied": "Link copied",
+    "shareSubject": "Share this post",
+    "postedOn": "Posted on {{date}}",
+    "watchThroughRate": "Watch through",
+    "avgWatch": "Avg watch",
+    "statsLabels": {
+      "views": "Views",
+      "clicks": "Clicks",
+      "watchThroughRate": "Watch through",
+      "avgWatch": "Avg watch"
+    },
+    "scaffoldNoPreview": "Preview not available in scaffold mode",
+    "postNotFound": "Post not found",
+    "postNotFoundBody": "We couldn't find this post in your workspace.",
+    "adminNote": "Admin note",
+    "openAdminNote": "open admin note",
+    "expand": "expand",
+    "playToggle": "play or pause",
+    "volumeToggle": "toggle volume",
+    "moreActions": "more actions",
+    "noDescription": "No description",
+    "secondsShort": "{{seconds}}s"
   }
 }

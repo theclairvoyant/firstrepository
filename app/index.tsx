@@ -9,7 +9,6 @@ import { useTenantStore } from '@/lib/store/tenantStore';
 import { useDeeplinkIntentStore } from '@/lib/deeplinks/intentStore';
 import { parseDeeplinkUrl } from '@/lib/deeplinks/parser';
 import { useMe } from '@/lib/api/queries';
-import { showToast } from '@/lib/toast';
 import type { WorkspaceMembership } from '@/types/api';
 
 export default function BootScreen(): React.ReactElement {
@@ -114,12 +113,11 @@ export default function BootScreen(): React.ReactElement {
       }
       if (pendingIntent.kind === 'post') {
         useDeeplinkIntentStore.getState().consume();
-        showToast({
-          variant: 'info',
-          message: t('globalProfile.openPostSoon'),
-        });
         navigatedRef.current = true;
-        router.replace('/(tabs)/profile');
+        router.replace({
+          pathname: '/video/[postId]',
+          params: { postId: pendingIntent.postId },
+        });
         return;
       }
       if (pendingIntent.kind === 'invite') {

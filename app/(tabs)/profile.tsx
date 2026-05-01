@@ -257,13 +257,15 @@ export default function ProfileTabScreen(): React.ReactElement {
     });
   }, [t]);
 
-  const handlePostPress = useCallback(() => {
-    // Phase 7 will route to the video detail screen.
-    showToast({
-      variant: 'info',
-      message: t('profileTab.openPostSoon'),
-    });
-  }, [t]);
+  const handlePostPress = useCallback(
+    (post: Post) => {
+      router.push({
+        pathname: '/video/[postId]',
+        params: { postId: post.id },
+      });
+    },
+    [router],
+  );
 
   const renderHeader = useCallback((): React.ReactElement | null => {
     if (!membership || !workspaceQuery.data) return null;
