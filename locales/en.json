@@ -9,7 +9,8 @@
     "loading": "Loading",
     "error": "Something went wrong",
     "tryAgain": "Try again",
-    "close": "Close"
+    "close": "Close",
+    "dismiss": "Dismiss notification"
   },
   "auth": {
     "welcome": {
@@ -178,7 +179,8 @@
       "descriptionEmpty": "No description",
       "ctaUrlPlaceholder": "Link will appear here",
       "previewPlaceholder": "Video preview coming soon",
-      "back": "Back"
+      "back": "Back",
+      "toggleMute": "toggle mute"
     },
     "record": {
       "close": "close camera",

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react-native';
 import { useTheme } from '@/lib/theme/useTheme';
 import { ThemedText } from './ThemedText';
@@ -38,6 +39,7 @@ interface ToastItemProps {
 
 function ToastItem({ toast, onDismiss }: ToastItemProps): React.ReactElement {
   const { colors, radius, spacing, accent, palette } = useTheme();
+  const { t } = useTranslation();
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(-8)).current;
 
@@ -119,7 +121,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps): React.ReactElement {
       <Pressable
         onPress={() => onDismiss(toast.id)}
         accessibilityRole="button"
-        accessibilityLabel="dismiss notification"
+        accessibilityLabel={t('common.dismiss')}
         hitSlop={12}
         style={styles.close}
       >

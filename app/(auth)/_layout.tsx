@@ -1,17 +1,19 @@
 import React from 'react';
 import { Pressable } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react-native';
 import { useTheme } from '@/lib/theme/useTheme';
 
 function HeaderBack(): React.ReactElement {
   const router = useRouter();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   return (
     <Pressable
       onPress={() => router.back()}
       accessibilityRole="button"
-      accessibilityLabel="back"
+      accessibilityLabel={t('common.back')}
       hitSlop={12}
       style={{
         width: 44,

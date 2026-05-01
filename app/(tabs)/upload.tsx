@@ -11,6 +11,7 @@ import { useTheme } from '@/lib/theme/useTheme';
 import { useTenantStore } from '@/lib/store/tenantStore';
 import { useUploadStore } from '@/lib/store/uploadStore';
 import { useDraftStore } from '@/lib/store/draftStore';
+import { useSettingsStore } from '@/lib/store/settingsStore';
 import { useWorkspace } from '@/lib/api/queries';
 import type { UploadJob } from '@/lib/store/uploadStore';
 import { showToast } from '@/lib/toast';
@@ -79,6 +80,7 @@ export default function UploadTabScreen(): React.ReactElement {
   const { spacing, accent } = useTheme();
   const cancelJob = useUploadStore((s) => s.cancel);
   const jobs = useUploadStore((s) => s.jobs);
+  const warnBeforeCellular = useSettingsStore((s) => s.warnBeforeCellular);
 
   const activeWorkspaceId = useTenantStore((s) => s.activeWorkspaceId);
   const workspaceQuery = useWorkspace(activeWorkspaceId);
@@ -199,13 +201,15 @@ export default function UploadTabScreen(): React.ReactElement {
           onPress={handleRecord}
         />
 
-        <ThemedText
-          variant="caption"
-          tone="muted"
-          style={{ marginTop: spacing.xs }}
-        >
-          {t('uploadTab.cellularNote')}
-        </ThemedText>
+        {warnBeforeCellular ? (
+          <ThemedText
+            variant="caption"
+            tone="muted"
+            style={{ marginTop: spacing.xs }}
+          >
+            {t('uploadTab.cellularNote')}
+          </ThemedText>
+        ) : null}
 
         {activeJob ? (
           <View style={{ marginTop: spacing.md, alignSelf: 'flex-start' }}>

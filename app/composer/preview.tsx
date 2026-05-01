@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
-import { ChevronLeft, Film } from 'lucide-react-native';
+import { ChevronLeft, Film, Volume2, VolumeX } from 'lucide-react-native';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { GhostButton } from '@/components/GhostButton';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenContainer } from '@/components/ScreenContainer';
@@ -15,6 +16,7 @@ import { CellularWarningSheet } from '@/components/CellularWarningSheet';
 import { useTheme } from '@/lib/theme/useTheme';
 import { useTenantStore } from '@/lib/store/tenantStore';
 import { useDraftStore } from '@/lib/store/draftStore';
+import { useSettingsStore } from '@/lib/store/settingsStore';
 import {
   keys,
   useTagTopology,
@@ -82,6 +84,66 @@ function CtaPreview({ cta, url }: CtaPreviewProps): React.ReactElement {
   );
 }
 
+interface LocalVideoPreviewProps {
+  uri: string;
+}
+
+function LocalVideoPreview({ uri }: LocalVideoPreviewProps): React.ReactElement {
+  const { t } = useTranslation();
+  const { colors, spacing, palette } = useTheme();
+  const [muted, setMuted] = useState<boolean>(true);
+
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = true;
+    p.muted = true;
+  });
+
+  useEffect(() => {
+    player.muted = muted;
+    player.play();
+  }, [player, muted]);
+
+  const toggleMuted = useCallback((): void => {
+    setMuted((prev) => !prev);
+  }, []);
+
+  return (
+    <View
+      style={[
+        styles.previewFrame,
+        { backgroundColor: colors.bgInput, borderColor: colors.border },
+      ]}
+    >
+      <VideoView
+        player={player}
+        style={StyleSheet.absoluteFill}
+        nativeControls={false}
+        contentFit="cover"
+      />
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('composer.preview.toggleMute')}
+        onPress={toggleMuted}
+        hitSlop={8}
+        style={[
+          styles.muteButton,
+          {
+            top: spacing.sm,
+            right: spacing.sm,
+            backgroundColor: colors.bgOverlay,
+          },
+        ]}
+      >
+        {muted ? (
+          <VolumeX size={18} color={palette.white} strokeWidth={1.75} />
+        ) : (
+          <Volume2 size={18} color={palette.white} strokeWidth={1.75} />
+        )}
+      </Pressable>
+    </View>
+  );
+}
+
 export default function ComposerPreviewScreen(): React.ReactElement | null {
   const router = useRouter();
   const { t } = useTranslation();
@@ -94,6 +156,7 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
 
   const drafts = useDraftStore((s) => s.drafts);
   const draft = activeWorkspaceId ? (drafts[activeWorkspaceId] ?? null) : null;
+  const warnBeforeCellular = useSettingsStore((s) => s.warnBeforeCellular);
 
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [cellularSheetOpen, setCellularSheetOpen] = useState<boolean>(false);
@@ -260,24 +323,34 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
       return;
     }
 
-    // Cellular check.
-    try {
-      const net = await NetInfo.fetch();
-      const onCellular = net.type === 'cellular';
-      const sizeMB = sizeBytes / BYTES_PER_MB;
-      if (onCellular && sizeMB > CELLULAR_THRESHOLD_MB) {
-        setPendingSizeBytes(sizeBytes);
-        setCellularSheetOpen(true);
-        setSubmitting(false);
-        return;
+    // Cellular check, gated on the user's "warn before cellular" preference.
+    if (warnBeforeCellular) {
+      try {
+        const net = await NetInfo.fetch();
+        const onCellular = net.type === 'cellular';
+        const sizeMB = sizeBytes / BYTES_PER_MB;
+        if (onCellular && sizeMB > CELLULAR_THRESHOLD_MB) {
+          setPendingSizeBytes(sizeBytes);
+          setCellularSheetOpen(true);
+          setSubmitting(false);
+          return;
+        }
+      } catch {
+        // If NetInfo fetch fails we proceed; the upload itself will surface
+        // network errors.
       }
-    } catch {
-      // If NetInfo fetch fails we proceed; the upload itself will surface
-      // network errors.
     }
 
     startUpload(sizeBytes);
-  }, [activeWorkspaceId, workspace, draft, submitting, startUpload, t]);
+  }, [
+    activeWorkspaceId,
+    workspace,
+    draft,
+    submitting,
+    startUpload,
+    warnBeforeCellular,
+    t,
+  ]);
 
   const handleCellularUploadNow = useCallback(() => {
     setCellularSheetOpen(false);
@@ -375,26 +448,30 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
         }}
       >
         {/* Phone-frame preview */}
-        <View
-          style={[
-            styles.previewFrame,
-            {
-              backgroundColor: colors.bgInput,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <View style={styles.previewInner}>
-            <Film size={48} color={colors.textMuted} strokeWidth={1.5} />
-            <ThemedText
-              variant="caption"
-              tone="muted"
-              style={{ marginTop: spacing.sm, textAlign: 'center' }}
-            >
-              {t('composer.preview.previewPlaceholder')}
-            </ThemedText>
+        {draft.localUri ? (
+          <LocalVideoPreview uri={draft.localUri} />
+        ) : (
+          <View
+            style={[
+              styles.previewFrame,
+              {
+                backgroundColor: colors.bgInput,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <View style={styles.previewInner}>
+              <Film size={48} color={colors.textMuted} strokeWidth={1.5} />
+              <ThemedText
+                variant="caption"
+                tone="muted"
+                style={{ marginTop: spacing.sm, textAlign: 'center' }}
+              >
+                {t('composer.preview.previewPlaceholder')}
+              </ThemedText>
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Meta */}
         <View style={{ gap: spacing.xs }}>
@@ -507,6 +584,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
+  },
+  muteButton: {
+    position: 'absolute',
+    width: 36,
+    height: 36,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tagRow: {
     flexDirection: 'row',

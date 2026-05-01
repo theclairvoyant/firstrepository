@@ -193,7 +193,6 @@ export function TopBar({
             size={AVATAR_SIZE}
             uri={creator?.avatarUrl || undefined}
             name={avatarName}
-            accessibilityLabel="profile avatar"
           />
         </Pressable>
       </View>
