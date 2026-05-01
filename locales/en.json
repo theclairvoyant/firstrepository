@@ -76,5 +76,18 @@
     "live": "Live",
     "rejected": "Rejected",
     "needsEdits": "Edits requested"
+  },
+  "shell": {
+    "topBar": {
+      "switchWorkspace": "switch workspace",
+      "openProfile": "open profile menu",
+      "noWorkspace": "No workspace selected"
+    },
+    "modal": {
+      "close": "close"
+    },
+    "drawer": {
+      "close": "close"
+    }
   }
 }
