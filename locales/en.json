@@ -17,6 +17,57 @@
       "tagline": "Create. Publish. Earn.",
       "getStarted": "Get started",
       "haveInviteCode": "I have an invite code"
+    },
+    "method": {
+      "title": "Continue to Enterprise Creator",
+      "subtitle": "Sign in or create an account to start posting.",
+      "continueEmail": "Continue with email",
+      "continueGoogle": "Continue with Google",
+      "continueMicrosoft": "Continue with Microsoft",
+      "continueApple": "Continue with Apple"
+    },
+    "sso": {
+      "pending": "SSO setup pending"
+    },
+    "email": {
+      "title": "What's your email?",
+      "body": "We'll send a 6 digit code to verify it's you.",
+      "label": "Email",
+      "invalid": "Enter a valid email address",
+      "error": "We couldn't send the code. Try again."
+    },
+    "otp": {
+      "title": "Enter the code",
+      "body": "We sent a 6 digit code to {{email}}.",
+      "invalid": "Incorrect code, try again",
+      "resend": "Resend code",
+      "resendIn": "Resend in {{seconds}}s",
+      "resendSent": "We sent a new code"
+    },
+    "inviteCode": {
+      "title": "Enter your invite code",
+      "body": "Your invite code is 8 characters, letters and numbers only.",
+      "label": "Invite code",
+      "placeholder": "ABCD2345",
+      "wrongCode": "Wrong code",
+      "errorExpired": "This invite has expired. Ask your admin for a new one.",
+      "errorUsed": "This invite has already been redeemed.",
+      "errorGeneric": "We couldn't find that invite. Check the code and try again."
+    },
+    "profile": {
+      "title": "Set up your profile",
+      "body": "This is how you'll appear across Enterprise Creator.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "username": "Username",
+      "usernameHint": "Lowercase letters, numbers, dot, dash, underscore.",
+      "usernameInvalid": "3 to 30 characters. Lowercase letters, numbers, dot, dash, underscore only.",
+      "usernameChecking": "Checking",
+      "usernameAvailable": "Available",
+      "usernameTaken": "Taken",
+      "avatarChange": "Change photo",
+      "avatarSoon": "Avatar upload coming soon",
+      "finish": "Finish"
     }
   },
   "status": {

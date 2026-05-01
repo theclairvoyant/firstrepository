@@ -30,6 +30,14 @@ export default function Index(): React.ReactElement {
             />
           </Link>
         ) : null}
+        {__DEV__ ? (
+          <Link href="/(auth)/welcome" asChild>
+            <GhostButton
+              label="Open auth flow"
+              accessibilityLabel="open auth flow"
+            />
+          </Link>
+        ) : null}
       </View>
     </ScreenContainer>
   );
