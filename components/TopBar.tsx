@@ -148,7 +148,10 @@ export function TopBar({
                     {workspace.brand.name}
                   </ThemedText>
                 </View>
-                <WorkspaceTypeBadge type={workspace.type} />
+                <WorkspaceTypeBadge
+                  type={workspace.type}
+                  style={styles.typeBadge}
+                />
                 <ChevronDown
                   size={ICON_SIZE}
                   strokeWidth={1.75}
@@ -210,6 +213,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexShrink: 1,
     justifyContent: 'center',
+  },
+  typeBadge: {
+    alignSelf: 'center',
   },
   spacer: {
     flex: 1,
