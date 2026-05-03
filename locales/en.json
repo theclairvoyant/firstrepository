@@ -20,8 +20,8 @@
       "haveInviteCode": "I have an invite code"
     },
     "method": {
-      "title": "Continue to Enterprise Creator",
-      "subtitle": "Sign in or create an account to start posting.",
+      "title": "Sign in",
+      "subtitle": "Use your work email or single sign-on to continue.",
       "continueEmail": "Continue with email",
       "continueGoogle": "Continue with Google",
       "continueMicrosoft": "Continue with Microsoft",
@@ -32,14 +32,14 @@
     },
     "email": {
       "title": "What's your email?",
-      "body": "We'll send a 6 digit code to verify it's you.",
+      "body": "We'll send a 6-digit code to verify it's you.",
       "label": "Email",
       "invalid": "Enter a valid email address",
       "error": "We couldn't send the code. Try again."
     },
     "otp": {
       "title": "Enter the code",
-      "body": "We sent a 6 digit code to {{email}}.",
+      "body": "We sent a 6-digit code to {{email}}.",
       "invalid": "Incorrect code, try again",
       "resend": "Resend code",
       "resendIn": "Resend in {{seconds}}s",

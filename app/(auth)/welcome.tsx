@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { ThemedText } from '@/components/ThemedText';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -12,6 +13,7 @@ export default function WelcomeScreen(): React.ReactElement {
   const router = useRouter();
   const { t } = useTranslation();
   const { spacing } = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <ScreenContainer padded>
@@ -30,7 +32,13 @@ export default function WelcomeScreen(): React.ReactElement {
           {t('auth.welcome.tagline')}
         </ThemedText>
       </View>
-      <View style={{ paddingBottom: spacing.lg, gap: spacing.sm }}>
+      <View
+        style={{
+          paddingBottom: insets.bottom + spacing.md,
+          paddingTop: spacing.md,
+          gap: spacing.sm,
+        }}
+      >
         <PrimaryButton
           label={t('auth.welcome.getStarted')}
           accessibilityLabel={t('auth.welcome.getStarted')}

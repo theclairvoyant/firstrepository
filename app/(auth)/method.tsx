@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mail, Globe, Building2, Apple } from 'lucide-react-native';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { ThemedText } from '@/components/ThemedText';
@@ -15,6 +16,7 @@ export default function MethodScreen(): React.ReactElement {
   const router = useRouter();
   const { t } = useTranslation();
   const { spacing, colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const onSso = (): void => {
     showToast({ variant: 'info', message: t('auth.sso.pending') });
@@ -22,17 +24,17 @@ export default function MethodScreen(): React.ReactElement {
 
   return (
     <ScreenContainer padded>
-      <View style={{ flex: 1, justifyContent: 'center' }}>
+      <View style={{ flex: 1 }}>
         <ThemedText
           variant="title"
-          style={{ marginBottom: spacing.xs, textAlign: 'center' }}
+          style={{ marginBottom: spacing.xs, marginTop: spacing.lg }}
         >
           {t('auth.method.title')}
         </ThemedText>
         <ThemedText
           variant="body"
           tone="secondary"
-          style={{ textAlign: 'center', marginBottom: spacing.xl }}
+          style={{ marginBottom: spacing.xl }}
         >
           {t('auth.method.subtitle')}
         </ThemedText>
@@ -65,7 +67,12 @@ export default function MethodScreen(): React.ReactElement {
           ) : null}
         </View>
       </View>
-      <View style={{ paddingBottom: spacing.lg }}>
+      <View
+        style={{
+          paddingBottom: insets.bottom + spacing.md,
+          paddingTop: spacing.md,
+        }}
+      >
         <GhostButton
           label={t('auth.welcome.haveInviteCode')}
           accessibilityLabel={t('auth.welcome.haveInviteCode')}
