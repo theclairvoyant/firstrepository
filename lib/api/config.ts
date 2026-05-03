@@ -1,10 +1,17 @@
 // SCAFFOLD mode: every endpoint resolves the in-memory mock.
-// To switch to FULL mode, flip MOCK_API to false. Each wrapper checks this constant
-// at call time and dispatches accordingly.
-export const MOCK_API: boolean = true;
+// To switch to FULL mode, set EXPO_PUBLIC_MOCK_API=false in your .env (see
+// .env.example) and EXPO_PUBLIC_API_BASE_URL to your backend. The SCAFFOLD
+// default ships true so the app runs end-to-end with no backend.
+function readMockFlag(): boolean {
+  const raw = process.env.EXPO_PUBLIC_MOCK_API;
+  if (raw === undefined) return true;
+  return raw.toLowerCase() !== 'false';
+}
 
-// Base URL for the real backend. Read at module load. Safe to import even in SCAFFOLD
-// since axios is created with this value but never invoked.
+export const MOCK_API: boolean = readMockFlag();
+
+// Base URL for the real backend. Read at module load. Safe to import even in
+// SCAFFOLD since axios is created with this value but never invoked.
 export const API_BASE_URL: string =
   process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://api.example.invalid';
 
