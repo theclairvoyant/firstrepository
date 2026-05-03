@@ -557,7 +557,7 @@ export default function ProfileTabScreen(): React.ReactElement {
             }
           }}
           onEndReachedThreshold={0.4}
-          contentContainerStyle={{ paddingBottom: spacing.xl }}
+          contentContainerStyle={{ paddingBottom: spacing.xxxl + spacing.xl }}
           refreshControl={
             <RefreshControl
               refreshing={
