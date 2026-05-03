@@ -175,7 +175,7 @@ export type SsoProvider = 'google' | 'microsoft' | 'apple';
 // Identity endpoints
 
 export type IdentityMeResponse = {
-  creator: EnterpriseCreator;
+  creator: EnterpriseCreator | null;
   memberships: WorkspaceMembership[];
 };
 

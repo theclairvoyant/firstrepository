@@ -27,7 +27,9 @@ export default function BootScreen(): React.ReactElement {
   const [coldLinkChecked, setColdLinkChecked] = useState<boolean>(false);
   const navigatedRef = useRef<boolean>(false);
 
-  const meQuery = useMe();
+  const meQuery = useMe({
+    enabled: authIsHydrated && tenantIsHydrated && !!jwt,
+  });
 
   // Step 1: hydrate stores in parallel.
   useEffect(() => {

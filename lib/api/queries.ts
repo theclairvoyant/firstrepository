@@ -84,10 +84,13 @@ export const keys = {
 
 // ---- Queries ----------------------------------------------------------------
 
-export function useMe(): UseQueryResult<IdentityMeResponse, Error> {
+export function useMe(
+  options?: { enabled?: boolean },
+): UseQueryResult<IdentityMeResponse, Error> {
   return useQuery({
     queryKey: keys.me,
     queryFn: identityApi.me,
+    enabled: options?.enabled ?? true,
   });
 }
 

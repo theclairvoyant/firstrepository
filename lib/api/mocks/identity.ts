@@ -13,12 +13,16 @@ import type {
   RegisterPushTokenResponse,
   UsernameAvailableResponse,
 } from '@/types/api';
+import { useAuthStore } from '@/lib/store/authStore';
 import { nextPushTokenId, seedState, simulateLatency } from './__seed';
 
 const TAKEN_USERNAMES = new Set<string>(['admin', 'kiran', 'support', 'team']);
 
 export async function me(): Promise<IdentityMeResponse> {
   await simulateLatency(260);
+  if (!useAuthStore.getState().jwt) {
+    return { creator: null, memberships: [] };
+  }
   return {
     creator: seedState.creator,
     memberships: seedState.memberships,
