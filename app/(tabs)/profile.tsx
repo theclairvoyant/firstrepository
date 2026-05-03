@@ -6,6 +6,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -267,7 +268,7 @@ export default function ProfileTabScreen(): React.ReactElement {
   const renderHeader = useCallback((): React.ReactElement | null => {
     if (!membership || !workspaceQuery.data) return null;
     return (
-      <View style={{ gap: spacing.md, paddingBottom: spacing.lg }}>
+      <View style={{ paddingBottom: spacing.lg }}>
         <UploadProgressBanner
           onCancel={handleBannerCancel}
           onRetry={handleBannerRetry}
@@ -275,13 +276,37 @@ export default function ProfileTabScreen(): React.ReactElement {
           onDismiss={handleBannerDismiss}
         />
 
-        <Card padded>
+        {membership.bannerUrl ? (
+          <ExpoImage
+            source={{ uri: membership.bannerUrl }}
+            style={[
+              styles.banner,
+              {
+                backgroundColor: colors.bgInput,
+                marginHorizontal: -spacing.md,
+              },
+            ]}
+            contentFit="cover"
+            accessibilityIgnoresInvertColors
+          />
+        ) : null}
+
+        <Card padded style={{ marginTop: spacing.md }}>
           <View style={styles.headerTop}>
             <Avatar
               size={80}
               name={membership.workspaceUsername}
               uri={membership.workspaceAvatarUrl || undefined}
               accessibilityLabel={membership.workspaceUsername}
+              style={
+                membership.bannerUrl
+                  ? {
+                      marginTop: -72,
+                      borderWidth: 3,
+                      borderColor: colors.bgCard,
+                    }
+                  : undefined
+              }
             />
             <View style={styles.statsRow}>
               <StatCell
@@ -346,7 +371,9 @@ export default function ProfileTabScreen(): React.ReactElement {
         </Card>
 
         {membership.status !== 'active' ? (
-          <MembershipBanner status={membership.status} />
+          <View style={{ marginTop: spacing.md }}>
+            <MembershipBanner status={membership.status} />
+          </View>
         ) : null}
       </View>
     );
@@ -354,6 +381,8 @@ export default function ProfileTabScreen(): React.ReactElement {
     membership,
     workspaceQuery.data,
     spacing,
+    colors.bgCard,
+    colors.bgInput,
     t,
     handleBannerCancel,
     handleBannerRetry,
@@ -550,6 +579,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  banner: {
+    width: '100%',
+    aspectRatio: 5 / 2,
   },
   headerTop: {
     flexDirection: 'row',

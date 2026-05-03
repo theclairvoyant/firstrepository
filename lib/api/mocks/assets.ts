@@ -42,12 +42,25 @@ export const MOCK_ASSETS = {
   },
 
   workspaces: {
-    // Per-membership avatars. The user can override these in the (deferred)
-    // edit-profile editor.
-    acmeGlobalLearning: { avatarUrl: PICSUM('ec-ws-acme-skills', 240, 240) },
-    acmeSocial: { avatarUrl: PICSUM('ec-ws-acme-social', 240, 240) },
-    globexSkills: { avatarUrl: PICSUM('ec-ws-globex-skills', 240, 240) },
-    initechPartner: { avatarUrl: PICSUM('ec-ws-initech-partner', 240, 240) },
+    // Per-membership avatars and cover banners. The user can override these in
+    // the (deferred) edit-profile editor. Banners are wider 800x300 picsum
+    // tiles rendered as the IG-style cover behind the avatar.
+    acmeGlobalLearning: {
+      avatarUrl: PICSUM('ec-ws-acme-skills', 240, 240),
+      bannerUrl: PICSUM('ec-ws-acme-skills-banner', 800, 300),
+    },
+    acmeSocial: {
+      avatarUrl: PICSUM('ec-ws-acme-social', 240, 240),
+      bannerUrl: PICSUM('ec-ws-acme-social-banner', 800, 300),
+    },
+    globexSkills: {
+      avatarUrl: PICSUM('ec-ws-globex-skills', 240, 240),
+      bannerUrl: PICSUM('ec-ws-globex-skills-banner', 800, 300),
+    },
+    initechPartner: {
+      avatarUrl: PICSUM('ec-ws-initech-partner', 240, 240),
+      bannerUrl: PICSUM('ec-ws-initech-partner-banner', 800, 300),
+    },
   },
 
   posts: {

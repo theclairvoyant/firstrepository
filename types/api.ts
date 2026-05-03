@@ -76,6 +76,7 @@ export type WorkspaceMembership = {
   status: MembershipStatus;
   workspaceUsername: string;
   workspaceAvatarUrl: string;
+  bannerUrl?: string;
   bio: string;
   postCount: number;
   totalViews: number;
