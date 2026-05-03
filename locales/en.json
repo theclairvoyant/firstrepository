@@ -136,6 +136,22 @@
     "openPostSoon": "Opening this post is coming soon",
     "uploadCancelled": "Upload cancelled"
   },
+  "editMembership": {
+    "title": "Edit workspace profile",
+    "back": "back",
+    "avatarChange": "Change photo",
+    "avatarSoon": "Avatar upload coming soon",
+    "usernameLabel": "Workspace username",
+    "usernameHint": "Lowercase letters, numbers, dot, dash, underscore.",
+    "usernameInvalid": "3 to 30 characters. Lowercase letters, numbers, dot, dash, underscore only.",
+    "bioLabel": "Bio",
+    "bioPlaceholder": "Tell viewers a little about you in this workspace",
+    "bioCounter": "{{current}} / {{max}}",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saved": "Workspace profile updated",
+    "saveError": "We couldn't save your changes. Try again."
+  },
   "uploadTab": {
     "title": "Upload",
     "body": "Pick a video from your gallery or record a new one.",

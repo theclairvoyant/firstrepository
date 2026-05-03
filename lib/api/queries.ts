@@ -36,6 +36,7 @@ import type {
   EmailStartResponse,
   EnterpriseCreator,
   IdentityMeResponse,
+  PatchMembershipInput,
   PatchMeInput,
   PatchPostInput,
   Post,
@@ -311,6 +312,21 @@ export function useUploadAvatar(): UseMutationResult<
     mutationFn: (vars) => identityApi.uploadAvatar(vars.form),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: keys.me });
+    },
+  });
+}
+
+export function usePatchMembership(): UseMutationResult<
+  WorkspaceMembership,
+  Error,
+  { membershipId: string; input: PatchMembershipInput }
+> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (vars) => workspacesApi.patchMembership(vars.membershipId, vars.input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: keys.me });
+      qc.invalidateQueries({ queryKey: keys.memberships });
     },
   });
 }

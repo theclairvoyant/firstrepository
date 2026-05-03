@@ -120,6 +120,10 @@ function RootShell(): React.ReactElement {
           }}
         />
         <Stack.Screen
+          name="edit-membership"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="composer"
           options={{ headerShown: false }}
         />

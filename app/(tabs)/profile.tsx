@@ -251,11 +251,8 @@ export default function ProfileTabScreen(): React.ReactElement {
   }, [activeWorkspaceId, membership, t]);
 
   const handleEditProfilePress = useCallback(() => {
-    showToast({
-      variant: 'info',
-      message: t('profileTab.editProfileSoon'),
-    });
-  }, [t]);
+    router.push('/edit-membership');
+  }, [router]);
 
   const handlePostPress = useCallback(
     (post: Post) => {
