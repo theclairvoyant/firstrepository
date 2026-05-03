@@ -270,7 +270,7 @@ export default function ProfileTabScreen(): React.ReactElement {
   const renderHeader = useCallback((): React.ReactElement | null => {
     if (!membership || !workspaceQuery.data) return null;
     return (
-      <View style={{ gap: spacing.md, paddingBottom: spacing.md }}>
+      <View style={{ gap: spacing.md, paddingBottom: spacing.lg }}>
         <UploadProgressBanner
           onCancel={handleBannerCancel}
           onRetry={handleBannerRetry}
@@ -302,7 +302,7 @@ export default function ProfileTabScreen(): React.ReactElement {
             </View>
           </View>
 
-          <View style={{ marginTop: spacing.md, gap: spacing.xxs }}>
+          <View style={{ marginTop: spacing.lg, gap: spacing.xs }}>
             <ThemedText variant="heading" numberOfLines={1}>
               {membership.workspace.brand.name}
             </ThemedText>
@@ -314,7 +314,7 @@ export default function ProfileTabScreen(): React.ReactElement {
                 variant="body"
                 tone="secondary"
                 numberOfLines={3}
-                style={{ marginTop: spacing.xxs }}
+                style={{ marginTop: spacing.xs }}
               >
                 {membership.bio}
               </ThemedText>
@@ -324,8 +324,8 @@ export default function ProfileTabScreen(): React.ReactElement {
           <View
             style={{
               flexDirection: 'row',
-              gap: spacing.sm,
-              marginTop: spacing.md,
+              gap: spacing.md,
+              marginTop: spacing.lg,
             }}
           >
             <View style={{ flex: 1 }}>
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
   statsRow: {
     flex: 1,
     flexDirection: 'row',
-    marginLeft: 16,
+    marginLeft: 24,
   },
   statCell: {
     flex: 1,

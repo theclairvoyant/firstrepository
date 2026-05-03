@@ -137,17 +137,12 @@ export function TopBar({
                     {brandLetter}
                   </ThemedText>
                 </View>
-                <ThemedText variant="heading" numberOfLines={1}>
-                  {workspace.brand.name}
-                </ThemedText>
-                <ThemedText variant="heading" tone="muted">
-                  {' / '}
-                </ThemedText>
                 <ThemedText
                   variant="heading"
                   numberOfLines={1}
                   ellipsizeMode="tail"
                   style={styles.workspaceName}
+                  accessibilityLabel={`${workspace.brand.name} ${workspace.name}`}
                 >
                   {workspace.name}
                 </ThemedText>
