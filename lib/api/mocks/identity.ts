@@ -40,6 +40,8 @@ export async function createProfile(input: CreateProfileInput): Promise<Enterpri
     lastName: input.lastName,
     globalUsername: input.globalUsername,
     avatarUrl: input.avatarUrl ?? seedState.creator.avatarUrl,
+    phone: input.phone ?? seedState.creator.phone,
+    phoneVerified: false,
   };
   seedState.creator = next;
   return next;
@@ -52,6 +54,7 @@ export async function patchMe(input: PatchMeInput): Promise<EnterpriseCreator> {
     firstName: input.firstName ?? seedState.creator.firstName,
     lastName: input.lastName ?? seedState.creator.lastName,
     globalUsername: input.globalUsername ?? seedState.creator.globalUsername,
+    phone: input.phone ?? seedState.creator.phone,
   };
   seedState.creator = next;
   return next;

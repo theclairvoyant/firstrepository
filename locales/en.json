@@ -68,6 +68,10 @@
       "usernameTaken": "Taken",
       "avatarChange": "Change photo",
       "avatarSoon": "Avatar upload coming soon",
+      "phone": "Phone",
+      "phonePlaceholder": "+1 555 123 4567",
+      "phoneOptional": "Optional. We will not text you yet.",
+      "phoneInvalid": "Enter a valid phone number",
       "finish": "Finish"
     }
   },

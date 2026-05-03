@@ -21,6 +21,16 @@ import { useTheme } from '@/lib/theme/useTheme';
 import { useCreateProfile, useUsernameAvailable } from '@/lib/api/queries';
 import { showToast } from '@/lib/toast';
 
+// Phone is optional: empty string OR 7-20 digits (with optional + and spaces).
+// Verification is a future server feature - the field is collected today and
+// stored alongside the creator profile.
+const phoneSchema = z
+  .string()
+  .max(24)
+  .refine((v) => v.length === 0 || /^[+]?[\d\s().-]{7,24}$/.test(v), {
+    message: 'invalid phone',
+  });
+
 const profileSchema = z.object({
   firstName: z.string().min(1).max(40),
   lastName: z.string().min(1).max(40),
@@ -29,11 +39,12 @@ const profileSchema = z.object({
     .min(3)
     .max(30)
     .regex(/^[a-z0-9._-]+$/),
+  phone: phoneSchema,
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
-type ProfileField = 'firstName' | 'lastName' | 'globalUsername';
+type ProfileField = 'firstName' | 'lastName' | 'globalUsername' | 'phone';
 
 const profileResolver: Resolver<ProfileFormValues> = async (values) => {
   const parsed = profileSchema.safeParse(values);
@@ -44,7 +55,10 @@ const profileResolver: Resolver<ProfileFormValues> = async (values) => {
   for (const issue of parsed.error.issues) {
     const path = issue.path[0];
     if (
-      (path === 'firstName' || path === 'lastName' || path === 'globalUsername') &&
+      (path === 'firstName' ||
+        path === 'lastName' ||
+        path === 'globalUsername' ||
+        path === 'phone') &&
       !fieldErrors[path as ProfileField]
     ) {
       fieldErrors[path as ProfileField] = {
@@ -73,7 +87,7 @@ export default function ProfileSetupScreen(): React.ReactElement {
   const createProfile = useCreateProfile();
 
   const { control, handleSubmit, watch, formState } = useForm<ProfileFormValues>({
-    defaultValues: { firstName: '', lastName: '', globalUsername: '' },
+    defaultValues: { firstName: '', lastName: '', globalUsername: '', phone: '' },
     mode: 'onChange',
     resolver: profileResolver,
   });
@@ -110,10 +124,12 @@ export default function ProfileSetupScreen(): React.ReactElement {
 
   const onSubmit = handleSubmit(async (values) => {
     try {
+      const trimmedPhone = values.phone.trim();
       await createProfile.mutateAsync({
         firstName: values.firstName,
         lastName: values.lastName,
         globalUsername: values.globalUsername,
+        phone: trimmedPhone.length > 0 ? trimmedPhone : undefined,
       });
       router.replace('/');
     } catch {
@@ -238,6 +254,29 @@ export default function ProfileSetupScreen(): React.ReactElement {
                 {t('auth.profile.usernameAvailable')}
               </ThemedText>
             ) : null}
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field, fieldState }) => (
+                <Input
+                  label={t('auth.profile.phone')}
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  autoCapitalize="none"
+                  autoComplete="tel"
+                  keyboardType="phone-pad"
+                  maxLength={24}
+                  placeholder={t('auth.profile.phonePlaceholder')}
+                  helperText={
+                    !fieldState.error
+                      ? t('auth.profile.phoneOptional')
+                      : undefined
+                  }
+                  error={fieldState.error ? t('auth.profile.phoneInvalid') : undefined}
+                />
+              )}
+            />
           </View>
         </ScrollView>
 

@@ -11,6 +11,10 @@ export type EnterpriseCreator = {
   avatarUrl: string;
   email: string;
   emailVerified: boolean;
+  // Optional phone is collected during profile setup; verification is a future
+  // server feature. Until then phoneVerified will be false.
+  phone?: string;
+  phoneVerified?: boolean;
   createdAt: string;
 };
 
@@ -180,12 +184,14 @@ export type CreateProfileInput = {
   lastName: string;
   globalUsername: string;
   avatarUrl?: string;
+  phone?: string;
 };
 
 export type PatchMeInput = {
   firstName?: string;
   lastName?: string;
   globalUsername?: string;
+  phone?: string;
 };
 
 export type DeleteMeResponse = {

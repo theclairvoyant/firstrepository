@@ -13,6 +13,7 @@ import type {
   Workspace,
   WorkspaceMembership,
 } from '@/types/api';
+import { MOCK_ASSETS } from './assets';
 
 // Deterministic time anchor: 30 days ago. Seed timestamps are derived from this via
 // fixed offsets so the data set is stable across runs in a single session.
@@ -31,9 +32,11 @@ export const seedCreator: EnterpriseCreator = {
   globalUsername: 'kiran',
   firstName: 'Kiran',
   lastName: 'Patel',
-  avatarUrl: '',
+  avatarUrl: MOCK_ASSETS.creator.avatar,
   email: 'kiran@example.com',
   emailVerified: true,
+  phone: '+15551234567',
+  phoneVerified: false,
   createdAt: isoOffset(0),
 };
 
@@ -90,11 +93,11 @@ export const seedWorkspaces: Workspace[] = [
   {
     id: 'ws_skills_acme',
     type: 'skills',
-    name: 'ACME Skills',
+    name: 'Global Learning',
     brand: {
       id: 'brand_acme',
-      name: 'ACME',
-      logoUrl: 'https://example.com/brands/acme/logo.png',
+      name: 'Acme Inc.',
+      logoUrl: MOCK_ASSETS.brands.acme.logoUrl,
       primaryColor: '#2A6DF4',
     },
     capabilities: {
@@ -110,11 +113,11 @@ export const seedWorkspaces: Workspace[] = [
   {
     id: 'ws_social_acme',
     type: 'social',
-    name: 'ACME Social',
+    name: 'Brand Social',
     brand: {
       id: 'brand_acme',
-      name: 'ACME',
-      logoUrl: 'https://example.com/brands/acme/logo.png',
+      name: 'Acme Inc.',
+      logoUrl: MOCK_ASSETS.brands.acme.logoUrl,
       primaryColor: '#2A6DF4',
     },
     capabilities: {
@@ -134,7 +137,7 @@ export const seedWorkspaces: Workspace[] = [
     brand: {
       id: 'brand_globex',
       name: 'Globex',
-      logoUrl: 'https://example.com/brands/globex/logo.png',
+      logoUrl: MOCK_ASSETS.brands.globex.logoUrl,
       primaryColor: '#0E8A6F',
     },
     capabilities: {
@@ -154,7 +157,7 @@ export const seedWorkspaces: Workspace[] = [
     brand: {
       id: 'brand_initech',
       name: 'Initech',
-      logoUrl: 'https://example.com/brands/initech/logo.png',
+      logoUrl: MOCK_ASSETS.brands.initech.logoUrl,
       primaryColor: '#7B3AB5',
     },
     capabilities: {
@@ -177,7 +180,7 @@ export const seedMemberships: WorkspaceMembership[] = [
     workspace: seedWorkspaces[0],
     status: 'active',
     workspaceUsername: 'kiran.skills',
-    workspaceAvatarUrl: '',
+    workspaceAvatarUrl: MOCK_ASSETS.workspaces.acmeGlobalLearning.avatarUrl,
     bio: 'Senior engineer sharing internal training videos.',
     postCount: 12,
     totalViews: 184230,
@@ -189,8 +192,8 @@ export const seedMemberships: WorkspaceMembership[] = [
     workspace: seedWorkspaces[1],
     status: 'active',
     workspaceUsername: 'kiran.social',
-    workspaceAvatarUrl: '',
-    bio: 'Behind-the-scenes from the ACME social team.',
+    workspaceAvatarUrl: MOCK_ASSETS.workspaces.acmeSocial.avatarUrl,
+    bio: 'Behind-the-scenes from the brand social team.',
     postCount: 0,
     totalViews: 0,
     totalClicks: 0,
@@ -201,7 +204,7 @@ export const seedMemberships: WorkspaceMembership[] = [
     workspace: seedWorkspaces[2],
     status: 'pending_invite',
     workspaceUsername: '',
-    workspaceAvatarUrl: '',
+    workspaceAvatarUrl: MOCK_ASSETS.workspaces.globexSkills.avatarUrl,
     bio: '',
     postCount: 0,
     totalViews: 0,
@@ -213,7 +216,7 @@ export const seedMemberships: WorkspaceMembership[] = [
     workspace: seedWorkspaces[3],
     status: 'pending_request',
     workspaceUsername: '',
-    workspaceAvatarUrl: '',
+    workspaceAvatarUrl: MOCK_ASSETS.workspaces.initechPartner.avatarUrl,
     bio: '',
     postCount: 0,
     totalViews: 0,
@@ -306,8 +309,8 @@ function buildPost(workspaceId: string, input: SeedPostInput): Post {
     tagIds: input.tagIds,
     cta,
     ctaUrl: input.ctaUrl,
-    mediaUrl: `https://example.com/media/${input.id}.mp4`,
-    thumbnailUrl: `https://example.com/media/${input.id}.jpg`,
+    mediaUrl: MOCK_ASSETS.posts.sampleMediaUrl,
+    thumbnailUrl: MOCK_ASSETS.posts.thumbnailFor(input.id),
     durationSeconds: input.durationSeconds,
     createdAt: isoOffset(input.daysFromEpoch),
     stats: buildStats(input.views, input.ctrPercent, input.watchThroughRate, input.avgWatchSeconds),
@@ -320,7 +323,7 @@ const acmeSkillsPostInputs: SeedPostInput[] = [
     id: 'post_live_1',
     status: 'live',
     title: 'Onboarding tour: pull request etiquette',
-    description: 'A 60-second walkthrough of how we file PRs at ACME.',
+    description: 'A 60-second walkthrough of how we file PRs at Acme.',
     tagIds: ['skills/javascript', 'topics/onboarding'],
     cta: acmeSkillsCtas[0],
     durationSeconds: 58,
