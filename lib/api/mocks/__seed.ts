@@ -508,8 +508,13 @@ const acmeSkillsPostInputs: SeedPostInput[] = [
 ];
 
 // Live state slot. Mutable. Wrappers append / mutate / remove from these arrays.
+// hasCreatorProfile is true once the user completes profile-setup (or comes
+// back via SSO, where the existing identity is treated as already set up).
+// The /me mock returns creator: null while this flag is false so the boot
+// router can route a freshly-verified email user to /(auth)/profile-setup.
 type SeedState = {
   creator: EnterpriseCreator;
+  hasCreatorProfile: boolean;
   workspaces: Workspace[];
   memberships: WorkspaceMembership[];
   tagTopology: Record<string, TagCategory[]>;
@@ -544,7 +549,15 @@ function buildInitialState(): SeedState {
     ws_partner_initech: [],
   };
 
-  return { creator, workspaces, memberships, tagTopology, postsByWorkspace, ctasByWorkspace };
+  return {
+    creator,
+    hasCreatorProfile: false,
+    workspaces,
+    memberships,
+    tagTopology,
+    postsByWorkspace,
+    ctasByWorkspace,
+  };
 }
 
 export const seedState: SeedState = buildInitialState();

@@ -23,6 +23,11 @@ export async function me(): Promise<IdentityMeResponse> {
   if (!useAuthStore.getState().jwt) {
     return { creator: null, memberships: [] };
   }
+  if (!seedState.hasCreatorProfile) {
+    // Authenticated but profile-setup not completed yet. Surface the same
+    // shape the real backend will return for a creator-less account.
+    return { creator: null, memberships: [] };
+  }
   return {
     creator: seedState.creator,
     memberships: seedState.memberships,
@@ -48,6 +53,7 @@ export async function createProfile(input: CreateProfileInput): Promise<Enterpri
     phoneVerified: false,
   };
   seedState.creator = next;
+  seedState.hasCreatorProfile = true;
   return next;
 }
 

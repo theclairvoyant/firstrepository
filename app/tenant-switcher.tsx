@@ -50,33 +50,30 @@ function MembershipRow({
     minHeight: 64,
   };
 
-  const accessibilityLabel: string = `${ws.brand.name} ${ws.name}, ${t('switcher.selectRow')}`;
+  const accessibilityLabel: string = `${ws.name}, ${ws.brand.name}, ${t('switcher.selectRow')}`;
 
   const content = (
     <>
       <Avatar
         size={40}
-        name={ws.brand.name}
+        name={ws.name}
         uri={ws.brand.logoUrl || undefined}
-        accessibilityLabel={ws.brand.name}
+        accessibilityLabel={ws.name}
       />
       <View style={{ flex: 1, gap: 2 }}>
         <ThemedText variant="heading" numberOfLines={1}>
+          {ws.name}
+        </ThemedText>
+        <ThemedText
+          variant="body"
+          tone="secondary"
+          numberOfLines={1}
+        >
           {ws.brand.name}
         </ThemedText>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
-          <ThemedText
-            variant="body"
-            tone="secondary"
-            numberOfLines={1}
-            style={{ flexShrink: 1 }}
-          >
-            {ws.name}
-          </ThemedText>
-          <WorkspaceTypeBadge type={ws.type} />
-        </View>
       </View>
-      <View style={{ alignItems: 'flex-end' }}>{rightSlot}</View>
+      <WorkspaceTypeBadge type={ws.type} />
+      {rightSlot ? <View style={{ alignItems: 'flex-end' }}>{rightSlot}</View> : null}
     </>
   );
 

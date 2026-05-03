@@ -108,23 +108,23 @@ export default function InviteCodeScreen(): React.ReactElement {
               >
                 <Avatar
                   size={56}
-                  name={resolved.brand.name}
+                  name={resolved.workspace.name}
                   uri={resolved.brand.logoUrl || undefined}
-                  accessibilityLabel={resolved.brand.name}
+                  accessibilityLabel={resolved.workspace.name}
                 />
-                <View style={{ flex: 1 }}>
-                  <ThemedText variant="heading">
-                    {resolved.brand.name}
+                <View style={{ flex: 1, gap: spacing.xxs }}>
+                  <ThemedText variant="heading" numberOfLines={1}>
+                    {resolved.workspace.name}
                   </ThemedText>
                   <ThemedText
                     variant="body"
                     tone="secondary"
-                    style={{ marginBottom: spacing.xs }}
+                    numberOfLines={1}
                   >
-                    {resolved.workspace.name}
+                    {resolved.brand.name}
                   </ThemedText>
-                  <WorkspaceTypeBadge type={resolved.workspace.type} />
                 </View>
+                <WorkspaceTypeBadge type={resolved.workspace.type} />
               </View>
             </Card>
           ) : (

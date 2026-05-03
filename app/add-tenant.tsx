@@ -123,21 +123,19 @@ function InviteCard({ onAdded }: InviteCardProps): React.ReactElement {
             >
               <Avatar
                 size={56}
-                name={resolved.brand.name}
+                name={resolved.workspace.name}
                 uri={resolved.brand.logoUrl || undefined}
-                accessibilityLabel={resolved.brand.name}
+                accessibilityLabel={resolved.workspace.name}
               />
-              <View style={{ flex: 1, gap: 2 }}>
+              <View style={{ flex: 1, gap: spacing.xxs }}>
                 <ThemedText variant="heading" numberOfLines={1}>
-                  {resolved.brand.name}
-                </ThemedText>
-                <ThemedText variant="body" tone="secondary" numberOfLines={1}>
                   {resolved.workspace.name}
                 </ThemedText>
-                <View style={{ marginTop: spacing.xxs }}>
-                  <WorkspaceTypeBadge type={resolved.workspace.type} />
-                </View>
+                <ThemedText variant="body" tone="secondary" numberOfLines={1}>
+                  {resolved.brand.name}
+                </ThemedText>
               </View>
+              <WorkspaceTypeBadge type={resolved.workspace.type} />
             </View>
             <PrimaryButton
               label={t('addTenant.inviteCard.redeem')}
@@ -241,21 +239,19 @@ function DomainEntryRow({ entry }: DomainEntryRowProps): React.ReactElement {
     >
       <Avatar
         size={40}
-        name={ws.brand.name}
+        name={ws.name}
         uri={ws.brand.logoUrl || undefined}
-        accessibilityLabel={ws.brand.name}
+        accessibilityLabel={ws.name}
       />
-      <View style={{ flex: 1, gap: 2 }}>
+      <View style={{ flex: 1, gap: spacing.xxs }}>
         <ThemedText variant="heading" numberOfLines={1}>
-          {ws.brand.name}
-        </ThemedText>
-        <ThemedText variant="body" tone="secondary" numberOfLines={1}>
           {ws.name}
         </ThemedText>
-        <View style={{ marginTop: spacing.xxs }}>
-          <WorkspaceTypeBadge type={ws.type} />
-        </View>
+        <ThemedText variant="body" tone="secondary" numberOfLines={1}>
+          {ws.brand.name}
+        </ThemedText>
       </View>
+      <WorkspaceTypeBadge type={ws.type} />
       <View>
         <SecondaryButton
           label={buttonLabel}

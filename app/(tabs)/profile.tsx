@@ -304,9 +304,12 @@ export default function ProfileTabScreen(): React.ReactElement {
 
           <View style={{ marginTop: spacing.lg, gap: spacing.xs }}>
             <ThemedText variant="heading" numberOfLines={1}>
+              {membership.workspace.name}
+            </ThemedText>
+            <ThemedText variant="body" tone="secondary" numberOfLines={1}>
               {membership.workspace.brand.name}
             </ThemedText>
-            <ThemedText variant="mono" tone="secondary">
+            <ThemedText variant="mono" tone="muted">
               {`@${membership.workspaceUsername}`}
             </ThemedText>
             {membership.bio ? (

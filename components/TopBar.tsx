@@ -19,9 +19,9 @@ export interface TopBarProps {
 }
 
 const TRIGGER_HEIGHT = 56;
-const LOGO_SIZE = 24;
+const BRAND_AVATAR_SIZE = 32;
 const AVATAR_SIZE = 32;
-const ICON_SIZE = 16;
+const ICON_SIZE = 18;
 
 export function TopBar({
   onTenantPress,
@@ -62,10 +62,7 @@ export function TopBar({
       ? `${creator.firstName} ${creator.lastName}`.trim()
       : initials;
 
-  const brandLetter: string =
-    workspace?.brand?.name?.[0]?.toUpperCase() ?? '';
-
-  const brandBorderColor: string = workspace
+  const brandRingColor: string = workspace
     ? accent[workspace.type]
     : colors.border;
 
@@ -121,33 +118,37 @@ export function TopBar({
               <>
                 <View
                   style={{
-                    width: LOGO_SIZE,
-                    height: LOGO_SIZE,
-                    borderRadius: radius.sm,
-                    borderWidth: 1,
-                    borderColor: brandBorderColor,
-                    backgroundColor: colors.bgInput,
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    padding: 2,
+                    borderRadius: (BRAND_AVATAR_SIZE + 4) / 2,
+                    borderWidth: 1.5,
+                    borderColor: brandRingColor,
                   }}
-                  accessibilityRole="image"
-                  accessibilityLabel={workspace.brand.name}
                 >
-                  <ThemedText variant="mono" tone="secondary">
-                    {brandLetter}
+                  <Avatar
+                    size={BRAND_AVATAR_SIZE}
+                    name={workspace.brand.name}
+                    uri={workspace.brand.logoUrl || undefined}
+                    accessibilityLabel={workspace.brand.name}
+                  />
+                </View>
+                <View style={styles.workspaceTextWrap}>
+                  <ThemedText
+                    variant="heading"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    accessibilityLabel={`${workspace.brand.name} ${workspace.name}`}
+                  >
+                    {workspace.name}
+                  </ThemedText>
+                  <ThemedText
+                    variant="caption"
+                    tone="muted"
+                    numberOfLines={1}
+                  >
+                    {workspace.brand.name}
                   </ThemedText>
                 </View>
-                <ThemedText
-                  variant="heading"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  style={styles.workspaceName}
-                  accessibilityLabel={`${workspace.brand.name} ${workspace.name}`}
-                >
-                  {workspace.name}
-                </ThemedText>
                 <WorkspaceTypeBadge type={workspace.type} />
-                <View style={styles.spacer} />
                 <ChevronDown
                   size={ICON_SIZE}
                   strokeWidth={1.75}
@@ -205,8 +206,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  workspaceName: {
+  workspaceTextWrap: {
+    flex: 1,
     flexShrink: 1,
+    justifyContent: 'center',
   },
   spacer: {
     flex: 1,

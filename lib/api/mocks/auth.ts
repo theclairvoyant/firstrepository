@@ -16,7 +16,7 @@ export async function emailStart(_email: string): Promise<EmailStartResponse> {
   return { ok: true, ttlSeconds: 300 };
 }
 
-export async function emailVerify(email: string, code: string): Promise<AuthResponse> {
+export async function emailVerify(_email: string, code: string): Promise<AuthResponse> {
   await simulateLatency(280);
   if (code !== '123456') {
     throw new ApiError({
@@ -26,18 +26,22 @@ export async function emailVerify(email: string, code: string): Promise<AuthResp
       requestId: 'mock_req_otp',
     });
   }
-  // Bind the seeded creator's email to the value supplied at sign-in if it differs.
-  const creator = { ...seedState.creator, email: email || seedState.creator.email };
-  seedState.creator = creator;
+  // Treat every email-verify in SCAFFOLD as a brand-new sign-up. The boot
+  // router sees identity === null and routes to /(auth)/profile-setup so the
+  // user creates their global creator profile, which is the canonical
+  // first-run experience the real backend will mirror once a /me probe
+  // returns 404 for unknown users.
   return {
     jwt: 'mock_jwt',
     refreshToken: 'mock_refresh',
-    identity: creator,
+    identity: null,
   };
 }
 
 export async function ssoExchange(_provider: SsoProvider, _idToken: string): Promise<AuthResponse> {
   await simulateLatency(320);
+  // SSO is treated as a returning user with an existing creator profile.
+  seedState.hasCreatorProfile = true;
   return {
     jwt: 'mock_jwt',
     refreshToken: 'mock_refresh',
