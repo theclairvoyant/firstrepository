@@ -1,11 +1,19 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Pressable,
   RefreshControl,
   Share,
   StyleSheet,
   View,
 } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -39,10 +47,88 @@ import { buildWorkspaceUserUrl } from '@/lib/deeplinks/parser';
 import type { Post, MembershipStatus } from '@/types/api';
 
 const SKELETON_COUNT = 6;
-const GRID_GAP = 2;
-// Floating tab pill (height 56) + safe area + spacing.sm gap. Mirrors the
-// pill layout in app/(tabs)/_layout.tsx so content never tucks under it.
-const TAB_PILL_RESERVE = 56 + 24;
+const GRID_GAP = 4;
+// Floating tab pill (height 64 = 56 cell + 4+4 padding) + safe area + 12pt
+// gap. Mirrors the pill layout in app/(tabs)/_layout.tsx so content never
+// tucks under it.
+const TAB_PILL_RESERVE = 64 + 24;
+
+type PostFilter = 'live' | 'review';
+
+interface FilterPillsProps {
+  active: PostFilter;
+  liveCount: number;
+  reviewCount: number;
+  onChange: (next: PostFilter) => void;
+}
+
+function FilterPills({
+  active,
+  liveCount,
+  reviewCount,
+  onChange,
+}: FilterPillsProps): React.ReactElement {
+  const { colors, accent, radius, spacing } = useTheme();
+  const { t } = useTranslation();
+
+  const renderPill = (
+    key: PostFilter,
+    label: string,
+    count: number,
+  ): React.ReactElement => {
+    const focused = active === key;
+    return (
+      <Pressable
+        key={key}
+        onPress={() => onChange(key)}
+        accessibilityRole="button"
+        accessibilityLabel={`${label} ${count}`}
+        accessibilityState={{ selected: focused }}
+        style={({ pressed }) => [
+          styles.filterPill,
+          {
+            backgroundColor: focused
+              ? `${accent.primary}1f`
+              : 'transparent',
+            borderColor: focused ? accent.primary : colors.border,
+            borderRadius: radius.pill,
+            paddingHorizontal: spacing.sm + 2,
+            paddingVertical: 6,
+            opacity: pressed ? 0.85 : 1,
+          },
+        ]}
+      >
+        <ThemedText
+          variant="caption"
+          style={{
+            color: focused ? accent.primary : colors.textSecondary,
+            fontFamily: 'Outfit_600SemiBold',
+            fontSize: 12,
+          }}
+        >
+          {label}
+        </ThemedText>
+        <ThemedText
+          variant="mono"
+          style={{
+            color: focused ? accent.primary : colors.textMuted,
+            fontSize: 11,
+            marginLeft: 6,
+          }}
+        >
+          {count}
+        </ThemedText>
+      </Pressable>
+    );
+  };
+
+  return (
+    <View style={[styles.filterRow, { gap: spacing.xs }]}>
+      {renderPill('live', t('profileTab.filter.live'), liveCount)}
+      {renderPill('review', t('profileTab.filter.review'), reviewCount)}
+    </View>
+  );
+}
 
 function formatCount(n: number): string {
   if (n < 1000) return String(n);
@@ -160,20 +246,47 @@ interface SkeletonGridProps {
   count: number;
 }
 
-function SkeletonGrid({ count }: SkeletonGridProps): React.ReactElement {
+function ShimmerCell(): React.ReactElement {
   const { colors } = useTheme();
+  const pulse = useSharedValue<number>(0.45);
+
+  useEffect(() => {
+    // Pulse 0.45 -> 0.95 -> 0.45, ~1s loop, ease in/out. Cheap and reads
+    // as "loading" without the cost of a moving-gradient shader.
+    pulse.value = withRepeat(
+      withTiming(0.95, {
+        duration: 900,
+        easing: Easing.inOut(Easing.ease),
+      }),
+      -1,
+      true,
+    );
+  }, [pulse]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: pulse.value,
+  }));
+
+  return (
+    <View style={styles.skeletonCellWrap}>
+      <Animated.View
+        style={[
+          styles.skeletonCell,
+          { backgroundColor: colors.bgInput },
+          animatedStyle,
+        ]}
+      />
+    </View>
+  );
+}
+
+function SkeletonGrid({ count }: SkeletonGridProps): React.ReactElement {
   const cells: number[] = [];
   for (let i = 0; i < count; i += 1) cells.push(i);
   return (
     <View style={styles.skeletonGrid}>
       {cells.map((i) => (
-        <View
-          key={i}
-          style={[
-            styles.skeletonCell,
-            { backgroundColor: colors.bgInput },
-          ]}
-        />
+        <ShimmerCell key={i} />
       ))}
     </View>
   );
@@ -196,6 +309,10 @@ export default function ProfileTabScreen(): React.ReactElement {
   const retryJob = useUploadStore((s) => s.retry);
   const removeJob = useUploadStore((s) => s.remove);
   const setActiveTenant = useTenantStore((s) => s.setActive);
+
+  const [postFilter, setPostFilter] = useState<PostFilter>('live');
+  const [bioExpanded, setBioExpanded] = useState<boolean>(false);
+  const [bioTruncated, setBioTruncated] = useState<boolean>(false);
 
   const membership = useMemo(() => {
     if (!activeWorkspaceId) return null;
@@ -289,8 +406,14 @@ export default function ProfileTabScreen(): React.ReactElement {
             style={[
               styles.banner,
               {
+                // Sit inside the screen padding so the edges aren't clipped
+                // by the device-side margins. Width is the FlashList
+                // header content box (already inset by 10pt each side).
+                width: '100%',
+                aspectRatio: 16 / 6,
                 backgroundColor: colors.bgInput,
-                marginHorizontal: -spacing.md,
+                borderRadius: 18,
+                marginTop: spacing.xs,
               },
             ]}
             contentFit="cover"
@@ -298,7 +421,7 @@ export default function ProfileTabScreen(): React.ReactElement {
           />
         ) : null}
 
-        <View style={styles.headerTop}>
+        <View style={[styles.headerTop, { marginTop: spacing.md }]}>
           <Avatar
             size={80}
             name={membership.workspaceUsername}
@@ -340,14 +463,52 @@ export default function ProfileTabScreen(): React.ReactElement {
             {`@${membership.workspaceUsername}`}
           </ThemedText>
           {membership.bio ? (
-            <ThemedText
-              variant="body"
-              tone="secondary"
-              numberOfLines={3}
-              style={{ marginTop: spacing.xs }}
-            >
-              {membership.bio}
-            </ThemedText>
+            <View style={{ marginTop: spacing.xs }}>
+              <ThemedText
+                variant="body"
+                tone="secondary"
+                numberOfLines={bioExpanded ? undefined : 2}
+                onTextLayout={(e) => {
+                  // Detect truncation by measuring the laid-out lines while
+                  // collapsed. When expanded the count exceeds 2 by design.
+                  if (!bioExpanded) {
+                    const lines = e.nativeEvent.lines.length;
+                    if (lines > 2 && !bioTruncated) setBioTruncated(true);
+                  }
+                }}
+              >
+                {membership.bio}
+              </ThemedText>
+              {bioTruncated ? (
+                <Pressable
+                  onPress={() => setBioExpanded((v) => !v)}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    bioExpanded
+                      ? t('profileTab.bioShowLess')
+                      : t('profileTab.bioShowMore')
+                  }
+                  hitSlop={6}
+                  style={({ pressed }) => ({
+                    marginTop: 4,
+                    opacity: pressed ? 0.7 : 1,
+                    alignSelf: 'flex-start',
+                  })}
+                >
+                  <ThemedText
+                    variant="caption"
+                    style={{
+                      color: accent.primary,
+                      fontFamily: 'Outfit_600SemiBold',
+                    }}
+                  >
+                    {bioExpanded
+                      ? t('profileTab.bioShowLess')
+                      : t('profileTab.bioShowMore')}
+                  </ThemedText>
+                </Pressable>
+              ) : null}
+            </View>
           ) : null}
         </View>
 
@@ -360,6 +521,7 @@ export default function ProfileTabScreen(): React.ReactElement {
         >
           <View style={{ flex: 1 }}>
             <SecondaryButton
+              size="sm"
               label={t('profileTab.editProfile')}
               accessibilityLabel={t('profileTab.editProfile')}
               onPress={handleEditProfilePress}
@@ -367,6 +529,7 @@ export default function ProfileTabScreen(): React.ReactElement {
           </View>
           <View style={{ flex: 1 }}>
             <SecondaryButton
+              size="sm"
               label={t('profileTab.shareProfile')}
               accessibilityLabel={t('profileTab.shareProfile')}
               onPress={handleSharePress}
@@ -387,6 +550,9 @@ export default function ProfileTabScreen(): React.ReactElement {
     spacing,
     colors.bg,
     colors.bgInput,
+    accent.primary,
+    bioExpanded,
+    bioTruncated,
     t,
     handleBannerCancel,
     handleBannerRetry,
@@ -424,7 +590,7 @@ export default function ProfileTabScreen(): React.ReactElement {
                 <SecondaryButton
                   label={t('profileTab.searchByEmail')}
                   accessibilityLabel={t('profileTab.searchByEmail')}
-                  onPress={() => router.push('/add-tenant')}
+                  onPress={() => router.push('/search-by-email')}
                 />
               </View>
             }
@@ -452,7 +618,7 @@ export default function ProfileTabScreen(): React.ReactElement {
                 <SecondaryButton
                   label={t('profileTab.searchByEmail')}
                   accessibilityLabel={t('profileTab.searchByEmail')}
-                  onPress={() => router.push('/add-tenant')}
+                  onPress={() => router.push('/search-by-email')}
                 />
               </View>
             }
@@ -466,6 +632,12 @@ export default function ProfileTabScreen(): React.ReactElement {
   const posts: Post[] = isActiveMembership
     ? (myPostsQuery.data?.pages ?? []).flatMap((page) => page.posts)
     : [];
+  const liveCount: number = posts.filter((p) => p.status === 'live').length;
+  const reviewCount: number = posts.length - liveCount;
+  const filteredPosts: Post[] =
+    postFilter === 'live'
+      ? posts.filter((p) => p.status === 'live')
+      : posts.filter((p) => p.status !== 'live');
   const isPostsInitialLoading: boolean =
     isActiveMembership &&
     myPostsQuery.isLoading &&
@@ -476,13 +648,19 @@ export default function ProfileTabScreen(): React.ReactElement {
     !myPostsQuery.isLoading &&
     !myPostsQuery.isError &&
     posts.length === 0;
+  const showFilterEmpty: boolean =
+    isActiveMembership &&
+    !myPostsQuery.isLoading &&
+    !myPostsQuery.isError &&
+    posts.length > 0 &&
+    filteredPosts.length === 0;
 
   // When the workspace is not active or the active workspace has no posts,
   // we render only the header (and optional empty state) and skip the grid.
   if (!isActiveMembership) {
     return (
       <ScreenContainer padded edges={['left', 'right']}>
-        <View style={{ flex: 1, paddingTop: spacing.lg, paddingBottom: TAB_PILL_RESERVE }}>
+        <View style={{ flex: 1, paddingBottom: TAB_PILL_RESERVE }}>
           {renderHeader()}
         </View>
       </ScreenContainer>
@@ -492,7 +670,7 @@ export default function ProfileTabScreen(): React.ReactElement {
   if (isPostsInitialLoading) {
     return (
       <ScreenContainer padded edges={['left', 'right']}>
-        <View style={{ flex: 1, paddingTop: spacing.lg, gap: spacing.md, paddingBottom: TAB_PILL_RESERVE }}>
+        <View style={{ flex: 1, gap: spacing.md, paddingBottom: TAB_PILL_RESERVE }}>
           {renderHeader()}
           <SkeletonGrid count={SKELETON_COUNT} />
         </View>
@@ -503,7 +681,7 @@ export default function ProfileTabScreen(): React.ReactElement {
   if (isPostsError) {
     return (
       <ScreenContainer padded edges={['left', 'right']}>
-        <View style={{ flex: 1, paddingTop: spacing.lg, gap: spacing.md, paddingBottom: TAB_PILL_RESERVE }}>
+        <View style={{ flex: 1, gap: spacing.md, paddingBottom: TAB_PILL_RESERVE }}>
           {renderHeader()}
           <EmptyState
             icon={AlertCircle}
@@ -530,7 +708,7 @@ export default function ProfileTabScreen(): React.ReactElement {
   if (showEmpty) {
     return (
       <ScreenContainer padded edges={['left', 'right']}>
-        <View style={{ flex: 1, paddingTop: spacing.lg, gap: spacing.md, paddingBottom: TAB_PILL_RESERVE }}>
+        <View style={{ flex: 1, gap: spacing.md, paddingBottom: TAB_PILL_RESERVE }}>
           {renderHeader()}
           <EmptyState
             icon={Film}
@@ -542,32 +720,106 @@ export default function ProfileTabScreen(): React.ReactElement {
     );
   }
 
+  // Header for the FlashList = profile metadata + filter pills. Pills only
+  // ride along when there's something to filter; the standalone empty state
+  // above this branch handles the "zero posts" case.
+  const renderListHeader = (): React.ReactElement | null => {
+    return (
+      <View>
+        {renderHeader()}
+        <View style={{ paddingBottom: spacing.sm }}>
+          <FilterPills
+            active={postFilter}
+            liveCount={liveCount}
+            reviewCount={reviewCount}
+            onChange={setPostFilter}
+          />
+        </View>
+      </View>
+    );
+  };
+
   return (
     <ScreenContainer padded edges={['left', 'right']}>
-      <View style={{ flex: 1, paddingTop: spacing.lg }}>
+      <View style={{ flex: 1 }}>
         <FlashList<Post>
-          data={posts}
+          data={filteredPosts}
           keyExtractor={(item) => item.id}
           numColumns={2}
           renderItem={({ item }) => (
             <View style={{ padding: GRID_GAP / 2 }}>
-              <VideoTile post={item} onPress={handlePostPress} />
+              <VideoTile
+                post={item}
+                onPress={handlePostPress}
+                showStatusBadge={postFilter === 'review'}
+              />
             </View>
           )}
-          ListHeaderComponent={renderHeader}
+          ListHeaderComponent={renderListHeader}
+          ListEmptyComponent={
+            showFilterEmpty ? (
+              <View style={{ paddingTop: spacing.xl }}>
+                <EmptyState
+                  icon={Film}
+                  title={
+                    postFilter === 'live'
+                      ? t('profileTab.filter.emptyLiveTitle')
+                      : t('profileTab.filter.emptyReviewTitle')
+                  }
+                  description={
+                    postFilter === 'live'
+                      ? t('profileTab.filter.emptyLiveBody')
+                      : t('profileTab.filter.emptyReviewBody')
+                  }
+                />
+              </View>
+            ) : null
+          }
           ListFooterComponent={
             myPostsQuery.isFetchingNextPage ? (
-              <View style={{ paddingVertical: spacing.lg }}>
-                <ActivityIndicator color={colors.textMuted} />
+              <SkeletonGrid count={4} />
+            ) : myPostsQuery.isFetchNextPageError ? (
+              <View style={{ paddingVertical: spacing.lg, alignItems: 'center' }}>
+                <Pressable
+                  onPress={() => {
+                    void myPostsQuery.fetchNextPage();
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('common.tryAgain')}
+                  hitSlop={8}
+                  style={({ pressed }) => ({
+                    paddingHorizontal: spacing.md,
+                    paddingVertical: spacing.sm,
+                    opacity: pressed ? 0.7 : 1,
+                  })}
+                >
+                  <ThemedText
+                    variant="caption"
+                    style={{
+                      color: accent.primary,
+                      fontFamily: 'Outfit_600SemiBold',
+                    }}
+                  >
+                    {t('common.tryAgain')}
+                  </ThemedText>
+                </Pressable>
               </View>
             ) : null
           }
           onEndReached={() => {
-            if (myPostsQuery.hasNextPage && !myPostsQuery.isFetchingNextPage) {
+            // Never block scroll. Only fire when there's more and we're not
+            // already fetching. fetchNextPageError is treated as a soft fail
+            // (footer shows Try again) - we don't auto-retry here so a
+            // flaky network doesn't loop on the spinner.
+            if (
+              myPostsQuery.hasNextPage &&
+              !myPostsQuery.isFetchingNextPage &&
+              !myPostsQuery.isFetchNextPageError
+            ) {
               void myPostsQuery.fetchNextPage();
             }
           }}
-          onEndReachedThreshold={0.4}
+          onEndReachedThreshold={0.6}
           contentContainerStyle={{ paddingBottom: TAB_PILL_RESERVE + spacing.lg }}
           refreshControl={
             <RefreshControl
@@ -591,9 +843,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 4,
+  },
+  filterPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+  },
   banner: {
-    width: '100%',
-    aspectRatio: 16 / 7,
+    overflow: 'hidden',
   },
   headerTop: {
     flexDirection: 'row',
@@ -603,6 +864,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginLeft: 16,
+    // Nudge the stats column up so the numbers sit closer to the visual
+    // center of the avatar, not below it.
+    marginTop: -4,
   },
   statCell: {
     flex: 1,
@@ -630,10 +894,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  skeletonCell: {
+  // Cells inherit the same 2px-each-side wrap that real VideoTile cells use
+  // (GRID_GAP / 2), so the shimmer rows align pixel-perfectly with the grid
+  // tiles above them while the next page loads.
+  skeletonCellWrap: {
     width: '50%',
+    padding: GRID_GAP / 2,
+  },
+  skeletonCell: {
+    width: '100%',
     aspectRatio: 9 / 16,
-    borderColor: 'transparent',
-    borderWidth: 1,
+    borderRadius: 12,
   },
 });

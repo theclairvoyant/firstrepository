@@ -12,6 +12,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import Constants from 'expo-constants';
 import {
   Bell,
+  Bell as BellIcon,
+  Building2,
   ChevronLeft,
   ChevronRight,
   FileText,
@@ -25,7 +27,10 @@ import {
   Wifi,
 } from 'lucide-react-native';
 import { Card } from '@/components/Card';
-import { ScreenContainer } from '@/components/ScreenContainer';
+import {
+  ScreenContainer,
+  SCREEN_HORIZONTAL_PADDING,
+} from '@/components/ScreenContainer';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/lib/theme/useTheme';
 import { useThemeStore } from '@/lib/theme/themeStore';
@@ -283,6 +288,14 @@ export default function SettingsIndexScreen(): React.ReactElement {
     router.push('/settings/language');
   }, [router]);
 
+  const handleDefaultWorkspacePress = useCallback((): void => {
+    router.push('/settings/default-workspace');
+  }, [router]);
+
+  const handleNotificationsListPress = useCallback((): void => {
+    router.push('/settings/notifications');
+  }, [router]);
+
   const handleDeleteAccountPress = useCallback((): void => {
     router.push('/settings/delete-account');
   }, [router]);
@@ -363,6 +376,7 @@ export default function SettingsIndexScreen(): React.ReactElement {
 
       <ScrollView
         contentContainerStyle={{
+          paddingHorizontal: SCREEN_HORIZONTAL_PADDING,
           paddingVertical: spacing.lg,
           gap: spacing.lg,
         }}
@@ -373,7 +387,7 @@ export default function SettingsIndexScreen(): React.ReactElement {
             variant="mono"
             tone="muted"
             style={{
-              paddingHorizontal: spacing.lg,
+              paddingHorizontal: spacing.xs,
               marginBottom: spacing.xs,
             }}
           >
@@ -436,19 +450,76 @@ export default function SettingsIndexScreen(): React.ReactElement {
           </Card>
         </View>
 
+        {/* Workspace */}
+        <View style={{ gap: spacing.xs }}>
+          <ThemedText
+            variant="mono"
+            tone="muted"
+            style={{
+              paddingHorizontal: spacing.xs,
+              marginBottom: spacing.xs,
+            }}
+          >
+            {t('settings.sections.workspace')}
+          </ThemedText>
+          <Card padded={false}>
+            <Row
+              icon={
+                <Building2
+                  size={20}
+                  color={colors.textPrimary}
+                  strokeWidth={1.75}
+                />
+              }
+              label={t('settings.defaultWorkspace.rowLabel')}
+              accessibilityLabel={t('settings.defaultWorkspace.rowLabel')}
+              onPress={handleDefaultWorkspacePress}
+              right={
+                <ChevronRight
+                  size={18}
+                  color={colors.textMuted}
+                  strokeWidth={1.75}
+                />
+              }
+            />
+          </Card>
+        </View>
+
         {/* Notifications and uploads */}
         <View style={{ gap: spacing.xs }}>
           <ThemedText
             variant="mono"
             tone="muted"
             style={{
-              paddingHorizontal: spacing.lg,
+              paddingHorizontal: spacing.xs,
               marginBottom: spacing.xs,
             }}
           >
             {t('settings.sections.notifications')}
           </ThemedText>
           <Card padded={false}>
+            <Row
+              icon={
+                <BellIcon
+                  size={20}
+                  color={colors.textPrimary}
+                  strokeWidth={1.75}
+                />
+              }
+              label={t('settings.notifications.viewRowLabel')}
+              accessibilityLabel={t('settings.notifications.viewRowLabel')}
+              onPress={handleNotificationsListPress}
+              right={
+                <ChevronRight
+                  size={18}
+                  color={colors.textMuted}
+                  strokeWidth={1.75}
+                />
+              }
+            />
+            <View
+              style={[styles.divider, { backgroundColor: colors.border }]}
+            />
             <Row
               icon={
                 <Bell
@@ -505,7 +576,7 @@ export default function SettingsIndexScreen(): React.ReactElement {
             variant="mono"
             tone="muted"
             style={{
-              paddingHorizontal: spacing.lg,
+              paddingHorizontal: spacing.xs,
               marginBottom: spacing.xs,
             }}
           >
@@ -604,7 +675,7 @@ export default function SettingsIndexScreen(): React.ReactElement {
             variant="mono"
             tone="muted"
             style={{
-              paddingHorizontal: spacing.lg,
+              paddingHorizontal: spacing.xs,
               marginBottom: spacing.xs,
             }}
           >

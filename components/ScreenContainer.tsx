@@ -17,6 +17,10 @@ export interface ScreenContainerProps {
 
 const DEFAULT_EDGES: ReadonlyArray<Edge> = ['top', 'bottom', 'left', 'right'];
 
+// Tighter than spacing.md (16) so screens read wider. Pulled out as a named
+// constant so it's easy to find when tuning the global rail.
+export const SCREEN_HORIZONTAL_PADDING = 10;
+
 export function ScreenContainer({
   children,
   bg = 'bg',
@@ -25,7 +29,7 @@ export function ScreenContainer({
   style,
   contentStyle,
 }: ScreenContainerProps): React.ReactElement {
-  const { colors, spacing } = useTheme();
+  const { colors } = useTheme();
   return (
     <SafeAreaView
       edges={[...edges]}
@@ -34,7 +38,9 @@ export function ScreenContainer({
       <View
         style={[
           styles.flex,
-          padded ? { paddingHorizontal: spacing.md } : null,
+          padded
+            ? { paddingHorizontal: SCREEN_HORIZONTAL_PADDING }
+            : null,
           contentStyle,
         ]}
       >

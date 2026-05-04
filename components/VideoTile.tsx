@@ -11,6 +11,9 @@ import { StatusBadge } from './StatusBadge';
 export interface VideoTileProps {
   post: Post;
   onPress: (post: Post) => void;
+  // When true, a status pill renders top-left for any non-live post. Set
+  // false on the Live tab where the surrounding filter already conveys it.
+  showStatusBadge?: boolean;
 }
 
 function formatCount(n: number): string {
@@ -25,7 +28,11 @@ function formatCount(n: number): string {
   return `${truncated}M`;
 }
 
-export function VideoTile({ post, onPress }: VideoTileProps): React.ReactElement {
+export function VideoTile({
+  post,
+  onPress,
+  showStatusBadge = true,
+}: VideoTileProps): React.ReactElement {
   const { colors, palette } = useTheme();
   const { t } = useTranslation();
 
@@ -58,7 +65,7 @@ export function VideoTile({ post, onPress }: VideoTileProps): React.ReactElement
         </View>
       )}
 
-      {post.status !== 'live' ? (
+      {showStatusBadge && post.status !== 'live' ? (
         <View style={styles.statusBadge} pointerEvents="none">
           <StatusBadge status={post.status} surface="overMedia" />
         </View>
@@ -94,6 +101,9 @@ const styles = StyleSheet.create({
     aspectRatio: 9 / 16,
     overflow: 'hidden',
     position: 'relative',
+    // Subtle round so the grid feels less like a wall of squares but stays
+    // tight - nothing dramatic.
+    borderRadius: 12,
   },
   placeholder: {
     ...StyleSheet.absoluteFillObject,

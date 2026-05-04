@@ -153,7 +153,10 @@ export function useMyPosts(
     enabled: !!workspaceId,
     queryFn: ({ pageParam }) => {
       if (!workspaceId) throw new Error('workspace id required');
-      return postsApi.listMyPosts(workspaceId, pageParam, 24);
+      // Page of 6 -> 3 rows of 2-column grid. Tuned so the lazy-load
+      // shimmer footer (2 rows) is visible while the next page lands and
+      // the user perceives a steady rhythm of "load 3 rows" as they scroll.
+      return postsApi.listMyPosts(workspaceId, pageParam, 6);
     },
     // Normalize empty-string cursors to undefined. Some backends return ""
     // instead of null when there is no next page; TanStack treats "" as

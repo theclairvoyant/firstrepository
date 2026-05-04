@@ -141,11 +141,11 @@ export function TopBar({
                     {workspace.name}
                   </ThemedText>
                   <ThemedText
-                    variant="caption"
+                    variant="mono"
                     tone="muted"
                     numberOfLines={1}
                   >
-                    {workspace.brand.name}
+                    {`@${workspace.handle}`}
                   </ThemedText>
                 </View>
                 <WorkspaceTypeBadge

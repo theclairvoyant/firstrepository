@@ -130,6 +130,16 @@
       "clicks": "Clicks",
       "likes": "Likes"
     },
+    "filter": {
+      "live": "Live",
+      "review": "In review",
+      "emptyLiveTitle": "Nothing live yet",
+      "emptyLiveBody": "Approved posts will show up here once they go live.",
+      "emptyReviewTitle": "Nothing in review",
+      "emptyReviewBody": "Pending, edits requested, and rejected posts land here."
+    },
+    "bioShowMore": "Show more",
+    "bioShowLess": "Show less",
     "banner": {
       "pendingInvite": "Invite pending. The admin has not yet activated your access.",
       "pendingRequest": "Request pending. You will be notified when approved.",
@@ -149,6 +159,52 @@
     "openPostSoon": "Opening this post is coming soon",
     "uploadCancelled": "Upload cancelled"
   },
+  "editGlobalEmail": {
+    "title": "Change email",
+    "enterBody": "Your email is currently {{current}}. Enter a new one and we'll send a 6-digit code to verify.",
+    "verifyBody": "We sent a 6-digit code to {{email}}. Enter it below to confirm.",
+    "newEmailLabel": "New email",
+    "newEmailPlaceholder": "you@company.com",
+    "invalidEmail": "Enter a valid email address",
+    "sameEmail": "That's already your email.",
+    "sendCode": "Send code",
+    "sendError": "We couldn't send the code. Try again.",
+    "verify": "Verify and update",
+    "verifyError": "We couldn't verify that code. Try again.",
+    "codeInvalid": "That code isn't right. Try again.",
+    "backToEmail": "Use a different email",
+    "successTitle": "Email updated",
+    "successBody": "Your email is now {{email}}."
+  },
+  "searchByEmail": {
+    "title": "Find your workspace",
+    "heading": "Use your work email",
+    "body": "We'll match your email's domain against workspaces that have whitelisted it. Verifying proves you own the address.",
+    "emailLabel": "Work email",
+    "emailPlaceholder": "you@company.com",
+    "invalidEmail": "Enter a valid email address.",
+    "inheritedHint": "Verified on your global profile. We'll skip the code step.",
+    "verifyHint": "We'll send a 6-digit code to confirm you own this address.",
+    "searchWorkspaces": "Find workspaces",
+    "sendCode": "Send code",
+    "sendError": "We couldn't send the code. Try again.",
+    "verifyHeading": "Enter the code",
+    "verifyBody": "We sent a 6-digit code to {{email}}. Enter it below.",
+    "verify": "Verify and search",
+    "verifyError": "We couldn't verify that code. Try again.",
+    "codeInvalid": "That code isn't right. Try again.",
+    "useDifferentEmail": "Use a different email",
+    "resultsBody_one": "Found {{count}} workspace that whitelists your email:",
+    "resultsBody_other": "Found {{count}} workspaces that whitelist your email:",
+    "requestAccess": "Request access",
+    "joined": "Joined",
+    "requestSent": "Request sent. You'll see it land once an admin approves.",
+    "requestError": "We couldn't send that request. Try again.",
+    "noResultsTitle": "No workspaces matched",
+    "noResultsBody": "No active workspace has whitelisted {{email}}. Ask an admin to add you, or try an invite code.",
+    "tryInviteCode": "Try an invite code instead",
+    "searchAgain": "Search again"
+  },
   "editGlobalProfile": {
     "title": "Edit global profile",
     "noProfile": "No profile to edit.",
@@ -159,6 +215,7 @@
     "usernameInvalid": "3 to 30 characters. Lowercase letters, numbers, dot, dash, underscore only.",
     "email": "Email",
     "emailLocked": "Email is fixed for now. Contact support to change it.",
+    "emailChangeHint": "Tap to change. We'll send a code to verify the new address.",
     "phone": "Phone",
     "phonePlaceholder": "+1 555 123 4567",
     "phoneOptional": "Optional. We will not text you yet.",
@@ -180,14 +237,24 @@
     "avatarPermissionTitle": "Photo access needed",
     "avatarPermissionBody": "Allow photo access in Settings to pick a workspace avatar.",
     "avatarSaveError": "Couldn't save the new avatar. Try again.",
+    "coverPickFromGallery": "Change cover",
+    "coverEmpty": "Add a cover image",
+    "coverPermissionTitle": "Photo access needed",
+    "coverPermissionBody": "Allow photo access in Settings to pick a cover image.",
+    "coverSaveError": "Couldn't save the new cover. Try again.",
     "displayNameLabel": "Display name",
     "displayNameHint": "How viewers see you in this workspace. Leave blank to use the workspace name.",
     "usernameLabel": "Workspace username",
     "usernameHint": "Lowercase letters, numbers, dot, dash, underscore.",
     "usernameInvalid": "3 to 30 characters. Lowercase letters, numbers, dot, dash, underscore only.",
+    "usernameChecking": "Checking",
+    "usernameAvailable": "Available",
+    "usernameTaken": "Taken",
     "bioLabel": "Bio",
     "bioPlaceholder": "Tell viewers a little about you in this workspace",
     "bioCounter": "{{current}} / {{max}}",
+    "bioNoUrls": "Links aren't allowed in your bio. Use a conversion CTA on your post instead.",
+    "bioNoUrlsHint": "Links aren't allowed in your bio.",
     "cancel": "Cancel",
     "save": "Save",
     "saved": "Workspace profile updated",
@@ -239,7 +306,8 @@
       "videoMute": "mute video",
       "videoUnmute": "unmute video",
       "videoPlay": "play video",
-      "videoPause": "pause video"
+      "videoPause": "pause video",
+      "keyboardDone": "Done"
     },
     "preview": {
       "title": "Preview",
@@ -248,6 +316,7 @@
       "publish": "Publish",
       "uploading": "Uploading...",
       "posted": "Your post has been submitted",
+      "editPosted": "Updates submitted. Your post is back in review.",
       "noMedia": "Pick a video before publishing",
       "descriptionEmpty": "No description",
       "ctaUrlPlaceholder": "Link will appear here",
@@ -353,15 +422,9 @@
       "added": "Workspace added"
     },
     "domainCard": {
-      "title": "Find by company email",
-      "body": "We'll list workspaces matched to your work email's domain.",
-      "search": "Search",
-      "resultsTitle": "Available workspaces",
-      "request": "Request invite",
-      "requestPending": "Request pending",
-      "requestSent": "Request sent",
-      "joined": "Joined",
-      "noResults": "No workspaces found for your email domain."
+      "title": "Find by work email",
+      "body": "We'll match your verified work email against workspaces that whitelist your domain.",
+      "cta": "Search by work email"
     },
     "errors": {
       "inviteExpired": "This invite has expired. Ask your admin for a new one.",
@@ -378,10 +441,14 @@
   "ctaPicker": {
     "staticLabel": "Always opens {{url}}",
     "dynamicLabel": "Custom link, you provide the URL",
-    "noneLabel": "No CTA",
-    "noneSubLabel": "Post without a link",
+    "noneLabel": "None",
+    "noneSubLabel": "No conversion shown with this post",
     "linkLabel": "Link",
-    "linkPlaceholder": "https://"
+    "linkPlaceholder": "https://example.com/landing",
+    "typeLink": "Link",
+    "typeDocument": "Document",
+    "subtypeFixed": "Fixed",
+    "subtypeDynamic": "Dynamic"
   },
   "uploadBanner": {
     "title": "Upload",
@@ -418,9 +485,19 @@
     "back": "back",
     "sections": {
       "display": "Display",
+      "workspace": "Workspace",
       "notifications": "Notifications and uploads",
       "legal": "Legal and support",
       "account": "Account"
+    },
+    "defaultWorkspace": {
+      "rowLabel": "Default workspace",
+      "title": "Default workspace",
+      "body": "Pick which workspace opens when you launch the app.",
+      "useMostRecent": "Most recently used",
+      "useMostRecentBody": "Open whichever workspace was active last time.",
+      "emptyTitle": "No workspaces yet",
+      "emptyBody": "Join a workspace to set a default."
     },
     "theme": {
       "label": "Theme",
@@ -446,7 +523,8 @@
     },
     "notifications": {
       "label": "Notifications",
-      "description": "Get alerts when posts are reviewed."
+      "description": "Get alerts when posts are reviewed.",
+      "viewRowLabel": "View notifications"
     },
     "cellular": {
       "label": "Warn on cellular uploads",
@@ -493,6 +571,13 @@
       "loading": "Loading"
     }
   },
+  "notifications": {
+    "title": "Notifications",
+    "emptyTitle": "Nothing yet",
+    "emptyBody": "We'll let you know when your posts go live or pick up traction.",
+    "liveTitle": "Your post is live",
+    "tractionTitle": "Your post passed {{formattedCount}} views"
+  },
   "video": {
     "title": "Post",
     "back": "back",
@@ -506,6 +591,12 @@
     "deleteConfirm": "Delete",
     "deleteCancel": "Cancel",
     "deleted": "Post deleted",
+    "edit": "Edit",
+    "editTitle": "Edit this post?",
+    "editBody": "Editing will delist this post immediately and put it back in review. You'll pick a new video and resubmit your details.",
+    "editConfirm": "Edit and resubmit",
+    "editCancel": "Keep as is",
+    "editStarted": "Pick a new clip to resubmit.",
     "linkCopied": "Link copied",
     "shareSubject": "Share this post",
     "postedOn": "Posted on {{date}}",
@@ -544,6 +635,10 @@
     },
     "showMore": "Show more",
     "showLess": "Show less",
+    "section": {
+      "tags": "Tags",
+      "conversion": "Conversion"
+    },
     "timeline": {
       "title": "Timeline",
       "uploaded": "Uploaded",

@@ -69,6 +69,10 @@ export async function patchMembership(
       input.displayName !== undefined
         ? input.displayName
         : seedState.memberships[idx].displayName,
+    bannerUrl:
+      input.bannerUrl !== undefined
+        ? input.bannerUrl
+        : seedState.memberships[idx].bannerUrl,
   };
   seedState.memberships[idx] = next;
   return next;

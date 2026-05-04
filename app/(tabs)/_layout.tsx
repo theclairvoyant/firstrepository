@@ -1,145 +1,235 @@
-import React, { useMemo } from 'react';
-import { Pressable, View, StyleSheet, Platform } from 'react-native';
-import type { GestureResponderEvent, ViewStyle } from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { Pressable, View, StyleSheet } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BlurView } from 'expo-blur';
-import { Plus, User } from 'lucide-react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
+import { Plus, Settings as SettingsIcon, User } from 'lucide-react-native';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { FrostedSurface } from '@/components/FrostedSurface';
 import { TopBar } from '@/components/TopBar';
+import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/lib/theme/useTheme';
 import { useTenantStore } from '@/lib/store/tenantStore';
 import { useMemberships } from '@/lib/api/queries';
 
-const ICON_SIZE = 22;
-// Identical diameter for both tab buttons so they read as a balanced pair
-// inside the floating bar.
-const TAB_DISC = 40;
-const TAB_HEIGHT = 56;
+// Visual constants. Each tab cell is the same width so the indicator slides
+// cleanly to the next slot. Settings is a sibling circle on the right.
+const TAB_CELL_WIDTH = 88;
+const TAB_CELL_HEIGHT = 56;
+const PILL_INNER_PADDING = 4;
 const PILL_RADIUS = 999;
-// Active tab indicator background uses accent.primary with 16% alpha
-// (0x29 / 0xff approx 0.16).
-const ACTIVE_TINT_ALPHA_HEX = '29';
+const SETTINGS_DIAMETER = 56;
+const SIDE_GAP = 12;
+// Active indicator background: accent.primary at ~24% alpha. Heavier than the
+// previous 16% so the focused tab pops more clearly against the glass pill.
+const INDICATOR_ALPHA_HEX = '3D';
 
-interface TabBarBackgroundProps {
-  isDark: boolean;
-  bgFallback: string;
-  borderColor: string;
+interface CustomTabBarProps extends BottomTabBarProps {
+  showUpload: boolean;
 }
 
-function TabBarBackground({
-  isDark,
-  bgFallback,
-  borderColor,
-}: TabBarBackgroundProps): React.ReactElement {
-  const fillStyle: ViewStyle = {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: PILL_RADIUS,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor,
-  };
+function CustomTabBar({
+  state,
+  navigation,
+  showUpload,
+}: CustomTabBarProps): React.ReactElement {
+  const router = useRouter();
+  const { t } = useTranslation();
+  const { colors, accent, palette } = useTheme();
+  const insets = useSafeAreaInsets();
 
-  if (Platform.OS === 'web') {
-    return (
-      <View
-        style={[fillStyle, { backgroundColor: `${bgFallback}eb` }]}
-      />
-    );
-  }
+  // Visible routes drive both the pill width and the indicator step. When
+  // upload is hidden (no active workspace), the pill collapses to a single
+  // Profile tab, so the indicator stays parked.
+  const visibleRoutes = useMemo(() => {
+    return state.routes.filter((r) => {
+      if (r.name === 'upload' && !showUpload) return false;
+      return true;
+    });
+  }, [state.routes, showUpload]);
+
+  // Map back to the focused index within the visible set so the indicator
+  // animates to the correct slot even after upload appears or disappears.
+  const focusedVisibleIndex = useMemo(() => {
+    const focusedRoute = state.routes[state.index];
+    if (!focusedRoute) return 0;
+    const i = visibleRoutes.findIndex((r) => r.key === focusedRoute.key);
+    return i < 0 ? 0 : i;
+  }, [state.index, state.routes, visibleRoutes]);
+
+  const slide = useSharedValue<number>(focusedVisibleIndex);
+  useEffect(() => {
+    slide.value = withSpring(focusedVisibleIndex, {
+      damping: 20,
+      stiffness: 220,
+      mass: 0.8,
+    });
+  }, [focusedVisibleIndex, slide]);
+
+  const indicatorStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: slide.value * TAB_CELL_WIDTH }],
+    };
+  });
+
+  const pillContentWidth = visibleRoutes.length * TAB_CELL_WIDTH;
+  const pillTotalWidth = pillContentWidth + PILL_INNER_PADDING * 2;
 
   return (
-    <View style={fillStyle}>
-      <BlurView
-        intensity={80}
-        tint={isDark ? 'dark' : 'light'}
-        style={StyleSheet.absoluteFillObject}
-      />
-      <View
-        style={[StyleSheet.absoluteFillObject, { backgroundColor: `${bgFallback}66` }]}
-      />
-    </View>
-  );
-}
-
-// Subset of the props React Navigation passes to tabBarButton. Typing
-// loosely on purpose so the layout owns the press behaviour and we don't
-// fight the upstream PressableProps signature (which differs from
-// Pressable's by including legacy fields).
-interface TabBarButtonRenderProps {
-  onPress: (e: GestureResponderEvent) => void;
-  accessibilityLabel?: string;
-  accessibilityState?: { selected?: boolean };
-  testID?: string;
-  children?: React.ReactNode;
-}
-
-interface DiscButtonProps {
-  rnProps: TabBarButtonRenderProps;
-  bg: string;
-  children: React.ReactNode;
-}
-
-// Single, predictable button: fills the full tab item, perfectly centers a
-// 40px disc. We render the disc ourselves so React Navigation's icon-area
-// padding never gets to push it around.
-function DiscButton({
-  rnProps,
-  bg,
-  children,
-}: DiscButtonProps): React.ReactElement {
-  return (
-    <Pressable
-      onPress={rnProps.onPress}
-      accessibilityRole="button"
-      accessibilityLabel={rnProps.accessibilityLabel}
-      accessibilityState={rnProps.accessibilityState}
-      testID={rnProps.testID}
-      style={({ pressed }) => [
-        styles.tabButton,
-        { opacity: pressed ? 0.75 : 1 },
+    <View
+      style={[
+        styles.row,
+        {
+          left: SIDE_GAP,
+          right: SIDE_GAP,
+          bottom: insets.bottom + 12,
+        },
       ]}
+      pointerEvents="box-none"
     >
-      <View style={[styles.disc, { backgroundColor: bg }]}>{children}</View>
-    </Pressable>
+      {/* Left pill */}
+      <View
+        style={[
+          styles.pillWrap,
+          { width: pillTotalWidth, height: TAB_CELL_HEIGHT + PILL_INNER_PADDING * 2 },
+        ]}
+      >
+        <FrostedSurface borderRadius={PILL_RADIUS} />
+        <View
+          style={[
+            styles.pillContent,
+            {
+              padding: PILL_INNER_PADDING,
+              width: pillTotalWidth,
+              height: TAB_CELL_HEIGHT + PILL_INNER_PADDING * 2,
+            },
+          ]}
+        >
+          {/* Animated selection indicator */}
+          <Animated.View
+            style={[
+              styles.indicator,
+              indicatorStyle,
+              {
+                width: TAB_CELL_WIDTH,
+                height: TAB_CELL_HEIGHT,
+                backgroundColor: `${accent.primary}${INDICATOR_ALPHA_HEX}`,
+                borderRadius: PILL_RADIUS,
+                left: PILL_INNER_PADDING,
+                top: PILL_INNER_PADDING,
+              },
+            ]}
+          />
+
+          {visibleRoutes.map((route) => {
+            const focused =
+              state.routes[state.index]?.key === route.key;
+            // Inactive uses textSecondary (clearer than textMuted) so both
+            // tabs read at-a-glance even when neither is selected.
+            const tint = focused ? accent.primary : colors.textSecondary;
+            const label = t(`tabs.${route.name}`, {
+              defaultValue: route.name,
+            });
+            const Icon = route.name === 'upload' ? Plus : User;
+            return (
+              <Pressable
+                key={route.key}
+                onPress={() => {
+                  const event = navigation.emit({
+                    type: 'tabPress',
+                    target: route.key,
+                    canPreventDefault: true,
+                  });
+                  if (!focused && !event.defaultPrevented) {
+                    navigation.navigate(route.name);
+                  }
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={label}
+                accessibilityState={{ selected: focused }}
+                style={({ pressed }) => [
+                  styles.tabCell,
+                  { width: TAB_CELL_WIDTH, height: TAB_CELL_HEIGHT, opacity: pressed ? 0.85 : 1 },
+                ]}
+              >
+                <Icon
+                  size={22}
+                  color={tint}
+                  // Bolder strokes on the focused tab so the icon lifts off
+                  // the indicator instead of getting lost in it.
+                  strokeWidth={focused ? 2.25 : 1.85}
+                />
+                <ThemedText
+                  variant="caption"
+                  style={{
+                    marginTop: 3,
+                    color: tint,
+                    fontFamily: 'Outfit_600SemiBold',
+                    fontSize: 12,
+                    letterSpacing: 0.2,
+                  }}
+                >
+                  {label}
+                </ThemedText>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
+      {/* Right settings circle */}
+      <Pressable
+        onPress={() => router.push('/settings')}
+        accessibilityRole="button"
+        accessibilityLabel={t('settings.title', { defaultValue: 'Settings' })}
+        style={({ pressed }) => [
+          styles.settingsBtn,
+          {
+            width: SETTINGS_DIAMETER,
+            height: SETTINGS_DIAMETER,
+            borderRadius: SETTINGS_DIAMETER / 2,
+            opacity: pressed ? 0.85 : 1,
+          },
+        ]}
+        hitSlop={4}
+      >
+        <FrostedSurface borderRadius={SETTINGS_DIAMETER / 2} />
+        <SettingsIcon
+          size={22}
+          color={colors.textPrimary}
+          strokeWidth={1.75}
+        />
+      </Pressable>
+    </View>
   );
 }
 
 export default function TabsLayout(): React.ReactElement {
   const router = useRouter();
   const { t } = useTranslation();
-  const { colors, accent, palette, spacing, isDark } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   const activeWorkspaceId = useTenantStore((s) => s.activeWorkspaceId);
   const membershipsQuery = useMemberships();
 
-  const activeMembership = useMemo(() => {
-    if (!activeWorkspaceId) return null;
+  const showUpload: boolean = useMemo(() => {
+    if (!activeWorkspaceId) return false;
     const list = membershipsQuery.data ?? [];
-    return list.find((m) => m.workspace.id === activeWorkspaceId) ?? null;
+    const active = list.find((m) => m.workspace.id === activeWorkspaceId);
+    return !!active && active.status === 'active';
   }, [activeWorkspaceId, membershipsQuery.data]);
-
-  const showUpload: boolean =
-    !!activeMembership && activeMembership.status === 'active';
-
-  const tabBarStyle: ViewStyle = {
-    position: 'absolute',
-    left: spacing.lg,
-    right: spacing.lg,
-    bottom: insets.bottom + spacing.sm,
-    height: TAB_HEIGHT,
-    backgroundColor: 'transparent',
-    borderTopWidth: 0,
-    elevation: 0,
-    paddingBottom: 0,
-    paddingTop: 0,
-    borderRadius: PILL_RADIUS,
-  };
 
   return (
     <Tabs
       initialRouteName="profile"
+      tabBar={(props) => (
+        <CustomTabBar {...props} showUpload={showUpload} />
+      )}
       screenOptions={{
         header: () => (
           <TopBar
@@ -147,18 +237,7 @@ export default function TabsLayout(): React.ReactElement {
             onProfilePress={() => router.push('/global-profile')}
           />
         ),
-        tabBarActiveTintColor: accent.primary,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarShowLabel: false,
-        tabBarStyle,
-        tabBarItemStyle: { height: TAB_HEIGHT },
-        tabBarBackground: () => (
-          <TabBarBackground
-            isDark={isDark}
-            bgFallback={colors.bgElevated}
-            borderColor={colors.border}
-          />
-        ),
+        sceneStyle: { backgroundColor: colors.bg },
       }}
     >
       <Tabs.Screen
@@ -166,29 +245,6 @@ export default function TabsLayout(): React.ReactElement {
         options={{
           title: t('tabs.profile'),
           tabBarAccessibilityLabel: t('tabs.profile'),
-          tabBarLabel: () => null,
-          tabBarButton: (props) => {
-            const focused = props.accessibilityState?.selected ?? false;
-            const tint = focused ? accent.primary : colors.textMuted;
-            const bg = focused
-              ? `${accent.primary}${ACTIVE_TINT_ALPHA_HEX}`
-              : colors.bgInput;
-            return (
-              <DiscButton
-                rnProps={{
-                  onPress: (e: GestureResponderEvent) => {
-                    props.onPress?.(e);
-                  },
-                  accessibilityLabel: props.accessibilityLabel,
-                  accessibilityState: props.accessibilityState,
-                  testID: props.testID,
-                }}
-                bg={bg}
-              >
-                <User size={ICON_SIZE} color={tint} strokeWidth={1.75} />
-              </DiscButton>
-            );
-          },
         }}
       />
       <Tabs.Screen
@@ -196,29 +252,6 @@ export default function TabsLayout(): React.ReactElement {
         options={{
           title: t('tabs.upload'),
           tabBarAccessibilityLabel: t('tabs.upload'),
-          tabBarLabel: () => null,
-          // href + tabBarButton can't coexist (expo-router throws). Hide the
-          // upload tab by collapsing its item slot when there is no active
-          // membership instead.
-          tabBarItemStyle: {
-            height: TAB_HEIGHT,
-            display: showUpload ? 'flex' : 'none',
-          },
-          tabBarButton: (props) => (
-            <DiscButton
-              rnProps={{
-                onPress: (e: GestureResponderEvent) => {
-                  props.onPress?.(e);
-                },
-                accessibilityLabel: props.accessibilityLabel,
-                accessibilityState: props.accessibilityState,
-                testID: props.testID,
-              }}
-              bg={accent.primary}
-            >
-              <Plus size={22} color={palette.white} strokeWidth={2} />
-            </DiscButton>
-          ),
         }}
       />
     </Tabs>
@@ -226,18 +259,30 @@ export default function TabsLayout(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
-  // Fill the entire tab item; center the disc absolutely.
-  tabButton: {
-    flex: 1,
-    alignSelf: 'stretch',
+  row: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  pillWrap: {
+    position: 'relative',
+  },
+  pillContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  indicator: {
+    position: 'absolute',
+  },
+  tabCell: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  disc: {
-    width: TAB_DISC,
-    height: TAB_DISC,
-    borderRadius: TAB_DISC / 2,
+  settingsBtn: {
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
 });

@@ -217,6 +217,8 @@ export default function EditGlobalProfileScreen(): React.ReactElement {
             paddingBottom: spacing.xl,
           }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets
         >
           <View style={{ alignItems: 'center', marginBottom: spacing.xl }}>
             <Pressable
@@ -302,12 +304,24 @@ export default function EditGlobalProfileScreen(): React.ReactElement {
                   : undefined
               }
             />
-            <Input
-              label={t('editGlobalProfile.email')}
-              value={creator.email}
-              editable={false}
-              helperText={t('editGlobalProfile.emailLocked')}
-            />
+            <Pressable
+              onPress={() => router.push('/edit-global-email')}
+              accessibilityRole="button"
+              accessibilityLabel={t('editGlobalProfile.email')}
+              hitSlop={4}
+            >
+              <View pointerEvents="none">
+                <Input
+                  label={t('editGlobalProfile.email')}
+                  value={creator.email}
+                  editable={false}
+                  helperText={t('editGlobalProfile.emailChangeHint', {
+                    defaultValue:
+                      'Tap to change. We\'ll send a code to verify the new address.',
+                  })}
+                />
+              </View>
+            </Pressable>
             <Input
               label={t('editGlobalProfile.phone')}
               value={phone}

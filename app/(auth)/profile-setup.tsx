@@ -215,6 +215,10 @@ export default function ProfileSetupScreen(): React.ReactElement {
           }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
+          // iOS auto-insets the scroll content by the keyboard height so the
+          // focused input is reachable without extra math. Combined with
+          // KAV behavior=padding above, the form lifts cleanly.
+          automaticallyAdjustKeyboardInsets
           showsVerticalScrollIndicator={false}
         >
           <ThemedText

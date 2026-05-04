@@ -116,12 +116,8 @@ export default function InviteCodeScreen(): React.ReactElement {
                   <ThemedText variant="heading" numberOfLines={1}>
                     {resolved.workspace.name}
                   </ThemedText>
-                  <ThemedText
-                    variant="body"
-                    tone="secondary"
-                    numberOfLines={1}
-                  >
-                    {resolved.brand.name}
+                  <ThemedText variant="mono" tone="muted" numberOfLines={1}>
+                    {`@${resolved.workspace.handle}`}
                   </ThemedText>
                 </View>
                 <WorkspaceTypeBadge

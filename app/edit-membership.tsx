@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   KeyboardAvoidingView,
@@ -11,10 +11,11 @@ import {
   Alert,
 } from 'react-native';
 import type { ViewStyle } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, ImagePlus } from 'lucide-react-native';
+import { ChevronLeft, ImagePlus, Image as ImageIcon } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { ThemedText } from '@/components/ThemedText';
@@ -28,11 +29,23 @@ import {
   useMemberships,
   usePatchMembership,
   useUploadMembershipAvatar,
+  useUsernameAvailable,
 } from '@/lib/api/queries';
 import { showToast } from '@/lib/toast';
+import { bioContainsUrl } from '@/lib/validators/bio';
 
 const USERNAME_RE = /^[a-z0-9._-]+$/;
 const BIO_MAX = 160;
+const COVER_DEBOUNCE_MS = 350;
+
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState<T>(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(id);
+  }, [value, delayMs]);
+  return debounced;
+}
 
 export default function EditMembershipScreen(): React.ReactElement {
   const router = useRouter();
@@ -59,6 +72,7 @@ export default function EditMembershipScreen(): React.ReactElement {
   );
   const [bio, setBio] = useState<string>(membership?.bio ?? '');
   const [usernameTouched, setUsernameTouched] = useState<boolean>(false);
+  const [coverPickPending, setCoverPickPending] = useState<boolean>(false);
 
   const usernameValid: boolean =
     USERNAME_RE.test(username) &&
@@ -68,7 +82,8 @@ export default function EditMembershipScreen(): React.ReactElement {
   const displayNameValid: boolean =
     displayName.length === 0 || displayName.trim().length <= 60;
 
-  const bioValid: boolean = bio.length <= BIO_MAX;
+  const bioHasUrl: boolean = bioContainsUrl(bio);
+  const bioValid: boolean = bio.length <= BIO_MAX && !bioHasUrl;
 
   const dirty: boolean =
     !!membership &&
@@ -76,13 +91,78 @@ export default function EditMembershipScreen(): React.ReactElement {
       bio !== membership.bio ||
       displayName !== (membership.displayName ?? ''));
 
+  // Username availability checker. Skip while the value matches the saved
+  // one (no point asking the backend if the user typed back to the original)
+  // or while invalid.
+  const isUsernameUnchanged: boolean =
+    username === (membership?.workspaceUsername ?? '');
+  const debouncedUsername = useDebouncedValue<string>(
+    usernameValid && !isUsernameUnchanged ? username : '',
+    COVER_DEBOUNCE_MS,
+  );
+  const usernameQuery = useUsernameAvailable(debouncedUsername);
+  const usernameStatus: 'idle' | 'checking' | 'available' | 'taken' = (() => {
+    if (!usernameValid) return 'idle';
+    if (isUsernameUnchanged) return 'idle';
+    if (debouncedUsername !== username) return 'checking';
+    if (usernameQuery.isFetching || usernameQuery.isPending) return 'checking';
+    if (usernameQuery.data?.available) return 'available';
+    if (usernameQuery.data && !usernameQuery.data.available) return 'taken';
+    return 'idle';
+  })();
+
+  const usernameOk: boolean =
+    isUsernameUnchanged
+      ? usernameValid
+      : usernameValid && usernameStatus === 'available';
+
   const canSubmit: boolean =
     !!membership &&
-    usernameValid &&
+    usernameOk &&
     displayNameValid &&
     bioValid &&
     dirty &&
     !patchMembership.isPending;
+
+  const onCoverPress = async (): Promise<void> => {
+    if (!membership || coverPickPending) return;
+    setCoverPickPending(true);
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(
+          t('editMembership.coverPermissionTitle'),
+          t('editMembership.coverPermissionBody'),
+        );
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [16, 6],
+        quality: 0.85,
+        selectionLimit: 1,
+      });
+      if (result.canceled) return;
+      const asset = result.assets[0];
+      if (!asset?.uri) return;
+      // SCAFFOLD: persist the picked file:// URI as the cover. FULL backend
+      // would replace this with a CDN URL after upload (separate endpoint).
+      try {
+        await patchMembership.mutateAsync({
+          membershipId: membership.membershipId,
+          input: { bannerUrl: asset.uri },
+        });
+      } catch {
+        showToast({
+          variant: 'danger',
+          message: t('editMembership.coverSaveError'),
+        });
+      }
+    } finally {
+      setCoverPickPending(false);
+    }
+  };
 
   const onAvatarPress = async (): Promise<void> => {
     if (!membership || uploadAvatar.isPending) return;
@@ -220,8 +300,65 @@ export default function EditMembershipScreen(): React.ReactElement {
             paddingBottom: spacing.xl,
           }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets
         >
-          <View style={{ alignItems: 'center', marginBottom: spacing.xl }}>
+          {/* Cover image - tappable, opens gallery and patches membership */}
+          <Pressable
+            onPress={() => {
+              void onCoverPress();
+            }}
+            accessibilityRole="button"
+            accessibilityLabel={t('editMembership.coverPickFromGallery')}
+            disabled={coverPickPending || patchMembership.isPending}
+            style={({ pressed }) => [
+              styles.coverWrap,
+              {
+                backgroundColor: colors.bgInput,
+                borderColor: colors.border,
+                borderRadius: radius.lg,
+                opacity: pressed ? 0.9 : 1,
+              },
+            ]}
+          >
+            {membership.bannerUrl ? (
+              <ExpoImage
+                source={{ uri: membership.bannerUrl }}
+                style={StyleSheet.absoluteFill}
+                contentFit="cover"
+                accessibilityIgnoresInvertColors
+              />
+            ) : (
+              <View style={styles.coverPlaceholder}>
+                <ImageIcon
+                  size={28}
+                  color={colors.textMuted}
+                  strokeWidth={1.75}
+                />
+                <ThemedText
+                  variant="caption"
+                  tone="muted"
+                  style={{ marginTop: 6 }}
+                >
+                  {t('editMembership.coverEmpty')}
+                </ThemedText>
+              </View>
+            )}
+            <View
+              style={[
+                styles.coverBadge,
+                { backgroundColor: accent.primary, borderColor: colors.bg },
+              ]}
+            >
+              {coverPickPending ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <ImagePlus size={14} color="#fff" strokeWidth={2} />
+              )}
+            </View>
+          </Pressable>
+
+          <View style={{ alignItems: 'center', marginTop: spacing.lg, marginBottom: spacing.xl }}>
             <Pressable
               onPress={() => {
                 void onAvatarPress();
@@ -295,9 +432,20 @@ export default function EditMembershipScreen(): React.ReactElement {
               error={
                 usernameTouched && !usernameValid
                   ? t('editMembership.usernameInvalid')
-                  : undefined
+                  : usernameStatus === 'taken'
+                    ? t('editMembership.usernameTaken')
+                    : undefined
               }
             />
+            {usernameStatus === 'checking' ? (
+              <ThemedText variant="caption" tone="muted">
+                {t('editMembership.usernameChecking')}
+              </ThemedText>
+            ) : usernameStatus === 'available' ? (
+              <ThemedText variant="caption" tone="success">
+                {t('editMembership.usernameAvailable')}
+              </ThemedText>
+            ) : null}
 
             <View>
               <ThemedText
@@ -312,7 +460,10 @@ export default function EditMembershipScreen(): React.ReactElement {
                   styles.bioField,
                   {
                     backgroundColor: colors.bgInput,
-                    borderColor: bio.length > BIO_MAX ? accent.danger : colors.border,
+                    borderColor:
+                      bio.length > BIO_MAX || bioHasUrl
+                        ? accent.danger
+                        : colors.border,
                     borderRadius: radius.md,
                     paddingHorizontal: spacing.md,
                     paddingVertical: spacing.sm,
@@ -335,16 +486,41 @@ export default function EditMembershipScreen(): React.ReactElement {
                   }}
                 />
               </View>
-              <ThemedText
-                variant="caption"
-                tone="muted"
-                style={{ marginTop: spacing.xs, textAlign: 'right' }}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: spacing.xs,
+                  gap: spacing.sm,
+                }}
               >
-                {t('editMembership.bioCounter', {
-                  current: bio.length,
-                  max: BIO_MAX,
-                })}
-              </ThemedText>
+                {bioHasUrl ? (
+                  <ThemedText
+                    variant="caption"
+                    tone="danger"
+                    style={{ flex: 1 }}
+                  >
+                    {t('editMembership.bioNoUrls')}
+                  </ThemedText>
+                ) : (
+                  <ThemedText
+                    variant="caption"
+                    tone="muted"
+                    style={{ flex: 1 }}
+                  >
+                    {t('editMembership.bioNoUrlsHint')}
+                  </ThemedText>
+                )}
+                <ThemedText
+                  variant="caption"
+                  tone="muted"
+                  style={{ textAlign: 'right' }}
+                >
+                  {t('editMembership.bioCounter', {
+                    current: bio.length,
+                    max: BIO_MAX,
+                  })}
+                </ThemedText>
+              </View>
             </View>
           </View>
         </ScrollView>
@@ -405,5 +581,28 @@ const styles = StyleSheet.create({
   },
   bioField: {
     borderWidth: 1,
+  },
+  coverWrap: {
+    width: '100%',
+    aspectRatio: 16 / 6,
+    overflow: 'hidden',
+    borderWidth: 1,
+    position: 'relative',
+  },
+  coverPlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coverBadge: {
+    position: 'absolute',
+    right: 10,
+    bottom: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

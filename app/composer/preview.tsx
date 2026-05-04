@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
 import { ChevronLeft, Film, Volume2, VolumeX } from 'lucide-react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { GhostButton } from '@/components/GhostButton';
+import { CtaButton } from '@/components/CtaButton';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { SecondaryButton } from '@/components/SecondaryButton';
@@ -19,6 +19,7 @@ import { useDraftStore } from '@/lib/store/draftStore';
 import { useSettingsStore } from '@/lib/store/settingsStore';
 import {
   keys,
+  useDeletePost,
   useTagTopology,
   useWorkspace,
 } from '@/lib/api/queries';
@@ -30,7 +31,7 @@ import {
   runUpload,
   enqueueWaitingWifi,
 } from '@/lib/video';
-import type { CTA, CtaStyle } from '@/types/api';
+import type { CTA } from '@/types/api';
 
 const CELLULAR_THRESHOLD_MB = 25;
 const BYTES_PER_MB = 1024 * 1024;
@@ -43,7 +44,6 @@ interface CtaPreviewProps {
 function CtaPreview({ cta, url }: CtaPreviewProps): React.ReactElement {
   const { spacing } = useTheme();
   const { t } = useTranslation();
-  const style: CtaStyle = cta.style;
   const display: string =
     cta.kind === 'static'
       ? cta.url
@@ -53,31 +53,8 @@ function CtaPreview({ cta, url }: CtaPreviewProps): React.ReactElement {
 
   return (
     <View style={{ gap: spacing.xs }}>
-      {style === 'primary' ? (
-        <PrimaryButton
-          label={cta.label}
-          accessibilityLabel={cta.label}
-          onPress={() => undefined}
-          disabled
-        />
-      ) : style === 'secondary' ? (
-        <SecondaryButton
-          label={cta.label}
-          accessibilityLabel={cta.label}
-          onPress={() => undefined}
-          disabled
-        />
-      ) : (
-        <View style={{ alignSelf: 'flex-start' }}>
-          <GhostButton
-            label={cta.label}
-            accessibilityLabel={cta.label}
-            onPress={() => undefined}
-            disabled
-          />
-        </View>
-      )}
-      <ThemedText variant="mono" tone="muted">
+      <CtaButton cta={cta} fullWidth />
+      <ThemedText variant="mono" tone="muted" numberOfLines={1}>
         {display}
       </ThemedText>
     </View>
@@ -153,6 +130,7 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
   const activeWorkspaceId = useTenantStore((s) => s.activeWorkspaceId);
   const workspaceQuery = useWorkspace(activeWorkspaceId);
   const tagTopologyQuery = useTagTopology(activeWorkspaceId);
+  const deletePost = useDeletePost();
 
   const drafts = useDraftStore((s) => s.drafts);
   const draft = activeWorkspaceId ? (drafts[activeWorkspaceId] ?? null) : null;
@@ -219,6 +197,25 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
 
       setSubmitting(true);
 
+      // If this draft is editing a published post, delist the original
+      // first. Run as a fire-and-forget so the upload kicks off without
+      // waiting; the backend treats them as independent operations and
+      // invalidating the posts query on each completion is enough.
+      const wasEditing: string | null = draft.editingPostId ?? null;
+      if (wasEditing) {
+        deletePost.mutate(
+          { postId: wasEditing, workspaceId: activeWorkspaceId },
+          {
+            onSettled: () => {
+              if (!activeWorkspaceId) return;
+              void queryClient.invalidateQueries({
+                queryKey: keys.myPosts(activeWorkspaceId),
+              });
+            },
+          },
+        );
+      }
+
       const handle = runUpload({
         workspaceId: activeWorkspaceId,
         localUri: draft.localUri,
@@ -247,7 +244,9 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
           }
           showToast({
             variant: 'success',
-            message: t('composer.preview.posted'),
+            message: wasEditing
+              ? t('composer.preview.editPosted')
+              : t('composer.preview.posted'),
           });
           void res;
         })
@@ -281,6 +280,7 @@ export default function ComposerPreviewScreen(): React.ReactElement | null {
       selectedCta,
       router,
       queryClient,
+      deletePost,
       t,
     ],
   );

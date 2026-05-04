@@ -18,26 +18,541 @@
       "tagline": "Crea. Publica. Gana.",
       "getStarted": "Empezar",
       "haveInviteCode": "Tengo un código de invitación"
+    },
+    "method": {
+      "title": "Iniciar sesión",
+      "subtitle": "Usa tu correo de trabajo o el inicio de sesión único para continuar.",
+      "continueEmail": "Continuar con correo",
+      "continueGoogle": "Continuar con Google",
+      "continueMicrosoft": "Continuar con Microsoft",
+      "continueApple": "Continuar con Apple"
+    },
+    "sso": {
+      "pending": "Configuración de SSO pendiente"
+    },
+    "email": {
+      "title": "¿Cuál es tu correo?",
+      "body": "Te enviaremos un código de 6 dígitos para verificar que eres tú.",
+      "label": "Correo",
+      "invalid": "Introduce un correo válido",
+      "error": "No pudimos enviar el código. Inténtalo de nuevo."
+    },
+    "otp": {
+      "title": "Introduce el código",
+      "body": "Enviamos un código de 6 dígitos a {{email}}.",
+      "invalid": "Código incorrecto, inténtalo de nuevo",
+      "resend": "Reenviar código",
+      "resendIn": "Reenviar en {{seconds}}s",
+      "resendSent": "Hemos enviado un nuevo código"
+    },
+    "inviteCode": {
+      "title": "Introduce tu código de invitación",
+      "body": "Tu código de invitación tiene 8 caracteres, solo letras y números.",
+      "label": "Código de invitación",
+      "placeholder": "ABCD2345",
+      "wrongCode": "Código incorrecto",
+      "errorExpired": "Esta invitación ha caducado. Pide a tu administrador una nueva.",
+      "errorUsed": "Esta invitación ya ha sido canjeada.",
+      "errorGeneric": "No encontramos esa invitación. Revisa el código e inténtalo de nuevo."
+    },
+    "profile": {
+      "title": "Configura tu perfil global",
+      "body": "Así es como aparecerás en Enterprise Creator.",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "username": "Nombre de usuario",
+      "usernameHint": "Letras minúsculas, números, punto, guion y guion bajo.",
+      "usernameInvalid": "De 3 a 30 caracteres. Solo letras minúsculas, números, punto, guion y guion bajo.",
+      "usernameChecking": "Comprobando",
+      "usernameAvailable": "Disponible",
+      "usernameTaken": "No disponible",
+      "avatarPickFromGallery": "Elegir foto de la galería",
+      "avatarPickPreset": "Elegir un avatar predeterminado",
+      "avatarPermissionTitle": "Se necesita acceso a fotos",
+      "avatarPermissionBody": "Permite el acceso a las fotos en Ajustes para elegir un avatar de tu galería.",
+      "avatarUploadError": "No se pudo subir esa imagen. Prueba con otra.",
+      "phone": "Teléfono",
+      "phonePlaceholder": "+34 600 123 456",
+      "phoneOptional": "Opcional. Aún no te enviaremos mensajes.",
+      "phoneInvalid": "Introduce un número de teléfono válido",
+      "finish": "Finalizar"
+    }
+  },
+  "status": {
+    "pending": "Pendiente",
+    "approved": "Aprobada",
+    "live": "En vivo",
+    "rejected": "Rechazada",
+    "needsEdits": "Cambios solicitados",
+    "descriptions": {
+      "pending": "Un administrador está revisando esta publicación. Recibirás una notificación cuando haya una decisión.",
+      "approved": "Aprobada y en cola. Se publicará en cuanto la programación lo permita.",
+      "live": "Publicada y visible para los espectadores. Las estadísticas se actualizan en tiempo real.",
+      "rejected": "Un administrador retiró esta publicación de la revisión. Consulta la nota anterior para ver el motivo.",
+      "needsEdits": "Un administrador solicitó cambios. Abre la publicación, aplica las ediciones solicitadas y vuelve a enviarla."
+    }
+  },
+  "shell": {
+    "topBar": {
+      "switchWorkspace": "cambiar de espacio de trabajo",
+      "openProfile": "abrir menú de perfil",
+      "noWorkspace": "Ningún espacio de trabajo seleccionado"
+    },
+    "modal": {
+      "close": "cerrar"
+    },
+    "drawer": {
+      "close": "cerrar"
+    },
+    "session": {
+      "expired": "Tu sesión ha caducado. Vuelve a iniciar sesión."
     }
   },
   "tabs": {
     "profile": "Perfil",
     "upload": "Subir"
   },
+  "boot": {
+    "loading": "Cargando"
+  },
+  "profileTab": {
+    "title": "Perfil",
+    "noWorkspaceTitle": "Aún no tienes espacios de trabajo",
+    "noWorkspaceBody": "Ya está todo listo, pero todavía no te has unido a un espacio de trabajo. Si tu equipo te envió un código de invitación, pégalo abajo. De lo contrario, comprueba si tu correo de trabajo te da acceso automáticamente.",
+    "findWorkspace": "Buscar un espacio de trabajo",
+    "pasteInviteCode": "Pegar código de invitación",
+    "searchByEmail": "Buscar por correo de trabajo",
+    "postsCount_one": "{{count}} publicación",
+    "postsCount_other": "{{count}} publicaciones",
+    "stats": {
+      "posts": "Publicaciones",
+      "views": "Visualizaciones",
+      "clicks": "Clics",
+      "likes": "Me gusta"
+    },
+    "banner": {
+      "pendingInvite": "Invitación pendiente. El administrador aún no ha activado tu acceso.",
+      "pendingRequest": "Solicitud pendiente. Te avisaremos cuando se apruebe.",
+      "revoked": "Acceso revocado."
+    },
+    "editProfile": "Editar perfil",
+    "editProfileSoon": "El editor de perfil llegará pronto",
+    "shareProfile": "Compartir perfil",
+    "shareSubject": "Comparte este enlace a tu perfil",
+    "empty": {
+      "title": "Aún no hay publicaciones",
+      "body": "Sube tu primer corto para empezar a construir tu perfil.",
+      "cta": "Subir ahora"
+    },
+    "errorTitle": "No pudimos cargar tus publicaciones",
+    "errorBody": "Comprueba tu conexión e inténtalo de nuevo.",
+    "openPostSoon": "La apertura de esta publicación llegará pronto",
+    "uploadCancelled": "Subida cancelada"
+  },
+  "editGlobalProfile": {
+    "title": "Editar perfil global",
+    "noProfile": "No hay perfil para editar.",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "username": "Nombre de usuario",
+    "usernameHint": "Letras minúsculas, números, punto, guion y guion bajo.",
+    "usernameInvalid": "De 3 a 30 caracteres. Solo letras minúsculas, números, punto, guion y guion bajo.",
+    "email": "Correo",
+    "emailLocked": "Por ahora el correo está fijado. Contacta con soporte para cambiarlo.",
+    "phone": "Teléfono",
+    "phonePlaceholder": "+34 600 123 456",
+    "phoneOptional": "Opcional. Aún no te enviaremos mensajes.",
+    "phoneInvalid": "Introduce un número de teléfono válido",
+    "avatarPickFromGallery": "Cambiar foto",
+    "avatarPermissionTitle": "Se necesita acceso a fotos",
+    "avatarPermissionBody": "Permite el acceso a las fotos en Ajustes para elegir una foto de perfil.",
+    "avatarSaveError": "No se pudo guardar la nueva foto. Inténtalo de nuevo.",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saved": "Perfil actualizado",
+    "saveError": "No pudimos guardar tus cambios. Inténtalo de nuevo."
+  },
+  "editMembership": {
+    "title": "Editar perfil del espacio de trabajo",
+    "back": "atrás",
+    "avatarChange": "Cambiar foto",
+    "avatarPickFromGallery": "Elegir foto de la galería",
+    "avatarPermissionTitle": "Se necesita acceso a fotos",
+    "avatarPermissionBody": "Permite el acceso a las fotos en Ajustes para elegir un avatar del espacio de trabajo.",
+    "avatarSaveError": "No se pudo guardar el nuevo avatar. Inténtalo de nuevo.",
+    "displayNameLabel": "Nombre para mostrar",
+    "displayNameHint": "Cómo te ven los espectadores en este espacio de trabajo. Déjalo en blanco para usar el nombre del espacio.",
+    "usernameLabel": "Nombre de usuario del espacio",
+    "usernameHint": "Letras minúsculas, números, punto, guion y guion bajo.",
+    "usernameInvalid": "De 3 a 30 caracteres. Solo letras minúsculas, números, punto, guion y guion bajo.",
+    "bioLabel": "Biografía",
+    "bioPlaceholder": "Cuenta a los espectadores algo sobre ti en este espacio de trabajo",
+    "bioCounter": "{{current}} / {{max}}",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saved": "Perfil del espacio de trabajo actualizado",
+    "saveError": "No pudimos guardar tus cambios. Inténtalo de nuevo."
+  },
+  "uploadTab": {
+    "title": "Subir",
+    "body": "Elige un video de tu galería o graba uno nuevo.",
+    "chooseFromGallery": "Elegir de la galería",
+    "chooseFromGallerySub": "Explora tu biblioteca y elige un video vertical.",
+    "recordNow": "Grabar ahora",
+    "recordNowSub": "Abre la cámara y graba un nuevo clip.",
+    "pickerSoon": "Elegir de la galería llegará pronto",
+    "recordSoon": "La grabación llegará pronto",
+    "cellularNote": "Atención: las subidas por datos móviles te avisarán antes de enviarse.",
+    "cancelPending": "Cancelar subida pendiente",
+    "noWorkspace": "Elige un espacio de trabajo antes de subir.",
+    "openSettingsHint": "Abre Ajustes para conceder el acceso."
+  },
+  "composer": {
+    "edit": {
+      "title": "Editar publicación",
+      "close": "cerrar",
+      "sectionTitleAndDescription": "Detalles",
+      "sectionTags": "Etiquetas",
+      "sectionCta": "Conversión",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Añade un título",
+      "titleRequired": "Añade un título para continuar",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Cuenta algo sobre este clip",
+      "charCounter": "{{current}} / {{max}}",
+      "urlInvalid": "Introduce un enlace https válido",
+      "noCtas": "No hay CTA configuradas",
+      "discardTitle": "¿Descartar cambios?",
+      "discardBody": "Tu borrador se eliminará.",
+      "discard": "Descartar",
+      "stay": "Quedarme aquí",
+      "cancel": "Cancelar",
+      "preview": "Vista previa",
+      "tagsRowLabel": "Etiquetas",
+      "tagsRowEmpty": "Añadir",
+      "tagsRowCount_one": "{{count}} seleccionada",
+      "tagsRowCount_other": "{{count}} seleccionadas",
+      "tagsRowDisabled": "No habilitado en este espacio de trabajo",
+      "ctaRowLabel": "Conversión",
+      "ctaRowEmpty": "Ninguna",
+      "ctaRowDisabled": "No hay opciones disponibles",
+      "videoMute": "silenciar video",
+      "videoUnmute": "activar audio del video",
+      "videoPlay": "reproducir video",
+      "videoPause": "pausar video"
+    },
+    "preview": {
+      "title": "Vista previa",
+      "edit": "Editar",
+      "sendForApproval": "Enviar para aprobación",
+      "publish": "Publicar",
+      "uploading": "Subiendo...",
+      "posted": "Tu publicación se ha enviado",
+      "noMedia": "Elige un video antes de publicar",
+      "descriptionEmpty": "Sin descripción",
+      "ctaUrlPlaceholder": "El enlace aparecerá aquí",
+      "previewPlaceholder": "La vista previa del video llegará pronto",
+      "back": "Atrás",
+      "toggleMute": "alternar silencio"
+    },
+    "record": {
+      "close": "cerrar cámara",
+      "start": "iniciar grabación",
+      "stop": "detener grabación",
+      "flip": "girar cámara",
+      "flashOn": "flash activado",
+      "flashOff": "flash desactivado",
+      "micOn": "micrófono activado",
+      "micOff": "micrófono desactivado",
+      "remaining": "{{seconds}}s restantes",
+      "hint": "Toca para empezar, toca de nuevo para detener",
+      "portraitHint": "Sostén tu dispositivo en vertical",
+      "permissionTitle": "Se necesita acceso a la cámara y al micrófono",
+      "permissionBody": "Concede acceso a la cámara y al micrófono para grabar un video.",
+      "openSettings": "Abrir Ajustes"
+    },
+    "tagsScreen": {
+      "title": "Etiquetas",
+      "body": "Elige etiquetas para que los espectadores adecuados encuentren tu publicación. Opcional.",
+      "done": "Listo",
+      "clearAll": "Borrar todo",
+      "emptyTitle": "No hay etiquetas configuradas",
+      "emptyBody": "El administrador de tu espacio de trabajo aún no ha configurado etiquetas.",
+      "addToCategory": "Añadir etiqueta",
+      "noneSelected": "Ninguna seleccionada"
+    },
+    "ctaScreen": {
+      "title": "Conversión",
+      "body": "Elige una conversión para mostrar con tu publicación. Opcional.",
+      "done": "Listo",
+      "removeSelection": "Quitar selección",
+      "emptyTitle": "No hay conversiones disponibles",
+      "emptyBody": "El administrador de tu espacio de trabajo no ha habilitado ninguna conversión.",
+      "noneOption": "Ninguna",
+      "noneOptionBody": "No se mostrará ninguna conversión con esta publicación.",
+      "linkLabel": "Enlace",
+      "linkPlaceholder": "https://example.com/landing",
+      "linkRequired": "Añade un enlace para usar esta conversión.",
+      "fixedTagLine": "Establecido por tu administrador",
+      "dynamicTagLine": "Añade tu enlace abajo"
+    }
+  },
+  "videoErrors": {
+    "PERMISSION_DENIED": "Permiso denegado. Concede el acceso para continuar.",
+    "FILE_NOT_FOUND": "No encontramos ese archivo de video.",
+    "DURATION_TOO_LONG": "Los videos deben durar {{limit}} segundos o menos.",
+    "FILE_TOO_LARGE": "Los videos deben pesar menos de {{limitMB}} MB.",
+    "ASPECT_RATIO_INVALID": "Los videos deben ser verticales (9:16).",
+    "UNREADABLE": "No pudimos leer ese video. Prueba con otro.",
+    "CANCELLED": "Subida cancelada",
+    "SIGN_FAILED": "No pudimos preparar la subida. Inténtalo de nuevo.",
+    "UPLOAD_FAILED": "Error en la subida. Toca reintentar para volver a intentarlo.",
+    "UPLOAD_REJECTED": "El servidor rechazó esta subida. Prueba con otro video.",
+    "NETWORK": "Sin conexión. Reanudaremos cuando vuelvas a estar en línea.",
+    "GENERIC": "Algo salió mal con el video. Inténtalo de nuevo."
+  },
+  "cellularSheet": {
+    "title": "Subida por datos móviles",
+    "headline": "¿Usar datos móviles para esta subida?",
+    "body": "Este archivo pesa {{sizeMB}} MB. Subirlo por datos móviles puede consumir mucho.",
+    "waitForWifi": "Esperar al Wi-Fi",
+    "uploadNow": "Subir ahora",
+    "hint": "Reanudaremos automáticamente cuando vuelva el Wi-Fi.",
+    "queuedForWifi": "En cola. Se subirá cuando haya Wi-Fi disponible."
+  },
+  "switcher": {
+    "title": "Cambiar de espacio de trabajo",
+    "searchPlaceholder": "Buscar espacios de trabajo",
+    "activeSection": "Activos",
+    "pendingSection": "Pendientes",
+    "addWorkspace": "Añadir un espacio de trabajo",
+    "emptyTitle": "Aún no tienes espacios de trabajo",
+    "emptyBody": "Añade un espacio de trabajo con un código de invitación o con tu correo de trabajo.",
+    "noResultsTitle": "Sin coincidencias",
+    "noResultsBody": "Prueba con otra búsqueda.",
+    "postsCount_one": "{{count}} publicación",
+    "postsCount_other": "{{count}} publicaciones",
+    "cancelRequest": "Cancelar solicitud",
+    "cancelRequestDone": "Solicitud cancelada",
+    "loadError": "No pudimos cargar tus espacios de trabajo.",
+    "selectRow": "seleccionar espacio de trabajo",
+    "pendingInvite": "invitación pendiente",
+    "pendingRequest": "solicitud pendiente"
+  },
+  "addTenant": {
+    "title": "Añadir un espacio de trabajo",
+    "subtitle": "Usa un código de invitación o búscalo con tu correo de trabajo.",
+    "inviteCard": {
+      "title": "Introduce el código de invitación",
+      "body": "Tu código de invitación de 8 caracteres dado por un administrador.",
+      "label": "Código de invitación",
+      "placeholder": "ABCD2345",
+      "lookup": "Continuar",
+      "redeem": "Añadir espacio de trabajo",
+      "wrongCode": "Código incorrecto",
+      "added": "Espacio de trabajo añadido"
+    },
+    "domainCard": {
+      "title": "Buscar por correo de empresa",
+      "body": "Listaremos los espacios de trabajo que coincidan con el dominio de tu correo de trabajo.",
+      "search": "Buscar",
+      "resultsTitle": "Espacios de trabajo disponibles",
+      "request": "Solicitar invitación",
+      "requestPending": "Solicitud pendiente",
+      "requestSent": "Solicitud enviada",
+      "joined": "Te has unido",
+      "noResults": "No se encontraron espacios de trabajo para el dominio de tu correo."
+    },
+    "errors": {
+      "inviteExpired": "Esta invitación ha caducado. Pide a tu administrador una nueva.",
+      "inviteUsed": "Esta invitación ya ha sido canjeada.",
+      "inviteGeneric": "No encontramos esa invitación. Revisa el código e inténtalo de nuevo.",
+      "domainNotProvisioned": "El dominio de tu correo aún no está configurado. Pide a un administrador que lo aprovisione.",
+      "workspaceFull": "Este espacio de trabajo está al máximo de su capacidad.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
+  },
+  "videoTile": {
+    "openPost": "abrir publicación {{title}}"
+  },
+  "ctaPicker": {
+    "staticLabel": "Siempre abre {{url}}",
+    "dynamicLabel": "Enlace personalizado, tú proporcionas la URL",
+    "noneLabel": "Ninguna",
+    "noneSubLabel": "No se mostrará ninguna conversión con esta publicación",
+    "linkLabel": "Enlace",
+    "linkPlaceholder": "https://example.com/landing",
+    "typeLink": "Enlace",
+    "typeDocument": "Documento",
+    "subtypeFixed": "Fijo",
+    "subtypeDynamic": "Dinámico"
+  },
+  "uploadBanner": {
+    "title": "Subida",
+    "uploading": "Subiendo",
+    "failed": "Error en la subida, toca para reintentar",
+    "resumeFrom": "Reanudar subida desde {{whenLabel}}",
+    "cancel": "Cancelar",
+    "retry": "Reintentar",
+    "resume": "Reanudar",
+    "dismiss": "Descartar",
+    "today": "hoy",
+    "yesterday": "ayer",
+    "queueDepth_one": "{{count}} subida más en espera",
+    "queueDepth_other": "{{count}} subidas más en espera"
+  },
+  "globalProfile": {
+    "memberSince": "Miembro desde {{date}}",
+    "emailVerified": "Correo verificado",
+    "emailUnverified": "Correo sin verificar",
+    "myWorkspaces": "Mis espacios de trabajo",
+    "myWorkspacesEmpty": "Aún no te has unido a ningún espacio de trabajo.",
+    "account": "Cuenta",
+    "editProfile": "Editar perfil",
+    "editProfileSoon": "El editor de perfil llegará pronto",
+    "settings": "Ajustes",
+    "settingsSoon": "Los ajustes llegarán pronto",
+    "signOut": "Cerrar sesión",
+    "signOutError": "No pudimos cerrar tu sesión. Inténtalo de nuevo.",
+    "openPostSoon": "La apertura de esta publicación llegará pronto",
+    "selectWorkspace": "seleccionar espacio de trabajo"
+  },
   "settings": {
     "title": "Ajustes",
-    "back": "Atrás",
-    "language": {
-      "label": "Idioma",
-      "title": "Idioma",
-      "system": "Predeterminado del sistema",
-      "systemDescription": "Sigue el idioma del dispositivo"
+    "back": "atrás",
+    "sections": {
+      "display": "Pantalla",
+      "notifications": "Notificaciones y subidas",
+      "legal": "Legal y soporte",
+      "account": "Cuenta"
     },
     "theme": {
       "label": "Tema",
       "system": "Sistema",
       "light": "Claro",
       "dark": "Oscuro"
+    },
+    "language": {
+      "label": "Idioma",
+      "title": "Idioma",
+      "system": "Predeterminado del sistema",
+      "systemDescription": "Sigue el idioma del dispositivo",
+      "en": "Inglés",
+      "es": "Español",
+      "fr": "Francés",
+      "hi": "Hindi",
+      "ar": "Árabe",
+      "enNative": "English",
+      "esNative": "Español",
+      "frNative": "Français",
+      "hiNative": "हिन्दी",
+      "arNative": "العربية"
+    },
+    "notifications": {
+      "label": "Notificaciones",
+      "description": "Recibe avisos cuando se revisen tus publicaciones."
+    },
+    "cellular": {
+      "label": "Avisar en subidas por datos móviles",
+      "description": "Confirma antes de enviar videos grandes por datos móviles."
+    },
+    "privacyTitle": "Política de privacidad",
+    "termsTitle": "Términos del servicio",
+    "privacyLabel": "Política de privacidad",
+    "termsLabel": "Términos del servicio",
+    "support": {
+      "label": "Ayuda y soporte",
+      "notConfigured": "El correo de soporte no está configurado.",
+      "mailSubject": "Soporte de Enterprise Creator",
+      "screenTitle": "Soporte",
+      "heading": "¿Necesitas ayuda?",
+      "body": "Escribe a nuestro equipo y te responderemos en un día laborable. Incluye capturas de pantalla y los pasos que diste para que podamos ayudarte más rápido.",
+      "emailLabel": "Escríbenos a",
+      "openMail": "Escríbenos",
+      "openError": "No se pudo abrir tu app de correo. Copia la dirección de arriba y escríbenos directamente."
+    },
+    "about": {
+      "label": "Acerca de",
+      "version": "Versión {{version}}",
+      "build": "Compilación {{build}}"
+    },
+    "deleteAccount": {
+      "label": "Eliminar cuenta",
+      "title": "Elimina tu cuenta",
+      "body": "Esto elimina permanentemente tu perfil, tus espacios de trabajo y todas las publicaciones que hayas publicado. No se puede deshacer.",
+      "confirmHint": "Escribe DELETE para confirmar.",
+      "confirmPlaceholder": "Escribe DELETE para confirmar",
+      "confirmAction": "Eliminar mi cuenta",
+      "deleted": "Tu cuenta ha sido eliminada.",
+      "cancel": "Cancelar",
+      "error": "No pudimos eliminar tu cuenta. Inténtalo de nuevo."
+    },
+    "signOut": {
+      "label": "Cerrar sesión",
+      "error": "No pudimos cerrar tu sesión. Inténtalo de nuevo."
+    },
+    "legal": {
+      "notConfiguredTitle": "Documento no configurado",
+      "notConfiguredBody": "Este documento aún no se ha configurado. Inténtalo de nuevo más tarde.",
+      "loading": "Cargando"
+    }
+  },
+  "video": {
+    "title": "Publicación",
+    "back": "atrás",
+    "prev": "publicación anterior",
+    "next": "siguiente publicación",
+    "share": "Compartir",
+    "copyLink": "Copiar enlace",
+    "delete": "Eliminar",
+    "deleteTitle": "¿Eliminar esta publicación?",
+    "deleteBody": "Esto elimina permanentemente la publicación y sus estadísticas. No se puede deshacer.",
+    "deleteConfirm": "Eliminar",
+    "deleteCancel": "Cancelar",
+    "deleted": "Publicación eliminada",
+    "linkCopied": "Enlace copiado",
+    "shareSubject": "Comparte esta publicación",
+    "postedOn": "Publicada el {{date}}",
+    "watchThroughRate": "Visualización completa",
+    "avgWatch": "Visualización media",
+    "statsLabels": {
+      "views": "Visualizaciones",
+      "clicks": "Clics",
+      "watchThroughRate": "Visualización completa",
+      "avgWatch": "Visualización media",
+      "likes": "Me gusta",
+      "dislikes": "No me gusta",
+      "shares": "Compartidos"
+    },
+    "scaffoldNoPreview": "Vista previa no disponible en modo scaffold",
+    "postNotFound": "Publicación no encontrada",
+    "postNotFoundBody": "No pudimos encontrar esta publicación en tu espacio de trabajo.",
+    "adminNote": "Nota del administrador",
+    "openAdminNote": "abrir nota del administrador",
+    "expand": "expandir",
+    "playToggle": "reproducir o pausar",
+    "volumeToggle": "alternar volumen",
+    "moreActions": "más acciones",
+    "noDescription": "Sin descripción",
+    "secondsShort": "{{seconds}}s",
+    "openStatus": "abrir detalles del estado",
+    "specs": {
+      "title": "Especificaciones",
+      "open": "abrir especificaciones del video",
+      "fileSize": "Tamaño del archivo",
+      "resolution": "Resolución",
+      "duration": "Duración"
+    },
+    "statusPopup": {
+      "title": "{{status}}"
+    },
+    "showMore": "Mostrar más",
+    "showLess": "Mostrar menos",
+    "timeline": {
+      "title": "Cronología",
+      "uploaded": "Subida",
+      "approved": "Aprobada",
+      "published": "Publicada"
     }
   }
 }

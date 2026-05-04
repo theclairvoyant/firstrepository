@@ -18,26 +18,541 @@
       "tagline": "Créez. Publiez. Gagnez.",
       "getStarted": "Commencer",
       "haveInviteCode": "J'ai un code d'invitation"
+    },
+    "method": {
+      "title": "Se connecter",
+      "subtitle": "Utilisez votre e-mail professionnel ou l'authentification unique pour continuer.",
+      "continueEmail": "Continuer avec l'e-mail",
+      "continueGoogle": "Continuer avec Google",
+      "continueMicrosoft": "Continuer avec Microsoft",
+      "continueApple": "Continuer avec Apple"
+    },
+    "sso": {
+      "pending": "Configuration SSO en attente"
+    },
+    "email": {
+      "title": "Quel est votre e-mail ?",
+      "body": "Nous vous enverrons un code à 6 chiffres pour vérifier qu'il s'agit bien de vous.",
+      "label": "E-mail",
+      "invalid": "Saisissez une adresse e-mail valide",
+      "error": "Nous n'avons pas pu envoyer le code. Réessayez."
+    },
+    "otp": {
+      "title": "Saisissez le code",
+      "body": "Nous avons envoyé un code à 6 chiffres à {{email}}.",
+      "invalid": "Code incorrect, réessayez",
+      "resend": "Renvoyer le code",
+      "resendIn": "Renvoyer dans {{seconds}}s",
+      "resendSent": "Nous avons envoyé un nouveau code"
+    },
+    "inviteCode": {
+      "title": "Saisissez votre code d'invitation",
+      "body": "Votre code d'invitation comporte 8 caractères, lettres et chiffres uniquement.",
+      "label": "Code d'invitation",
+      "placeholder": "ABCD2345",
+      "wrongCode": "Code incorrect",
+      "errorExpired": "Cette invitation a expiré. Demandez-en une nouvelle à votre administrateur.",
+      "errorUsed": "Cette invitation a déjà été utilisée.",
+      "errorGeneric": "Nous n'avons pas trouvé cette invitation. Vérifiez le code et réessayez."
+    },
+    "profile": {
+      "title": "Configurez votre profil global",
+      "body": "Voici comment vous apparaîtrez dans Enterprise Creator.",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "username": "Nom d'utilisateur",
+      "usernameHint": "Lettres minuscules, chiffres, point, tiret, tiret bas.",
+      "usernameInvalid": "De 3 à 30 caractères. Lettres minuscules, chiffres, point, tiret et tiret bas uniquement.",
+      "usernameChecking": "Vérification",
+      "usernameAvailable": "Disponible",
+      "usernameTaken": "Indisponible",
+      "avatarPickFromGallery": "Choisir une photo dans la galerie",
+      "avatarPickPreset": "Choisir un avatar prédéfini",
+      "avatarPermissionTitle": "Accès aux photos requis",
+      "avatarPermissionBody": "Autorisez l'accès aux photos dans Réglages pour choisir un avatar dans votre galerie.",
+      "avatarUploadError": "Impossible d'envoyer cette image. Essayez-en une autre.",
+      "phone": "Téléphone",
+      "phonePlaceholder": "+33 6 12 34 56 78",
+      "phoneOptional": "Facultatif. Nous ne vous enverrons pas encore de SMS.",
+      "phoneInvalid": "Saisissez un numéro de téléphone valide",
+      "finish": "Terminer"
+    }
+  },
+  "status": {
+    "pending": "En attente",
+    "approved": "Approuvée",
+    "live": "En ligne",
+    "rejected": "Rejetée",
+    "needsEdits": "Modifications demandées",
+    "descriptions": {
+      "pending": "Un administrateur examine cette publication. Vous recevrez une notification dès qu'une décision sera prise.",
+      "approved": "Approuvée et en file d'attente. Elle sera mise en ligne dès que la planification le permettra.",
+      "live": "Publiée et visible par les spectateurs. Les statistiques ci-dessous se mettent à jour en temps réel.",
+      "rejected": "Un administrateur a retiré cette publication de l'examen. Consultez la note ci-dessus pour le motif.",
+      "needsEdits": "Un administrateur a demandé des modifications. Ouvrez la publication, appliquez les modifications demandées, puis renvoyez-la."
+    }
+  },
+  "shell": {
+    "topBar": {
+      "switchWorkspace": "changer d'espace de travail",
+      "openProfile": "ouvrir le menu du profil",
+      "noWorkspace": "Aucun espace de travail sélectionné"
+    },
+    "modal": {
+      "close": "fermer"
+    },
+    "drawer": {
+      "close": "fermer"
+    },
+    "session": {
+      "expired": "Votre session a expiré. Veuillez vous reconnecter."
     }
   },
   "tabs": {
     "profile": "Profil",
     "upload": "Publier"
   },
+  "boot": {
+    "loading": "Chargement"
+  },
+  "profileTab": {
+    "title": "Profil",
+    "noWorkspaceTitle": "Aucun espace de travail pour le moment",
+    "noWorkspaceBody": "Tout est prêt, mais vous n'avez pas encore rejoint d'espace de travail. Si votre équipe vous a envoyé un code d'invitation, collez-le ci-dessous. Sinon, vérifiez si votre e-mail professionnel vous donne automatiquement accès.",
+    "findWorkspace": "Trouver un espace de travail",
+    "pasteInviteCode": "Coller le code d'invitation",
+    "searchByEmail": "Rechercher par e-mail professionnel",
+    "postsCount_one": "{{count}} publication",
+    "postsCount_other": "{{count}} publications",
+    "stats": {
+      "posts": "Publications",
+      "views": "Vues",
+      "clicks": "Clics",
+      "likes": "J'aime"
+    },
+    "banner": {
+      "pendingInvite": "Invitation en attente. L'administrateur n'a pas encore activé votre accès.",
+      "pendingRequest": "Demande en attente. Vous serez notifié dès qu'elle sera approuvée.",
+      "revoked": "Accès révoqué."
+    },
+    "editProfile": "Modifier le profil",
+    "editProfileSoon": "L'éditeur de profil arrive bientôt",
+    "shareProfile": "Partager le profil",
+    "shareSubject": "Partagez ce lien vers votre profil",
+    "empty": {
+      "title": "Aucune publication pour le moment",
+      "body": "Publiez votre premier court métrage pour commencer à construire votre profil.",
+      "cta": "Publier maintenant"
+    },
+    "errorTitle": "Nous n'avons pas pu charger vos publications",
+    "errorBody": "Vérifiez votre connexion et réessayez.",
+    "openPostSoon": "L'ouverture de cette publication arrive bientôt",
+    "uploadCancelled": "Envoi annulé"
+  },
+  "editGlobalProfile": {
+    "title": "Modifier le profil global",
+    "noProfile": "Aucun profil à modifier.",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "username": "Nom d'utilisateur",
+    "usernameHint": "Lettres minuscules, chiffres, point, tiret, tiret bas.",
+    "usernameInvalid": "De 3 à 30 caractères. Lettres minuscules, chiffres, point, tiret et tiret bas uniquement.",
+    "email": "E-mail",
+    "emailLocked": "L'e-mail est verrouillé pour le moment. Contactez l'assistance pour le modifier.",
+    "phone": "Téléphone",
+    "phonePlaceholder": "+33 6 12 34 56 78",
+    "phoneOptional": "Facultatif. Nous ne vous enverrons pas encore de SMS.",
+    "phoneInvalid": "Saisissez un numéro de téléphone valide",
+    "avatarPickFromGallery": "Changer la photo",
+    "avatarPermissionTitle": "Accès aux photos requis",
+    "avatarPermissionBody": "Autorisez l'accès aux photos dans Réglages pour choisir une photo de profil.",
+    "avatarSaveError": "Impossible d'enregistrer la nouvelle photo. Réessayez.",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saved": "Profil mis à jour",
+    "saveError": "Nous n'avons pas pu enregistrer vos modifications. Réessayez."
+  },
+  "editMembership": {
+    "title": "Modifier le profil de l'espace de travail",
+    "back": "retour",
+    "avatarChange": "Changer la photo",
+    "avatarPickFromGallery": "Choisir une photo dans la galerie",
+    "avatarPermissionTitle": "Accès aux photos requis",
+    "avatarPermissionBody": "Autorisez l'accès aux photos dans Réglages pour choisir un avatar pour cet espace de travail.",
+    "avatarSaveError": "Impossible d'enregistrer le nouvel avatar. Réessayez.",
+    "displayNameLabel": "Nom affiché",
+    "displayNameHint": "Comment les spectateurs vous voient dans cet espace de travail. Laissez vide pour utiliser le nom de l'espace.",
+    "usernameLabel": "Nom d'utilisateur de l'espace de travail",
+    "usernameHint": "Lettres minuscules, chiffres, point, tiret, tiret bas.",
+    "usernameInvalid": "De 3 à 30 caractères. Lettres minuscules, chiffres, point, tiret et tiret bas uniquement.",
+    "bioLabel": "Bio",
+    "bioPlaceholder": "Parlez un peu de vous aux spectateurs dans cet espace de travail",
+    "bioCounter": "{{current}} / {{max}}",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saved": "Profil de l'espace de travail mis à jour",
+    "saveError": "Nous n'avons pas pu enregistrer vos modifications. Réessayez."
+  },
+  "uploadTab": {
+    "title": "Publier",
+    "body": "Choisissez une vidéo dans votre galerie ou enregistrez-en une nouvelle.",
+    "chooseFromGallery": "Choisir dans la galerie",
+    "chooseFromGallerySub": "Parcourez votre bibliothèque et choisissez une vidéo verticale.",
+    "recordNow": "Enregistrer maintenant",
+    "recordNowSub": "Ouvrez l'appareil photo et enregistrez un nouveau clip.",
+    "pickerSoon": "Le choix depuis la galerie arrive bientôt",
+    "recordSoon": "L'enregistrement arrive bientôt",
+    "cellularNote": "Attention : les envois en données mobiles vous avertiront avant l'envoi.",
+    "cancelPending": "Annuler l'envoi en attente",
+    "noWorkspace": "Choisissez un espace de travail avant de publier.",
+    "openSettingsHint": "Ouvrez Réglages pour autoriser l'accès."
+  },
+  "composer": {
+    "edit": {
+      "title": "Modifier la publication",
+      "close": "fermer",
+      "sectionTitleAndDescription": "Détails",
+      "sectionTags": "Étiquettes",
+      "sectionCta": "Conversion",
+      "titleLabel": "Titre",
+      "titlePlaceholder": "Ajoutez un titre",
+      "titleRequired": "Ajoutez un titre pour continuer",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Dites quelques mots sur ce clip",
+      "charCounter": "{{current}} / {{max}}",
+      "urlInvalid": "Saisissez un lien https valide",
+      "noCtas": "Aucun CTA configuré",
+      "discardTitle": "Abandonner les modifications ?",
+      "discardBody": "Votre brouillon sera supprimé.",
+      "discard": "Abandonner",
+      "stay": "Rester ici",
+      "cancel": "Annuler",
+      "preview": "Aperçu",
+      "tagsRowLabel": "Étiquettes",
+      "tagsRowEmpty": "Ajouter",
+      "tagsRowCount_one": "{{count}} sélectionnée",
+      "tagsRowCount_other": "{{count}} sélectionnées",
+      "tagsRowDisabled": "Non activé dans cet espace de travail",
+      "ctaRowLabel": "Conversion",
+      "ctaRowEmpty": "Aucune",
+      "ctaRowDisabled": "Aucune option disponible",
+      "videoMute": "couper le son de la vidéo",
+      "videoUnmute": "activer le son de la vidéo",
+      "videoPlay": "lire la vidéo",
+      "videoPause": "mettre la vidéo en pause"
+    },
+    "preview": {
+      "title": "Aperçu",
+      "edit": "Modifier",
+      "sendForApproval": "Envoyer pour approbation",
+      "publish": "Publier",
+      "uploading": "Envoi en cours...",
+      "posted": "Votre publication a été soumise",
+      "noMedia": "Choisissez une vidéo avant de publier",
+      "descriptionEmpty": "Aucune description",
+      "ctaUrlPlaceholder": "Le lien apparaîtra ici",
+      "previewPlaceholder": "L'aperçu vidéo arrive bientôt",
+      "back": "Retour",
+      "toggleMute": "activer ou couper le son"
+    },
+    "record": {
+      "close": "fermer l'appareil photo",
+      "start": "démarrer l'enregistrement",
+      "stop": "arrêter l'enregistrement",
+      "flip": "retourner l'appareil photo",
+      "flashOn": "flash activé",
+      "flashOff": "flash désactivé",
+      "micOn": "micro activé",
+      "micOff": "micro désactivé",
+      "remaining": "{{seconds}}s restantes",
+      "hint": "Touchez pour démarrer, touchez à nouveau pour arrêter",
+      "portraitHint": "Tenez votre appareil à la verticale",
+      "permissionTitle": "Accès à la caméra et au micro requis",
+      "permissionBody": "Autorisez l'accès à la caméra et au micro pour enregistrer une vidéo.",
+      "openSettings": "Ouvrir Réglages"
+    },
+    "tagsScreen": {
+      "title": "Étiquettes",
+      "body": "Choisissez des étiquettes pour que les bons spectateurs trouvent votre publication. Facultatif.",
+      "done": "Terminé",
+      "clearAll": "Tout effacer",
+      "emptyTitle": "Aucune étiquette configurée",
+      "emptyBody": "L'administrateur de votre espace de travail n'a pas encore configuré d'étiquettes.",
+      "addToCategory": "Ajouter une étiquette",
+      "noneSelected": "Aucune sélectionnée"
+    },
+    "ctaScreen": {
+      "title": "Conversion",
+      "body": "Choisissez une conversion à afficher avec votre publication. Facultatif.",
+      "done": "Terminé",
+      "removeSelection": "Retirer la sélection",
+      "emptyTitle": "Aucune conversion disponible",
+      "emptyBody": "L'administrateur de votre espace de travail n'a activé aucune conversion.",
+      "noneOption": "Aucune",
+      "noneOptionBody": "Aucune conversion ne sera affichée avec cette publication.",
+      "linkLabel": "Lien",
+      "linkPlaceholder": "https://example.com/landing",
+      "linkRequired": "Ajoutez un lien pour utiliser cette conversion.",
+      "fixedTagLine": "Défini par votre administrateur",
+      "dynamicTagLine": "Ajoutez votre lien ci-dessous"
+    }
+  },
+  "videoErrors": {
+    "PERMISSION_DENIED": "Autorisation refusée. Accordez l'accès pour continuer.",
+    "FILE_NOT_FOUND": "Nous n'avons pas trouvé ce fichier vidéo.",
+    "DURATION_TOO_LONG": "Les vidéos doivent durer {{limit}} secondes ou moins.",
+    "FILE_TOO_LARGE": "Les vidéos doivent peser moins de {{limitMB}} Mo.",
+    "ASPECT_RATIO_INVALID": "Les vidéos doivent être verticales (9:16).",
+    "UNREADABLE": "Nous n'avons pas pu lire cette vidéo. Essayez-en une autre.",
+    "CANCELLED": "Envoi annulé",
+    "SIGN_FAILED": "Nous n'avons pas pu préparer l'envoi. Réessayez.",
+    "UPLOAD_FAILED": "Échec de l'envoi. Touchez réessayer pour recommencer.",
+    "UPLOAD_REJECTED": "Le serveur a rejeté cet envoi. Essayez une autre vidéo.",
+    "NETWORK": "Pas de connexion. Nous reprendrons dès que vous serez de nouveau en ligne.",
+    "GENERIC": "Un problème est survenu avec la vidéo. Réessayez."
+  },
+  "cellularSheet": {
+    "title": "Envoi en données mobiles",
+    "headline": "Utiliser les données mobiles pour cet envoi ?",
+    "body": "Ce fichier pèse {{sizeMB}} Mo. L'envoyer en données mobiles peut consommer beaucoup.",
+    "waitForWifi": "Attendre le Wi-Fi",
+    "uploadNow": "Envoyer maintenant",
+    "hint": "Nous reprendrons automatiquement dès que le Wi-Fi sera disponible.",
+    "queuedForWifi": "En file d'attente. L'envoi se fera dès que le Wi-Fi sera disponible."
+  },
+  "switcher": {
+    "title": "Changer d'espace de travail",
+    "searchPlaceholder": "Rechercher des espaces de travail",
+    "activeSection": "Actifs",
+    "pendingSection": "En attente",
+    "addWorkspace": "Ajouter un espace de travail",
+    "emptyTitle": "Aucun espace de travail pour le moment",
+    "emptyBody": "Ajoutez un espace de travail avec un code d'invitation ou via votre e-mail professionnel.",
+    "noResultsTitle": "Aucun résultat",
+    "noResultsBody": "Essayez une autre recherche.",
+    "postsCount_one": "{{count}} publication",
+    "postsCount_other": "{{count}} publications",
+    "cancelRequest": "Annuler la demande",
+    "cancelRequestDone": "Demande annulée",
+    "loadError": "Nous n'avons pas pu charger vos espaces de travail.",
+    "selectRow": "sélectionner l'espace de travail",
+    "pendingInvite": "invitation en attente",
+    "pendingRequest": "demande en attente"
+  },
+  "addTenant": {
+    "title": "Ajouter un espace de travail",
+    "subtitle": "Utilisez un code d'invitation ou recherchez via votre e-mail professionnel.",
+    "inviteCard": {
+      "title": "Saisissez le code d'invitation",
+      "body": "Votre code d'invitation à 8 caractères fourni par un administrateur.",
+      "label": "Code d'invitation",
+      "placeholder": "ABCD2345",
+      "lookup": "Continuer",
+      "redeem": "Ajouter l'espace de travail",
+      "wrongCode": "Code incorrect",
+      "added": "Espace de travail ajouté"
+    },
+    "domainCard": {
+      "title": "Rechercher par e-mail d'entreprise",
+      "body": "Nous listerons les espaces de travail correspondant au domaine de votre e-mail professionnel.",
+      "search": "Rechercher",
+      "resultsTitle": "Espaces de travail disponibles",
+      "request": "Demander une invitation",
+      "requestPending": "Demande en attente",
+      "requestSent": "Demande envoyée",
+      "joined": "Rejoint",
+      "noResults": "Aucun espace de travail trouvé pour votre domaine d'e-mail."
+    },
+    "errors": {
+      "inviteExpired": "Cette invitation a expiré. Demandez-en une nouvelle à votre administrateur.",
+      "inviteUsed": "Cette invitation a déjà été utilisée.",
+      "inviteGeneric": "Nous n'avons pas trouvé cette invitation. Vérifiez le code et réessayez.",
+      "domainNotProvisioned": "Le domaine de votre e-mail n'est pas encore configuré. Demandez à un administrateur de l'approvisionner.",
+      "workspaceFull": "Cet espace de travail est complet.",
+      "generic": "Un problème est survenu. Réessayez."
+    }
+  },
+  "videoTile": {
+    "openPost": "ouvrir la publication {{title}}"
+  },
+  "ctaPicker": {
+    "staticLabel": "Ouvre toujours {{url}}",
+    "dynamicLabel": "Lien personnalisé, vous fournissez l'URL",
+    "noneLabel": "Aucune",
+    "noneSubLabel": "Aucune conversion ne sera affichée avec cette publication",
+    "linkLabel": "Lien",
+    "linkPlaceholder": "https://example.com/landing",
+    "typeLink": "Lien",
+    "typeDocument": "Document",
+    "subtypeFixed": "Fixe",
+    "subtypeDynamic": "Dynamique"
+  },
+  "uploadBanner": {
+    "title": "Envoi",
+    "uploading": "Envoi en cours",
+    "failed": "Échec de l'envoi, touchez pour réessayer",
+    "resumeFrom": "Reprendre l'envoi depuis {{whenLabel}}",
+    "cancel": "Annuler",
+    "retry": "Réessayer",
+    "resume": "Reprendre",
+    "dismiss": "Ignorer",
+    "today": "aujourd'hui",
+    "yesterday": "hier",
+    "queueDepth_one": "{{count}} envoi supplémentaire en attente",
+    "queueDepth_other": "{{count}} envois supplémentaires en attente"
+  },
+  "globalProfile": {
+    "memberSince": "Membre depuis {{date}}",
+    "emailVerified": "E-mail vérifié",
+    "emailUnverified": "E-mail non vérifié",
+    "myWorkspaces": "Mes espaces de travail",
+    "myWorkspacesEmpty": "Vous n'avez encore rejoint aucun espace de travail.",
+    "account": "Compte",
+    "editProfile": "Modifier le profil",
+    "editProfileSoon": "L'éditeur de profil arrive bientôt",
+    "settings": "Paramètres",
+    "settingsSoon": "Les paramètres arrivent bientôt",
+    "signOut": "Se déconnecter",
+    "signOutError": "Nous n'avons pas pu vous déconnecter. Réessayez.",
+    "openPostSoon": "L'ouverture de cette publication arrive bientôt",
+    "selectWorkspace": "sélectionner l'espace de travail"
+  },
   "settings": {
     "title": "Paramètres",
-    "back": "Retour",
-    "language": {
-      "label": "Langue",
-      "title": "Langue",
-      "system": "Par défaut du système",
-      "systemDescription": "Suivre la langue de l'appareil"
+    "back": "retour",
+    "sections": {
+      "display": "Affichage",
+      "notifications": "Notifications et envois",
+      "legal": "Mentions légales et assistance",
+      "account": "Compte"
     },
     "theme": {
       "label": "Thème",
       "system": "Système",
       "light": "Clair",
       "dark": "Sombre"
+    },
+    "language": {
+      "label": "Langue",
+      "title": "Langue",
+      "system": "Par défaut du système",
+      "systemDescription": "Suivre la langue de l'appareil",
+      "en": "Anglais",
+      "es": "Espagnol",
+      "fr": "Français",
+      "hi": "Hindi",
+      "ar": "Arabe",
+      "enNative": "English",
+      "esNative": "Español",
+      "frNative": "Français",
+      "hiNative": "हिन्दी",
+      "arNative": "العربية"
+    },
+    "notifications": {
+      "label": "Notifications",
+      "description": "Recevez des alertes lorsque vos publications sont examinées."
+    },
+    "cellular": {
+      "label": "Avertir lors des envois en données mobiles",
+      "description": "Confirmer avant d'envoyer de grandes vidéos en données mobiles."
+    },
+    "privacyTitle": "Politique de confidentialité",
+    "termsTitle": "Conditions d'utilisation",
+    "privacyLabel": "Politique de confidentialité",
+    "termsLabel": "Conditions d'utilisation",
+    "support": {
+      "label": "Aide et assistance",
+      "notConfigured": "L'e-mail d'assistance n'est pas configuré.",
+      "mailSubject": "Assistance Enterprise Creator",
+      "screenTitle": "Assistance",
+      "heading": "Besoin d'un coup de main ?",
+      "body": "Écrivez à notre équipe et nous vous répondrons sous un jour ouvré. Joignez des captures d'écran et les étapes que vous avez suivies pour qu'on puisse vous aider plus vite.",
+      "emailLabel": "Écrivez-nous à",
+      "openMail": "Nous écrire",
+      "openError": "Impossible d'ouvrir votre app de messagerie. Copiez l'adresse ci-dessus et écrivez-nous directement."
+    },
+    "about": {
+      "label": "À propos",
+      "version": "Version {{version}}",
+      "build": "Build {{build}}"
+    },
+    "deleteAccount": {
+      "label": "Supprimer le compte",
+      "title": "Supprimer votre compte",
+      "body": "Cela supprime définitivement votre profil, vos espaces de travail et toutes les publications que vous avez publiées. Cette action est irréversible.",
+      "confirmHint": "Tapez DELETE pour confirmer.",
+      "confirmPlaceholder": "Tapez DELETE pour confirmer",
+      "confirmAction": "Supprimer mon compte",
+      "deleted": "Votre compte a été supprimé.",
+      "cancel": "Annuler",
+      "error": "Nous n'avons pas pu supprimer votre compte. Réessayez."
+    },
+    "signOut": {
+      "label": "Se déconnecter",
+      "error": "Nous n'avons pas pu vous déconnecter. Réessayez."
+    },
+    "legal": {
+      "notConfiguredTitle": "Document non configuré",
+      "notConfiguredBody": "Ce document n'a pas encore été mis en place. Réessayez plus tard.",
+      "loading": "Chargement"
+    }
+  },
+  "video": {
+    "title": "Publication",
+    "back": "retour",
+    "prev": "publication précédente",
+    "next": "publication suivante",
+    "share": "Partager",
+    "copyLink": "Copier le lien",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer cette publication ?",
+    "deleteBody": "Cela supprime définitivement la publication et ses statistiques. Cette action est irréversible.",
+    "deleteConfirm": "Supprimer",
+    "deleteCancel": "Annuler",
+    "deleted": "Publication supprimée",
+    "linkCopied": "Lien copié",
+    "shareSubject": "Partagez cette publication",
+    "postedOn": "Publié le {{date}}",
+    "watchThroughRate": "Visionnage complet",
+    "avgWatch": "Visionnage moyen",
+    "statsLabels": {
+      "views": "Vues",
+      "clicks": "Clics",
+      "watchThroughRate": "Visionnage complet",
+      "avgWatch": "Visionnage moyen",
+      "likes": "J'aime",
+      "dislikes": "Je n'aime pas",
+      "shares": "Partages"
+    },
+    "scaffoldNoPreview": "Aperçu non disponible en mode scaffold",
+    "postNotFound": "Publication introuvable",
+    "postNotFoundBody": "Nous n'avons pas trouvé cette publication dans votre espace de travail.",
+    "adminNote": "Note de l'administrateur",
+    "openAdminNote": "ouvrir la note de l'administrateur",
+    "expand": "développer",
+    "playToggle": "lire ou mettre en pause",
+    "volumeToggle": "activer ou couper le son",
+    "moreActions": "plus d'actions",
+    "noDescription": "Aucune description",
+    "secondsShort": "{{seconds}}s",
+    "openStatus": "ouvrir les détails du statut",
+    "specs": {
+      "title": "Caractéristiques",
+      "open": "ouvrir les caractéristiques de la vidéo",
+      "fileSize": "Taille du fichier",
+      "resolution": "Résolution",
+      "duration": "Durée"
+    },
+    "statusPopup": {
+      "title": "{{status}}"
+    },
+    "showMore": "Afficher plus",
+    "showLess": "Afficher moins",
+    "timeline": {
+      "title": "Chronologie",
+      "uploaded": "Envoyée",
+      "approved": "Approuvée",
+      "published": "Publiée"
     }
   }
 }

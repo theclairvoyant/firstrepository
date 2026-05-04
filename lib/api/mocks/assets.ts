@@ -54,30 +54,30 @@ export const MOCK_ASSETS = {
     // Square logo placeholders. Real logos should be square SVG / PNG with
     // transparent background; the UI wraps them in a 1px border so light
     // logos do not vanish on light bg.
-    acme: { logoUrl: PICSUM('ec-brand-acme', 120, 120) },
-    globex: { logoUrl: PICSUM('ec-brand-globex', 120, 120) },
-    initech: { logoUrl: PICSUM('ec-brand-initech', 120, 120) },
+    pinecrest: { logoUrl: PICSUM('ec-brand-pinecrest', 120, 120) },
+    velocity: { logoUrl: PICSUM('ec-brand-velocity', 120, 120) },
+    cascade: { logoUrl: PICSUM('ec-brand-cascade', 120, 120) },
   },
 
   workspaces: {
     // Per-membership avatars and cover banners. The user can override these in
     // the (deferred) edit-profile editor. Banners are wider 800x300 picsum
     // tiles rendered as the IG-style cover behind the avatar.
-    acmeGlobalLearning: {
-      avatarUrl: PICSUM('ec-ws-acme-skills', 240, 240),
-      bannerUrl: PICSUM('ec-ws-acme-skills-banner', 800, 300),
+    pinecrestSales: {
+      avatarUrl: PICSUM('ec-ws-pinecrest-sales', 240, 240),
+      bannerUrl: PICSUM('ec-ws-pinecrest-sales-banner', 800, 300),
     },
-    acmeSocial: {
-      avatarUrl: PICSUM('ec-ws-acme-social', 240, 240),
-      bannerUrl: PICSUM('ec-ws-acme-social-banner', 800, 300),
+    pinecrestStories: {
+      avatarUrl: PICSUM('ec-ws-pinecrest-stories', 240, 240),
+      bannerUrl: PICSUM('ec-ws-pinecrest-stories-banner', 800, 300),
     },
-    globexSkills: {
-      avatarUrl: PICSUM('ec-ws-globex-skills', 240, 240),
-      bannerUrl: PICSUM('ec-ws-globex-skills-banner', 800, 300),
+    velocityShowroom: {
+      avatarUrl: PICSUM('ec-ws-velocity-showroom', 240, 240),
+      bannerUrl: PICSUM('ec-ws-velocity-showroom-banner', 800, 300),
     },
-    initechPartner: {
-      avatarUrl: PICSUM('ec-ws-initech-partner', 240, 240),
-      bannerUrl: PICSUM('ec-ws-initech-partner-banner', 800, 300),
+    cascadeConcierge: {
+      avatarUrl: PICSUM('ec-ws-cascade-concierge', 240, 240),
+      bannerUrl: PICSUM('ec-ws-cascade-concierge-banner', 800, 300),
     },
   },
 

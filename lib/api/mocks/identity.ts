@@ -91,6 +91,13 @@ export async function patchMe(input: PatchMeInput): Promise<EnterpriseCreator> {
     lastName: input.lastName ?? seedState.creator.lastName,
     globalUsername: input.globalUsername ?? seedState.creator.globalUsername,
     phone: input.phone ?? seedState.creator.phone,
+    // Email change is normally guarded by the verify step; the dedicated
+    // edit-email screen calls emailVerify with code 123456 before
+    // submitting here. The mock trusts the caller.
+    email: input.email ?? seedState.creator.email,
+    emailVerified: input.email
+      ? true
+      : seedState.creator.emailVerified,
   };
   seedState.creator = next;
   return next;

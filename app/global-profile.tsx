@@ -71,12 +71,8 @@ function WorkspaceRow({
         <ThemedText variant="bodyMed" numberOfLines={1}>
           {ws.name}
         </ThemedText>
-        <ThemedText
-          variant="caption"
-          tone="secondary"
-          numberOfLines={1}
-        >
-          {ws.brand.name}
+        <ThemedText variant="mono" tone="muted" numberOfLines={1}>
+          {`@${ws.handle}`}
         </ThemedText>
       </View>
       <WorkspaceTypeBadge type={ws.type} style={{ alignSelf: 'center' }} />

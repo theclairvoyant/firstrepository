@@ -10,6 +10,7 @@ import type {
   PostStatus,
 } from '@/types/api';
 import { findPost, findWorkspace, nextPostId, seedState, simulateLatency } from './__seed';
+import { MOCK_ASSETS } from './assets';
 
 const DEFAULT_LIMIT = 24;
 
@@ -50,16 +51,25 @@ export async function createPost(workspaceId: string, input: CreatePostInput): P
   if (!ws) {
     throw new ApiError({ code: 'NOT_FOUND', message: 'Workspace not found.', status: 404 });
   }
-  const cta = ws.capabilities.allowedCtas.find((c) => c.id === input.ctaId) ?? null;
-  if (!cta) {
-    throw new ApiError({
-      code: 'BAD_REQUEST',
-      message: 'CTA is not allowed on this workspace.',
-      status: 400,
-    });
+  // CTA is optional. When ctaId is set, validate against allowedCtas; when
+  // null/undefined, the post is published without a conversion attached.
+  let cta: Post['cta'] = null;
+  if (input.ctaId) {
+    const found = ws.capabilities.allowedCtas.find((c) => c.id === input.ctaId);
+    if (!found) {
+      throw new ApiError({
+        code: 'BAD_REQUEST',
+        message: 'CTA is not allowed on this workspace.',
+        status: 400,
+      });
+    }
+    cta = found;
   }
   const status: PostStatus = ws.capabilities.requireApproval ? 'pending' : 'live';
   const id = nextPostId();
+  // Reuse the sample seed thumbnail so the new tile actually shows artwork
+  // instead of a broken-image placeholder while the real media key resolves.
+  const sampleThumbnail = MOCK_ASSETS.posts.thumbnailFor(id);
   const post: Post = {
     id,
     workspaceId,
@@ -69,8 +79,8 @@ export async function createPost(workspaceId: string, input: CreatePostInput): P
     tagIds: input.tagIds,
     cta,
     ctaUrl: input.ctaUrl,
-    mediaUrl: `https://example.com/media/${id}.mp4`,
-    thumbnailUrl: `https://example.com/media/${id}.jpg`,
+    mediaUrl: MOCK_ASSETS.posts.sampleMediaUrl,
+    thumbnailUrl: sampleThumbnail,
     durationSeconds: 30,
     createdAt: new Date().toISOString(),
     stats: { views: 0, clicks: 0, watchThroughRate: 0, avgWatchSeconds: 0 },

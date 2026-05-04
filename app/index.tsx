@@ -130,10 +130,24 @@ export default function BootScreen(): React.ReactElement {
       }
     }
 
-    // Branch D: resolve active workspace from memberships + lastActive.
-    const lastActiveId: string | null =
-      useTenantStore.getState().lastActiveWorkspaceId;
+    // Branch D: resolve active workspace by priority:
+    //   1. user-set defaultWorkspaceId (Settings > Default workspace)
+    //   2. lastActiveWorkspaceId (most recent session)
+    //   3. first active membership
+    const tenantState = useTenantStore.getState();
+    const defaultId: string | null = tenantState.defaultWorkspaceId;
+    const lastActiveId: string | null = tenantState.lastActiveWorkspaceId;
     const activeList = memberships.filter((m) => m.status === 'active');
+
+    if (defaultId) {
+      const def = activeList.find((m) => m.workspace.id === defaultId);
+      if (def) {
+        void setActiveWorkspace(def.workspace.id);
+        navigatedRef.current = true;
+        router.replace('/(tabs)/profile');
+        return;
+      }
+    }
 
     if (lastActiveId) {
       const last = activeList.find((m) => m.workspace.id === lastActiveId);

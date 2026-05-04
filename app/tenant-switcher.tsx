@@ -64,12 +64,8 @@ function MembershipRow({
         <ThemedText variant="heading" numberOfLines={1}>
           {ws.name}
         </ThemedText>
-        <ThemedText
-          variant="body"
-          tone="secondary"
-          numberOfLines={1}
-        >
-          {ws.brand.name}
+        <ThemedText variant="mono" tone="muted" numberOfLines={1}>
+          {`@${ws.handle}`}
         </ThemedText>
       </View>
       <WorkspaceTypeBadge type={ws.type} style={{ alignSelf: 'center' }} />
@@ -130,7 +126,8 @@ export default function TenantSwitcherScreen(): React.ReactElement {
     return allMemberships.filter((m) => {
       const brand = m.workspace.brand.name.toLowerCase();
       const ws = m.workspace.name.toLowerCase();
-      return brand.includes(q) || ws.includes(q);
+      const handle = m.workspace.handle.toLowerCase();
+      return brand.includes(q) || ws.includes(q) || handle.includes(q);
     });
   }, [allMemberships, search]);
 

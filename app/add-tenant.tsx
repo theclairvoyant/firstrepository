@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -9,31 +9,25 @@ import {
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, Search } from 'lucide-react-native';
+import { ChevronLeft, Mail } from 'lucide-react-native';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { ThemedText } from '@/components/ThemedText';
 import { Card } from '@/components/Card';
 import { Input } from '@/components/Input';
 import { Avatar } from '@/components/Avatar';
 import { PrimaryButton } from '@/components/PrimaryButton';
-import { SecondaryButton } from '@/components/SecondaryButton';
 import { GhostButton } from '@/components/GhostButton';
 import { WorkspaceTypeBadge } from '@/components/WorkspaceTypeBadge';
 import { useTheme } from '@/lib/theme/useTheme';
 import {
   useResolveInvite,
   useRedeemInvite,
-  useByDomain,
-  useRequestInvite,
 } from '@/lib/api/queries';
 import { useTenantStore } from '@/lib/store/tenantStore';
 import { useDeeplinkIntentStore } from '@/lib/deeplinks/intentStore';
 import { showToast } from '@/lib/toast';
 import { ApiError } from '@/types/api';
-import type {
-  ResolveInviteResponse,
-  DiscoveryByDomainEntry,
-} from '@/types/api';
+import type { ResolveInviteResponse } from '@/types/api';
 
 const CODE_LENGTH = 8;
 const VALID_CHARS = /[^A-Z2-9]/g;
@@ -131,8 +125,8 @@ function InviteCard({ onAdded }: InviteCardProps): React.ReactElement {
                 <ThemedText variant="heading" numberOfLines={1}>
                   {resolved.workspace.name}
                 </ThemedText>
-                <ThemedText variant="body" tone="secondary" numberOfLines={1}>
-                  {resolved.brand.name}
+                <ThemedText variant="mono" tone="muted" numberOfLines={1}>
+                  {`@${resolved.workspace.handle}`}
                 </ThemedText>
               </View>
               <WorkspaceTypeBadge
@@ -197,108 +191,26 @@ function InviteCard({ onAdded }: InviteCardProps): React.ReactElement {
   );
 }
 
-interface DomainEntryRowProps {
-  entry: DiscoveryByDomainEntry;
-}
-
-function DomainEntryRow({ entry }: DomainEntryRowProps): React.ReactElement {
+function EmailCard(): React.ReactElement {
+  const router = useRouter();
   const { t } = useTranslation();
-  const { spacing } = useTheme();
-  const [requested, setRequested] = useState<boolean>(entry.autoJoined);
-  const requestInvite = useRequestInvite();
-
-  const handleRequest = async (): Promise<void> => {
-    try {
-      await requestInvite.mutateAsync({ workspaceId: entry.workspace.id });
-      setRequested(true);
-      showToast({
-        variant: 'success',
-        message: t('addTenant.domainCard.requestSent'),
-      });
-    } catch (err) {
-      const msg =
-        err instanceof ApiError && err.code === 'EMAIL_DOMAIN_NOT_PROVISIONED'
-          ? t('addTenant.errors.domainNotProvisioned')
-          : t('addTenant.errors.generic');
-      showToast({ variant: 'danger', message: msg });
-    }
-  };
-
-  const ws = entry.workspace;
-  const buttonLabel: string = entry.autoJoined
-    ? t('addTenant.domainCard.joined')
-    : requested
-      ? t('addTenant.domainCard.requestPending')
-      : t('addTenant.domainCard.request');
-
-  return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-        paddingVertical: spacing.sm,
-      }}
-    >
-      <Avatar
-        size={40}
-        name={ws.name}
-        uri={ws.brand.logoUrl || undefined}
-        accessibilityLabel={ws.name}
-      />
-      <View style={{ flex: 1, gap: spacing.xxs }}>
-        <ThemedText variant="heading" numberOfLines={1}>
-          {ws.name}
-        </ThemedText>
-        <ThemedText variant="body" tone="secondary" numberOfLines={1}>
-          {ws.brand.name}
-        </ThemedText>
-      </View>
-      <WorkspaceTypeBadge type={ws.type} style={{ alignSelf: 'center' }} />
-      <View>
-        <SecondaryButton
-          label={buttonLabel}
-          accessibilityLabel={buttonLabel}
-          fullWidth={false}
-          disabled={requested || entry.autoJoined}
-          loading={requestInvite.isPending}
-          onPress={() => {
-            void handleRequest();
-          }}
-        />
-      </View>
-    </View>
-  );
-}
-
-function DomainCard(): React.ReactElement {
-  const { t } = useTranslation();
-  const { spacing, palette } = useTheme();
-  const byDomain = useByDomain();
-  const [searched, setSearched] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const entries: DiscoveryByDomainEntry[] = useMemo(() => {
-    return byDomain.data?.workspaces ?? [];
-  }, [byDomain.data]);
-
-  const handleSearch = async (): Promise<void> => {
-    setError(null);
-    try {
-      await byDomain.mutateAsync();
-      setSearched(true);
-    } catch (err) {
-      const msg =
-        err instanceof ApiError && err.code === 'EMAIL_DOMAIN_NOT_PROVISIONED'
-          ? t('addTenant.errors.domainNotProvisioned')
-          : t('addTenant.errors.generic');
-      setError(msg);
-    }
-  };
+  const { spacing, accent, palette } = useTheme();
 
   return (
     <Card>
       <View style={{ gap: spacing.sm }}>
+        <View
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: `${accent.primary}1f`,
+          }}
+        >
+          <Mail size={20} color={accent.primary} strokeWidth={1.75} />
+        </View>
         <ThemedText variant="heading">
           {t('addTenant.domainCard.title')}
         </ThemedText>
@@ -308,51 +220,14 @@ function DomainCard(): React.ReactElement {
 
         <View style={{ marginTop: spacing.xs }}>
           <PrimaryButton
-            label={t('addTenant.domainCard.search')}
-            accessibilityLabel={t('addTenant.domainCard.search')}
-            loading={byDomain.isPending}
-            onPress={() => {
-              void handleSearch();
-            }}
+            label={t('addTenant.domainCard.cta')}
+            accessibilityLabel={t('addTenant.domainCard.cta')}
+            onPress={() => router.push('/search-by-email')}
             leftIcon={
-              <Search size={18} color={palette.white} strokeWidth={1.75} />
+              <Mail size={18} color={palette.white} strokeWidth={1.75} />
             }
           />
         </View>
-
-        {error ? (
-          <ThemedText variant="caption" tone="danger">
-            {error}
-          </ThemedText>
-        ) : null}
-
-        {searched && entries.length === 0 && !error ? (
-          <ThemedText
-            variant="body"
-            tone="secondary"
-            style={{ marginTop: spacing.xs }}
-          >
-            {t('addTenant.domainCard.noResults')}
-          </ThemedText>
-        ) : null}
-
-        {entries.length > 0 ? (
-          <View style={{ marginTop: spacing.sm }}>
-            <ThemedText
-              variant="mono"
-              tone="muted"
-              style={{ marginBottom: spacing.xxs }}
-            >
-              {t('addTenant.domainCard.resultsTitle')}
-            </ThemedText>
-            {entries.map((entry) => (
-              <DomainEntryRow
-                key={entry.workspace.id}
-                entry={entry}
-              />
-            ))}
-          </View>
-        ) : null}
       </View>
     </Card>
   );
@@ -422,6 +297,8 @@ export default function AddTenantScreen(): React.ReactElement {
             gap: spacing.md,
           }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets
         >
           <ThemedText variant="title">{t('addTenant.title')}</ThemedText>
           <ThemedText
@@ -433,7 +310,7 @@ export default function AddTenantScreen(): React.ReactElement {
           </ThemedText>
 
           <InviteCard onAdded={(id) => { void handleAdded(id); }} />
-          <DomainCard />
+          <EmailCard />
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenContainer>

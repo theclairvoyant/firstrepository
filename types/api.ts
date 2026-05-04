@@ -24,21 +24,58 @@ export type WorkspaceType = 'skills' | 'social' | 'partner';
 
 export type CreatorJoinPolicy = 'open' | 'request' | 'invite_only';
 
+// Legacy style label kept for backward compat with the existing mock seeds /
+// older Post records. Real backend rendering is driven by `background`,
+// `iconName`, and `type` below.
 export type CtaStyle = 'primary' | 'secondary' | 'ghost';
 
-export type StaticCTA = {
+// Visual background of the CTA pill. `solid` uses colors[0]. `gradient`
+// blends colors[0] -> colors[1] left to right. Anything beyond colors[0..1]
+// is ignored by the renderer.
+export type CtaBackground =
+  | { kind: 'solid'; colors: [string] }
+  | { kind: 'gradient'; colors: [string, string] };
+
+// Whether the CTA points at an external link or a downloadable document.
+// Drives the default icon when iconName is not provided and the subtype
+// label shown in the picker (e.g. "Link · Dynamic").
+export type CtaType = 'link' | 'document';
+
+// Lucide icon name to render inside the CTA. Limited to a curated set the
+// admin can pick from. Optional - omit for a text-only button.
+export type CtaIconName =
+  | 'phone'
+  | 'headphones'
+  | 'download'
+  | 'book-open'
+  | 'file-text'
+  | 'link'
+  | 'message-circle'
+  | 'mail'
+  | 'play'
+  | 'shopping-bag';
+
+interface CtaCommon {
   id: string;
-  kind: 'static';
   label: string;
   style: CtaStyle;
+  // New visual fields - all optional so existing seed data without them
+  // still parses. The renderer falls back to theme colors when missing.
+  type?: CtaType;
+  iconName?: CtaIconName;
+  background?: CtaBackground;
+  textColor?: string;
+}
+
+export type StaticCTA = CtaCommon & {
+  // Backend-set link. Creator cannot edit. Subtype label = "Fixed".
+  kind: 'static';
   url: string;
 };
 
-export type DynamicCTA = {
-  id: string;
+export type DynamicCTA = CtaCommon & {
+  // Creator-supplied link required at compose time. Subtype label = "Dynamic".
   kind: 'dynamic';
-  label: string;
-  style: CtaStyle;
 };
 
 export type CTA = StaticCTA | DynamicCTA;
@@ -64,6 +101,11 @@ export type Workspace = {
   id: string;
   type: WorkspaceType;
   name: string;
+  // Globally unique workspace handle (e.g. "pinecrest-sales"). Distinct
+  // from brand.name and from any creator's workspaceUsername. Used as the
+  // secondary identifier under the workspace name in pickers and the top
+  // bar so two workspaces with similar display names stay disambiguated.
+  handle: string;
   brand: WorkspaceBrand;
   capabilities: WorkspaceCapabilities;
 };
@@ -209,6 +251,10 @@ export type PatchMeInput = {
   lastName?: string;
   globalUsername?: string;
   phone?: string;
+  // New email. Backend should require an OTP confirmation before applying;
+  // the dedicated /v1/identity/me/email/{start,verify} endpoints handle
+  // that. SCAFFOLD lets it pass through after the verify step succeeds.
+  email?: string;
 };
 
 export type DeleteMeResponse = {
@@ -274,6 +320,9 @@ export type PatchMembershipInput = {
   workspaceUsername?: string;
   bio?: string;
   displayName?: string;
+  // Cover image URL. Backend may swap this with a CDN URL after upload;
+  // SCAFFOLD stores the local file:// URI directly.
+  bannerUrl?: string;
 };
 
 export type MembershipAvatarResponse = {

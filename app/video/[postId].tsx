@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   Pressable,
   ScrollView,
@@ -29,6 +30,7 @@ import {
   Heart,
   Info,
   MoreHorizontal,
+  Pencil,
   Play,
   Pause,
   Share2,
@@ -40,7 +42,7 @@ import {
 import { Card } from '@/components/Card';
 import { DestructiveButton } from '@/components/DestructiveButton';
 import { EmptyState } from '@/components/EmptyState';
-import { GhostButton } from '@/components/GhostButton';
+import { CtaButton } from '@/components/CtaButton';
 import { ModalSheet } from '@/components/ModalSheet';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenContainer } from '@/components/ScreenContainer';
@@ -51,6 +53,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/lib/theme/useTheme';
 import { useTenantStore } from '@/lib/store/tenantStore';
 import { useLanguageStore } from '@/lib/store/languageStore';
+import { useDraftStore } from '@/lib/store/draftStore';
 import {
   keys,
   useDeletePost,
@@ -59,7 +62,7 @@ import {
 } from '@/lib/api/queries';
 import { showToast } from '@/lib/toast';
 import { buildPostUrl } from '@/lib/deeplinks/parser';
-import type { CTA, CtaStyle, Post, TagCategory } from '@/types/api';
+import type { CTA, Post, TagCategory } from '@/types/api';
 
 // Cap so a tall vertical video doesn't dominate the screen.
 const VIDEO_MAX_HEIGHT_PCT = 0.55;
@@ -150,35 +153,11 @@ interface CtaPreviewProps {
 
 function CtaPreview({ cta, ctaUrl }: CtaPreviewProps): React.ReactElement {
   const { spacing } = useTheme();
-  const style: CtaStyle = cta.style;
   const display: string = cta.kind === 'static' ? cta.url : (ctaUrl ?? '');
 
   return (
     <View style={{ gap: spacing.xs }}>
-      {style === 'primary' ? (
-        <PrimaryButton
-          label={cta.label}
-          accessibilityLabel={cta.label}
-          onPress={() => undefined}
-          disabled
-        />
-      ) : style === 'secondary' ? (
-        <SecondaryButton
-          label={cta.label}
-          accessibilityLabel={cta.label}
-          onPress={() => undefined}
-          disabled
-        />
-      ) : (
-        <View style={{ alignSelf: 'flex-start' }}>
-          <GhostButton
-            label={cta.label}
-            accessibilityLabel={cta.label}
-            onPress={() => undefined}
-            disabled
-          />
-        </View>
-      )}
+      <CtaButton cta={cta} fullWidth />
       {display ? (
         <ThemedText variant="mono" tone="muted" numberOfLines={1}>
           {display}
@@ -291,20 +270,23 @@ function PostPage({
     setShowControls(true);
   }, [player]);
 
-  const tagNames = useMemo<string[]>(() => {
-    const map = new Map<string, string>();
-    for (const cat of tagCategories) {
-      for (const tag of cat.tags) {
-        map.set(tag.id, tag.name);
-      }
-    }
-    const names: string[] = [];
-    for (const id of post.tagIds) {
-      const name = map.get(id);
-      if (name) names.push(name);
-    }
-    return names;
+  // Group the post's tagIds back under their TagCategory headings so the
+  // detail screen reflects the workspace's category structure (Property
+  // type / Topic / Audience etc.) instead of a flat list. Categories with
+  // zero matching tags are omitted entirely.
+  const tagsByCategory = useMemo<
+    Array<{ id: string; name: string; tags: string[] }>
+  >(() => {
+    const selected = new Set(post.tagIds);
+    return tagCategories
+      .map((cat) => ({
+        id: cat.id,
+        name: cat.name,
+        tags: cat.tags.filter((tg) => selected.has(tg.id)).map((tg) => tg.name),
+      }))
+      .filter((cat) => cat.tags.length > 0);
   }, [post.tagIds, tagCategories]);
+  const hasTags: boolean = tagsByCategory.length > 0;
 
   const playerOverlayLabel = playing ? t('video.playToggle') : t('video.playToggle');
 
@@ -650,23 +632,40 @@ function PostPage({
           ) : null}
         </View>
 
-        {/* Tags */}
-        {tagNames.length > 0 ? (
-          <View style={styles.tagRow}>
-            {tagNames.map((name, idx) => (
-              <TagPill
-                key={`${name}-${idx}`}
-                label={name}
-                selected
-                onPress={undefined}
-              />
-            ))}
+        {/* Tags - grouped by category */}
+        {hasTags ? (
+          <View style={{ gap: spacing.sm }}>
+            <ThemedText variant="mono" tone="muted">
+              {t('video.section.tags')}
+            </ThemedText>
+            <View style={{ gap: spacing.sm }}>
+              {tagsByCategory.map((cat) => (
+                <View key={cat.id} style={{ gap: 6 }}>
+                  <ThemedText variant="caption" tone="secondary">
+                    {cat.name}
+                  </ThemedText>
+                  <View style={styles.tagRow}>
+                    {cat.tags.map((name, idx) => (
+                      <TagPill
+                        key={`${cat.id}-${name}-${idx}`}
+                        label={name}
+                        selected
+                        onPress={undefined}
+                      />
+                    ))}
+                  </View>
+                </View>
+              ))}
+            </View>
           </View>
         ) : null}
 
-        {/* CTA preview */}
+        {/* Conversion */}
         {post.cta ? (
-          <View style={{ marginTop: spacing.xs }}>
+          <View style={{ gap: spacing.sm }}>
+            <ThemedText variant="mono" tone="muted">
+              {t('video.section.conversion')}
+            </ThemedText>
             <CtaPreview cta={post.cta} ctaUrl={post.ctaUrl ?? null} />
           </View>
         ) : null}
@@ -932,6 +931,53 @@ export default function VideoDetailScreen(): React.ReactElement {
     }
   }, [activePost, t]);
 
+  // Edit flow: hand the post off to the composer with the existing media
+  // and metadata pre-loaded. The actual delete happens at submit time in
+  // composer/preview, gated on draft.editingPostId, so the user can back
+  // out without losing their published post.
+  const startEdit = useCallback((): void => {
+    if (!activePost || !activeWorkspaceId) return;
+    useDraftStore.getState().setDraft({
+      workspaceId: activeWorkspaceId,
+      // Use the post's mediaUrl as the localUri. expo-video's player
+      // accepts both file:// and https:// URIs, so the InlinePreview just
+      // works. composer/preview re-validates at submit time.
+      localUri: activePost.mediaUrl,
+      durationMs: activePost.durationSeconds * 1000,
+      width: activePost.mediaWidth ?? null,
+      height: activePost.mediaHeight ?? null,
+      title: activePost.title,
+      description: activePost.description,
+      tagIds: activePost.tagIds,
+      ctaId: activePost.cta?.id ?? null,
+      ctaUrl: activePost.ctaUrl ?? null,
+      editingPostId: activePost.id,
+      updatedAt: new Date().toISOString(),
+    });
+    router.replace('/composer/edit');
+  }, [activePost, activeWorkspaceId, router]);
+
+  const handleEditPress = useCallback((): void => {
+    // Close the more-actions sheet first; defer the Alert until iOS has
+    // fully torn down the modal, otherwise the new modal layer can stack
+    // on top of the closing one and freeze touches.
+    setMoreOpen(false);
+    setTimeout(() => {
+      Alert.alert(
+        t('video.editTitle'),
+        t('video.editBody'),
+        [
+          { text: t('video.editCancel'), style: 'cancel' },
+          {
+            text: t('video.editConfirm'),
+            style: 'destructive',
+            onPress: () => startEdit(),
+          },
+        ],
+      );
+    }, 250);
+  }, [startEdit, t]);
+
   const handleDeletePress = useCallback((): void => {
     setMoreOpen(false);
     setConfirmDeleteOpen(true);
@@ -1139,7 +1185,7 @@ export default function VideoDetailScreen(): React.ReactElement {
         visible={moreOpen}
         onClose={() => setMoreOpen(false)}
         title={t('video.moreActions')}
-        height="28%"
+        height="42%"
       >
         <View style={{ paddingHorizontal: spacing.sm, paddingBottom: spacing.md }}>
           <Pressable
@@ -1182,6 +1228,25 @@ export default function VideoDetailScreen(): React.ReactElement {
             <Copy size={18} color={colors.textPrimary} strokeWidth={1.75} />
             <ThemedText variant="bodyMed" tone="primary">
               {t('video.copyLink')}
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('video.edit')}
+            onPress={handleEditPress}
+            style={({ pressed }) => [
+              styles.sheetRow,
+              {
+                paddingVertical: spacing.sm,
+                opacity: pressed ? 0.7 : 1,
+                borderRadius: radius.md,
+                backgroundColor: pressed ? colors.bgInput : 'transparent',
+              },
+            ]}
+          >
+            <Pencil size={18} color={colors.textPrimary} strokeWidth={1.75} />
+            <ThemedText variant="bodyMed" tone="primary">
+              {t('video.edit')}
             </ThemedText>
           </Pressable>
           <Pressable

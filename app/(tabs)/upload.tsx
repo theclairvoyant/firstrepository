@@ -120,6 +120,7 @@ export default function UploadTabScreen(): React.ReactElement {
         tagIds: [],
         ctaId: null,
         ctaUrl: null,
+        editingPostId: null,
         updatedAt: new Date().toISOString(),
       });
       router.push('/composer/edit');

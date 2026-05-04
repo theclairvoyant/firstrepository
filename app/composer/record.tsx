@@ -165,6 +165,7 @@ export default function ComposerRecordScreen(): React.ReactElement {
           tagIds: [],
           ctaId: null,
           ctaUrl: null,
+          editingPostId: null,
           updatedAt: new Date().toISOString(),
         });
         router.replace('/composer/edit');

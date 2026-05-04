@@ -32,7 +32,7 @@ export async function resolveInvite(code: string): Promise<ResolveInviteResponse
       status: 409,
     });
   }
-  // Default: invite resolves to the Globex workspace.
+  // Default: invite resolves to the Velocity Showroom workspace.
   const ws = findWorkspace('ws_skills_globex');
   if (!ws) {
     throw new ApiError({ code: 'NOT_FOUND', message: 'Workspace not found.', status: 404 });
@@ -46,7 +46,8 @@ export async function resolveInvite(code: string): Promise<ResolveInviteResponse
 
 export async function redeemInvite(_code: string): Promise<RedeemInviteResponse> {
   await simulateLatency(320);
-  // Flip pending_invite for Globex into active, then return the membership.
+  // Flip pending_invite for Velocity Showroom into active, then return the
+  // membership.
   const idx = seedState.memberships.findIndex((m) => m.workspace.id === 'ws_skills_globex');
   if (idx < 0) {
     throw new ApiError({ code: 'NOT_FOUND', message: 'Membership not found.', status: 404 });
@@ -54,7 +55,7 @@ export async function redeemInvite(_code: string): Promise<RedeemInviteResponse>
   const updated: WorkspaceMembership = {
     ...seedState.memberships[idx],
     status: 'active',
-    workspaceUsername: 'kiran.globex',
+    workspaceUsername: 'kiran.velocity',
     joinedAt: new Date().toISOString(),
   };
   seedState.memberships[idx] = updated;

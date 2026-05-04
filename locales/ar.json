@@ -18,26 +18,541 @@
       "tagline": "أنشئ. انشر. اكسب.",
       "getStarted": "ابدأ",
       "haveInviteCode": "لدي رمز دعوة"
+    },
+    "method": {
+      "title": "تسجيل الدخول",
+      "subtitle": "استخدم بريدك الإلكتروني للعمل أو تسجيل الدخول الموحّد للمتابعة.",
+      "continueEmail": "المتابعة بالبريد الإلكتروني",
+      "continueGoogle": "المتابعة بحساب Google",
+      "continueMicrosoft": "المتابعة بحساب Microsoft",
+      "continueApple": "المتابعة بحساب Apple"
+    },
+    "sso": {
+      "pending": "إعداد SSO قيد الانتظار"
+    },
+    "email": {
+      "title": "ما بريدك الإلكتروني؟",
+      "body": "سنرسل رمزًا من 6 أرقام للتحقق من هويتك.",
+      "label": "البريد الإلكتروني",
+      "invalid": "أدخل عنوان بريد إلكتروني صالح",
+      "error": "تعذّر إرسال الرمز. حاول مرة أخرى."
+    },
+    "otp": {
+      "title": "أدخل الرمز",
+      "body": "أرسلنا رمزًا من 6 أرقام إلى {{email}}.",
+      "invalid": "رمز غير صحيح، حاول مرة أخرى",
+      "resend": "إعادة إرسال الرمز",
+      "resendIn": "إعادة الإرسال خلال {{seconds}} ث",
+      "resendSent": "أرسلنا رمزًا جديدًا"
+    },
+    "inviteCode": {
+      "title": "أدخل رمز الدعوة الخاص بك",
+      "body": "رمز الدعوة الخاص بك مكوّن من 8 أحرف، حروف وأرقام فقط.",
+      "label": "رمز الدعوة",
+      "placeholder": "ABCD2345",
+      "wrongCode": "رمز غير صحيح",
+      "errorExpired": "انتهت صلاحية هذه الدعوة. اطلب من المسؤول رمزًا جديدًا.",
+      "errorUsed": "تم استخدام هذه الدعوة بالفعل.",
+      "errorGeneric": "تعذّر العثور على هذه الدعوة. تحقق من الرمز وحاول مرة أخرى."
+    },
+    "profile": {
+      "title": "أعدّ ملفك الشخصي العام",
+      "body": "هكذا ستظهر في Enterprise Creator.",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "username": "اسم المستخدم",
+      "usernameHint": "أحرف صغيرة، أرقام، نقطة، شرطة، شرطة سفلية.",
+      "usernameInvalid": "من 3 إلى 30 حرفًا. أحرف إنجليزية صغيرة، أرقام، نقطة، شرطة وشرطة سفلية فقط.",
+      "usernameChecking": "جارٍ التحقق",
+      "usernameAvailable": "متاح",
+      "usernameTaken": "مستخدم بالفعل",
+      "avatarPickFromGallery": "اختر صورة من المعرض",
+      "avatarPickPreset": "اختر صورة رمزية جاهزة",
+      "avatarPermissionTitle": "يلزم الوصول إلى الصور",
+      "avatarPermissionBody": "اسمح بالوصول إلى الصور في الإعدادات لاختيار صورة رمزية من معرضك.",
+      "avatarUploadError": "تعذّر رفع تلك الصورة. جرّب صورة أخرى.",
+      "phone": "الهاتف",
+      "phonePlaceholder": "+966 50 123 4567",
+      "phoneOptional": "اختياري. لن نرسل لك رسائل نصية بعد.",
+      "phoneInvalid": "أدخل رقم هاتف صالح",
+      "finish": "إنهاء"
+    }
+  },
+  "status": {
+    "pending": "قيد الانتظار",
+    "approved": "تمت الموافقة",
+    "live": "مباشر",
+    "rejected": "مرفوض",
+    "needsEdits": "تعديلات مطلوبة",
+    "descriptions": {
+      "pending": "يقوم المسؤول بمراجعة هذا المنشور. ستصلك إشعار عند اتخاذ قرار.",
+      "approved": "تمت الموافقة وفي قائمة الانتظار. سينشر فور سماح الجدولة بذلك.",
+      "live": "تم نشره وأصبح ظاهرًا للمشاهدين. الإحصاءات أدناه تتحدّث في الوقت الفعلي.",
+      "rejected": "أزال المسؤول هذا المنشور من المراجعة. راجع الملاحظة أعلاه للسبب.",
+      "needsEdits": "طلب المسؤول إجراء تغييرات. افتح المنشور، طبّق التعديلات المطلوبة، ثم أعد إرساله."
+    }
+  },
+  "shell": {
+    "topBar": {
+      "switchWorkspace": "تبديل مساحة العمل",
+      "openProfile": "فتح قائمة الملف الشخصي",
+      "noWorkspace": "لم يتم تحديد مساحة عمل"
+    },
+    "modal": {
+      "close": "إغلاق"
+    },
+    "drawer": {
+      "close": "إغلاق"
+    },
+    "session": {
+      "expired": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى."
     }
   },
   "tabs": {
     "profile": "الملف الشخصي",
     "upload": "رفع"
   },
+  "boot": {
+    "loading": "جارٍ التحميل"
+  },
+  "profileTab": {
+    "title": "الملف الشخصي",
+    "noWorkspaceTitle": "لا توجد مساحات عمل بعد",
+    "noWorkspaceBody": "كل شيء جاهز، لكنك لم تنضم إلى أي مساحة عمل بعد. إذا أرسل لك فريقك رمز دعوة، فألصقه أدناه. وإلا، فتحقق مما إذا كان بريدك الإلكتروني للعمل يمنحك حق الوصول تلقائيًا.",
+    "findWorkspace": "ابحث عن مساحة عمل",
+    "pasteInviteCode": "ألصق رمز الدعوة",
+    "searchByEmail": "ابحث ببريد العمل",
+    "postsCount_one": "{{count}} منشور",
+    "postsCount_other": "{{count}} منشورات",
+    "stats": {
+      "posts": "المنشورات",
+      "views": "المشاهدات",
+      "clicks": "النقرات",
+      "likes": "الإعجابات"
+    },
+    "banner": {
+      "pendingInvite": "الدعوة قيد الانتظار. لم يقم المسؤول بتفعيل وصولك بعد.",
+      "pendingRequest": "الطلب قيد الانتظار. سيتم إخطارك عند الموافقة عليه.",
+      "revoked": "تم إلغاء الوصول."
+    },
+    "editProfile": "تعديل الملف الشخصي",
+    "editProfileSoon": "محرر الملف الشخصي قادم قريبًا",
+    "shareProfile": "مشاركة الملف الشخصي",
+    "shareSubject": "شارك هذا الرابط لملفك الشخصي",
+    "empty": {
+      "title": "لا توجد منشورات بعد",
+      "body": "ارفع أول مقطع قصير لك لتبدأ ببناء ملفك الشخصي.",
+      "cta": "ارفع الآن"
+    },
+    "errorTitle": "تعذّر تحميل منشوراتك",
+    "errorBody": "تحقق من اتصالك وحاول مرة أخرى.",
+    "openPostSoon": "فتح هذا المنشور قادم قريبًا",
+    "uploadCancelled": "تم إلغاء الرفع"
+  },
+  "editGlobalProfile": {
+    "title": "تعديل الملف الشخصي العام",
+    "noProfile": "لا يوجد ملف شخصي للتعديل.",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "username": "اسم المستخدم",
+    "usernameHint": "أحرف صغيرة، أرقام، نقطة، شرطة، شرطة سفلية.",
+    "usernameInvalid": "من 3 إلى 30 حرفًا. أحرف إنجليزية صغيرة، أرقام، نقطة، شرطة وشرطة سفلية فقط.",
+    "email": "البريد الإلكتروني",
+    "emailLocked": "البريد الإلكتروني مثبت حاليًا. تواصل مع الدعم لتغييره.",
+    "phone": "الهاتف",
+    "phonePlaceholder": "+966 50 123 4567",
+    "phoneOptional": "اختياري. لن نرسل لك رسائل نصية بعد.",
+    "phoneInvalid": "أدخل رقم هاتف صالح",
+    "avatarPickFromGallery": "تغيير الصورة",
+    "avatarPermissionTitle": "يلزم الوصول إلى الصور",
+    "avatarPermissionBody": "اسمح بالوصول إلى الصور في الإعدادات لاختيار صورة الملف الشخصي.",
+    "avatarSaveError": "تعذّر حفظ الصورة الجديدة. حاول مرة أخرى.",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "saved": "تم تحديث الملف الشخصي",
+    "saveError": "تعذّر حفظ تغييراتك. حاول مرة أخرى."
+  },
+  "editMembership": {
+    "title": "تعديل ملف مساحة العمل",
+    "back": "رجوع",
+    "avatarChange": "تغيير الصورة",
+    "avatarPickFromGallery": "اختر صورة من المعرض",
+    "avatarPermissionTitle": "يلزم الوصول إلى الصور",
+    "avatarPermissionBody": "اسمح بالوصول إلى الصور في الإعدادات لاختيار صورة رمزية لمساحة العمل.",
+    "avatarSaveError": "تعذّر حفظ الصورة الرمزية الجديدة. حاول مرة أخرى.",
+    "displayNameLabel": "الاسم المعروض",
+    "displayNameHint": "كيف يراك المشاهدون في مساحة العمل هذه. اتركه فارغًا لاستخدام اسم مساحة العمل.",
+    "usernameLabel": "اسم المستخدم في مساحة العمل",
+    "usernameHint": "أحرف صغيرة، أرقام، نقطة، شرطة، شرطة سفلية.",
+    "usernameInvalid": "من 3 إلى 30 حرفًا. أحرف إنجليزية صغيرة، أرقام، نقطة، شرطة وشرطة سفلية فقط.",
+    "bioLabel": "النبذة",
+    "bioPlaceholder": "أخبر المشاهدين قليلًا عنك في مساحة العمل هذه",
+    "bioCounter": "{{current}} / {{max}}",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "saved": "تم تحديث ملف مساحة العمل",
+    "saveError": "تعذّر حفظ تغييراتك. حاول مرة أخرى."
+  },
+  "uploadTab": {
+    "title": "رفع",
+    "body": "اختر فيديو من معرضك أو سجّل واحدًا جديدًا.",
+    "chooseFromGallery": "اختر من المعرض",
+    "chooseFromGallerySub": "تصفح مكتبتك واختر فيديو عموديًا.",
+    "recordNow": "سجّل الآن",
+    "recordNowSub": "افتح الكاميرا وسجّل مقطعًا جديدًا.",
+    "pickerSoon": "الاختيار من المعرض قادم قريبًا",
+    "recordSoon": "التسجيل قادم قريبًا",
+    "cellularNote": "تنبيه: ستحذّرك عمليات الرفع عبر بيانات الجوال قبل الإرسال.",
+    "cancelPending": "إلغاء الرفع المعلّق",
+    "noWorkspace": "اختر مساحة عمل قبل الرفع.",
+    "openSettingsHint": "افتح الإعدادات لمنح الوصول."
+  },
+  "composer": {
+    "edit": {
+      "title": "تعديل المنشور",
+      "close": "إغلاق",
+      "sectionTitleAndDescription": "التفاصيل",
+      "sectionTags": "الوسوم",
+      "sectionCta": "التحويل",
+      "titleLabel": "العنوان",
+      "titlePlaceholder": "أضف عنوانًا",
+      "titleRequired": "أضف عنوانًا للمتابعة",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "قل القليل عن هذا المقطع",
+      "charCounter": "{{current}} / {{max}}",
+      "urlInvalid": "أدخل رابط https صالح",
+      "noCtas": "لا توجد إعدادات CTA",
+      "discardTitle": "تجاهل التغييرات؟",
+      "discardBody": "ستتم إزالة المسودة الخاصة بك.",
+      "discard": "تجاهل",
+      "stay": "البقاء هنا",
+      "cancel": "إلغاء",
+      "preview": "معاينة",
+      "tagsRowLabel": "الوسوم",
+      "tagsRowEmpty": "إضافة",
+      "tagsRowCount_one": "{{count}} محدد",
+      "tagsRowCount_other": "{{count}} محددة",
+      "tagsRowDisabled": "غير مفعّل في مساحة العمل هذه",
+      "ctaRowLabel": "التحويل",
+      "ctaRowEmpty": "لا شيء",
+      "ctaRowDisabled": "لا توجد خيارات متاحة",
+      "videoMute": "كتم صوت الفيديو",
+      "videoUnmute": "إلغاء كتم صوت الفيديو",
+      "videoPlay": "تشغيل الفيديو",
+      "videoPause": "إيقاف الفيديو مؤقتًا"
+    },
+    "preview": {
+      "title": "معاينة",
+      "edit": "تعديل",
+      "sendForApproval": "إرسال للموافقة",
+      "publish": "نشر",
+      "uploading": "جارٍ الرفع...",
+      "posted": "تم إرسال منشورك",
+      "noMedia": "اختر فيديو قبل النشر",
+      "descriptionEmpty": "لا يوجد وصف",
+      "ctaUrlPlaceholder": "سيظهر الرابط هنا",
+      "previewPlaceholder": "معاينة الفيديو قادمة قريبًا",
+      "back": "رجوع",
+      "toggleMute": "تبديل كتم الصوت"
+    },
+    "record": {
+      "close": "إغلاق الكاميرا",
+      "start": "بدء التسجيل",
+      "stop": "إيقاف التسجيل",
+      "flip": "قلب الكاميرا",
+      "flashOn": "الفلاش مفعّل",
+      "flashOff": "الفلاش معطّل",
+      "micOn": "الميكروفون مفعّل",
+      "micOff": "الميكروفون معطّل",
+      "remaining": "{{seconds}} ث متبقية",
+      "hint": "اضغط للبدء، اضغط مرة أخرى للإيقاف",
+      "portraitHint": "أمسك جهازك بشكل عمودي",
+      "permissionTitle": "يلزم الوصول إلى الكاميرا والميكروفون",
+      "permissionBody": "امنح حق الوصول إلى الكاميرا والميكروفون لتسجيل فيديو.",
+      "openSettings": "فتح الإعدادات"
+    },
+    "tagsScreen": {
+      "title": "الوسوم",
+      "body": "اختر وسومًا حتى يجد المشاهدون المناسبون منشورك. اختياري.",
+      "done": "تم",
+      "clearAll": "مسح الكل",
+      "emptyTitle": "لا توجد وسوم مهيّأة",
+      "emptyBody": "لم يقم مسؤول مساحة عملك بإعداد الوسوم بعد.",
+      "addToCategory": "أضف وسمًا",
+      "noneSelected": "لم يتم تحديد شيء"
+    },
+    "ctaScreen": {
+      "title": "التحويل",
+      "body": "اختر تحويلًا ليُعرض مع منشورك. اختياري.",
+      "done": "تم",
+      "removeSelection": "إزالة التحديد",
+      "emptyTitle": "لا توجد تحويلات متاحة",
+      "emptyBody": "لم يقم مسؤول مساحة عملك بتفعيل أي تحويلات.",
+      "noneOption": "لا شيء",
+      "noneOptionBody": "لن يُعرض أي تحويل مع هذا المنشور.",
+      "linkLabel": "الرابط",
+      "linkPlaceholder": "https://example.com/landing",
+      "linkRequired": "أضف رابطًا لاستخدام هذا التحويل.",
+      "fixedTagLine": "محدّد بواسطة المسؤول",
+      "dynamicTagLine": "أضف رابطك بالأسفل"
+    }
+  },
+  "videoErrors": {
+    "PERMISSION_DENIED": "تم رفض الإذن. امنح الوصول للمتابعة.",
+    "FILE_NOT_FOUND": "تعذّر العثور على ملف الفيديو هذا.",
+    "DURATION_TOO_LONG": "يجب أن تكون مدة الفيديو {{limit}} ثانية أو أقل.",
+    "FILE_TOO_LARGE": "يجب أن يكون حجم الفيديو أقل من {{limitMB}} ميغابايت.",
+    "ASPECT_RATIO_INVALID": "يجب أن تكون مقاطع الفيديو عمودية (9:16).",
+    "UNREADABLE": "تعذّرت قراءة هذا الفيديو. جرّب فيديو آخر.",
+    "CANCELLED": "تم إلغاء الرفع",
+    "SIGN_FAILED": "تعذّر تجهيز الرفع. حاول مرة أخرى.",
+    "UPLOAD_FAILED": "فشل الرفع. اضغط على إعادة المحاولة للمحاولة مرة أخرى.",
+    "UPLOAD_REJECTED": "رفض الخادم هذا الرفع. جرّب فيديو آخر.",
+    "NETWORK": "لا يوجد اتصال. سنستأنف عند عودتك للاتصال.",
+    "GENERIC": "حدث خطأ ما في الفيديو. حاول مرة أخرى."
+  },
+  "cellularSheet": {
+    "title": "الرفع عبر بيانات الجوال",
+    "headline": "هل تريد استخدام بيانات الجوال لهذا الرفع؟",
+    "body": "حجم هذا الملف {{sizeMB}} ميغابايت. قد يستهلك الرفع عبر بيانات الجوال الكثير من البيانات.",
+    "waitForWifi": "انتظر شبكة Wi-Fi",
+    "uploadNow": "ارفع الآن",
+    "hint": "سنستأنف تلقائيًا عند عودة Wi-Fi.",
+    "queuedForWifi": "في قائمة الانتظار. سيتم الرفع عند توفر Wi-Fi."
+  },
+  "switcher": {
+    "title": "تبديل مساحة العمل",
+    "searchPlaceholder": "ابحث في مساحات العمل",
+    "activeSection": "نشطة",
+    "pendingSection": "قيد الانتظار",
+    "addWorkspace": "إضافة مساحة عمل",
+    "emptyTitle": "لا توجد مساحات عمل بعد",
+    "emptyBody": "أضف مساحة عمل برمز دعوة أو ببريدك الإلكتروني للعمل.",
+    "noResultsTitle": "لا توجد نتائج",
+    "noResultsBody": "جرّب بحثًا مختلفًا.",
+    "postsCount_one": "{{count}} منشور",
+    "postsCount_other": "{{count}} منشورات",
+    "cancelRequest": "إلغاء الطلب",
+    "cancelRequestDone": "تم إلغاء الطلب",
+    "loadError": "تعذّر تحميل مساحات العمل الخاصة بك.",
+    "selectRow": "اختر مساحة العمل",
+    "pendingInvite": "دعوة قيد الانتظار",
+    "pendingRequest": "طلب قيد الانتظار"
+  },
+  "addTenant": {
+    "title": "إضافة مساحة عمل",
+    "subtitle": "استخدم رمز دعوة أو ابحث ببريدك الإلكتروني للعمل.",
+    "inviteCard": {
+      "title": "أدخل رمز الدعوة",
+      "body": "رمز الدعوة المكوّن من 8 أحرف الذي حصلت عليه من المسؤول.",
+      "label": "رمز الدعوة",
+      "placeholder": "ABCD2345",
+      "lookup": "متابعة",
+      "redeem": "أضف مساحة العمل",
+      "wrongCode": "رمز غير صحيح",
+      "added": "تمت إضافة مساحة العمل"
+    },
+    "domainCard": {
+      "title": "ابحث ببريد الشركة الإلكتروني",
+      "body": "سنعرض مساحات العمل المطابقة لنطاق بريدك الإلكتروني للعمل.",
+      "search": "بحث",
+      "resultsTitle": "مساحات العمل المتاحة",
+      "request": "طلب دعوة",
+      "requestPending": "الطلب قيد الانتظار",
+      "requestSent": "تم إرسال الطلب",
+      "joined": "منضم",
+      "noResults": "لم يتم العثور على مساحات عمل لنطاق بريدك الإلكتروني."
+    },
+    "errors": {
+      "inviteExpired": "انتهت صلاحية هذه الدعوة. اطلب من المسؤول رمزًا جديدًا.",
+      "inviteUsed": "تم استخدام هذه الدعوة بالفعل.",
+      "inviteGeneric": "تعذّر العثور على هذه الدعوة. تحقق من الرمز وحاول مرة أخرى.",
+      "domainNotProvisioned": "لم يتم إعداد نطاق بريدك الإلكتروني بعد. اطلب من المسؤول تجهيزه.",
+      "workspaceFull": "مساحة العمل هذه ممتلئة.",
+      "generic": "حدث خطأ ما. حاول مرة أخرى."
+    }
+  },
+  "videoTile": {
+    "openPost": "فتح المنشور {{title}}"
+  },
+  "ctaPicker": {
+    "staticLabel": "يفتح دائمًا {{url}}",
+    "dynamicLabel": "رابط مخصص، أنت توفر العنوان",
+    "noneLabel": "لا شيء",
+    "noneSubLabel": "لن يُعرض أي تحويل مع هذا المنشور",
+    "linkLabel": "الرابط",
+    "linkPlaceholder": "https://example.com/landing",
+    "typeLink": "رابط",
+    "typeDocument": "مستند",
+    "subtypeFixed": "ثابت",
+    "subtypeDynamic": "ديناميكي"
+  },
+  "uploadBanner": {
+    "title": "الرفع",
+    "uploading": "جارٍ الرفع",
+    "failed": "فشل الرفع، اضغط لإعادة المحاولة",
+    "resumeFrom": "استئناف الرفع من {{whenLabel}}",
+    "cancel": "إلغاء",
+    "retry": "إعادة المحاولة",
+    "resume": "استئناف",
+    "dismiss": "تجاهل",
+    "today": "اليوم",
+    "yesterday": "أمس",
+    "queueDepth_one": "{{count}} عملية رفع أخرى في الانتظار",
+    "queueDepth_other": "{{count}} عمليات رفع أخرى في الانتظار"
+  },
+  "globalProfile": {
+    "memberSince": "عضو منذ {{date}}",
+    "emailVerified": "تم التحقق من البريد الإلكتروني",
+    "emailUnverified": "لم يتم التحقق من البريد الإلكتروني",
+    "myWorkspaces": "مساحات العمل الخاصة بي",
+    "myWorkspacesEmpty": "لم تنضم إلى أي مساحة عمل بعد.",
+    "account": "الحساب",
+    "editProfile": "تعديل الملف الشخصي",
+    "editProfileSoon": "محرر الملف الشخصي قادم قريبًا",
+    "settings": "الإعدادات",
+    "settingsSoon": "الإعدادات قادمة قريبًا",
+    "signOut": "تسجيل الخروج",
+    "signOutError": "تعذّر تسجيل خروجك. حاول مرة أخرى.",
+    "openPostSoon": "فتح هذا المنشور قادم قريبًا",
+    "selectWorkspace": "اختر مساحة العمل"
+  },
   "settings": {
     "title": "الإعدادات",
     "back": "رجوع",
-    "language": {
-      "label": "اللغة",
-      "title": "اللغة",
-      "system": "افتراضي النظام",
-      "systemDescription": "اتباع لغة الجهاز"
+    "sections": {
+      "display": "العرض",
+      "notifications": "الإشعارات وعمليات الرفع",
+      "legal": "القانوني والدعم",
+      "account": "الحساب"
     },
     "theme": {
       "label": "السمة",
       "system": "النظام",
       "light": "فاتح",
       "dark": "داكن"
+    },
+    "language": {
+      "label": "اللغة",
+      "title": "اللغة",
+      "system": "افتراضي النظام",
+      "systemDescription": "اتباع لغة الجهاز",
+      "en": "الإنجليزية",
+      "es": "الإسبانية",
+      "fr": "الفرنسية",
+      "hi": "الهندية",
+      "ar": "العربية",
+      "enNative": "English",
+      "esNative": "Español",
+      "frNative": "Français",
+      "hiNative": "हिन्दी",
+      "arNative": "العربية"
+    },
+    "notifications": {
+      "label": "الإشعارات",
+      "description": "احصل على تنبيهات عند مراجعة المنشورات."
+    },
+    "cellular": {
+      "label": "تنبيه عند الرفع عبر بيانات الجوال",
+      "description": "أكّد قبل إرسال مقاطع فيديو كبيرة عبر بيانات الجوال."
+    },
+    "privacyTitle": "سياسة الخصوصية",
+    "termsTitle": "شروط الخدمة",
+    "privacyLabel": "سياسة الخصوصية",
+    "termsLabel": "شروط الخدمة",
+    "support": {
+      "label": "المساعدة والدعم",
+      "notConfigured": "لم يتم إعداد بريد الدعم.",
+      "mailSubject": "دعم Enterprise Creator",
+      "screenTitle": "الدعم",
+      "heading": "هل تحتاج إلى مساعدة؟",
+      "body": "راسل فريقنا عبر البريد الإلكتروني وسنرد عليك خلال يوم عمل واحد. أرفق لقطات شاشة والخطوات التي اتخذتها حتى نتمكن من المساعدة بشكل أسرع.",
+      "emailLabel": "راسلنا على",
+      "openMail": "راسلنا",
+      "openError": "تعذّر فتح تطبيق البريد الإلكتروني الخاص بك. انسخ العنوان أعلاه وراسلنا مباشرة."
+    },
+    "about": {
+      "label": "حول",
+      "version": "الإصدار {{version}}",
+      "build": "البِنية {{build}}"
+    },
+    "deleteAccount": {
+      "label": "حذف الحساب",
+      "title": "احذف حسابك",
+      "body": "يؤدي هذا إلى حذف ملفك الشخصي ومساحات عملك وكل منشور نشرته بشكل دائم. لا يمكن التراجع عن هذا.",
+      "confirmHint": "اكتب DELETE للتأكيد.",
+      "confirmPlaceholder": "اكتب DELETE للتأكيد",
+      "confirmAction": "احذف حسابي",
+      "deleted": "تم حذف حسابك.",
+      "cancel": "إلغاء",
+      "error": "تعذّر حذف حسابك. حاول مرة أخرى."
+    },
+    "signOut": {
+      "label": "تسجيل الخروج",
+      "error": "تعذّر تسجيل خروجك. حاول مرة أخرى."
+    },
+    "legal": {
+      "notConfiguredTitle": "لم يتم إعداد المستند",
+      "notConfiguredBody": "لم يتم إعداد هذا المستند بعد. حاول مرة أخرى لاحقًا.",
+      "loading": "جارٍ التحميل"
+    }
+  },
+  "video": {
+    "title": "المنشور",
+    "back": "رجوع",
+    "prev": "المنشور السابق",
+    "next": "المنشور التالي",
+    "share": "مشاركة",
+    "copyLink": "نسخ الرابط",
+    "delete": "حذف",
+    "deleteTitle": "حذف هذا المنشور؟",
+    "deleteBody": "يؤدي هذا إلى إزالة المنشور وإحصاءاته بشكل دائم. لا يمكن التراجع عن هذا.",
+    "deleteConfirm": "حذف",
+    "deleteCancel": "إلغاء",
+    "deleted": "تم حذف المنشور",
+    "linkCopied": "تم نسخ الرابط",
+    "shareSubject": "شارك هذا المنشور",
+    "postedOn": "تم النشر في {{date}}",
+    "watchThroughRate": "نسبة المشاهدة الكاملة",
+    "avgWatch": "متوسط المشاهدة",
+    "statsLabels": {
+      "views": "المشاهدات",
+      "clicks": "النقرات",
+      "watchThroughRate": "نسبة المشاهدة الكاملة",
+      "avgWatch": "متوسط المشاهدة",
+      "likes": "الإعجابات",
+      "dislikes": "عدم الإعجاب",
+      "shares": "المشاركات"
+    },
+    "scaffoldNoPreview": "المعاينة غير متاحة في وضع scaffold",
+    "postNotFound": "لم يتم العثور على المنشور",
+    "postNotFoundBody": "تعذّر العثور على هذا المنشور في مساحة عملك.",
+    "adminNote": "ملاحظة المسؤول",
+    "openAdminNote": "فتح ملاحظة المسؤول",
+    "expand": "توسيع",
+    "playToggle": "تشغيل أو إيقاف",
+    "volumeToggle": "تبديل مستوى الصوت",
+    "moreActions": "المزيد من الإجراءات",
+    "noDescription": "لا يوجد وصف",
+    "secondsShort": "{{seconds}} ث",
+    "openStatus": "فتح تفاصيل الحالة",
+    "specs": {
+      "title": "المواصفات",
+      "open": "فتح مواصفات الفيديو",
+      "fileSize": "حجم الملف",
+      "resolution": "الدقة",
+      "duration": "المدة"
+    },
+    "statusPopup": {
+      "title": "{{status}}"
+    },
+    "showMore": "عرض المزيد",
+    "showLess": "عرض أقل",
+    "timeline": {
+      "title": "الجدول الزمني",
+      "uploaded": "تم الرفع",
+      "approved": "تمت الموافقة",
+      "published": "تم النشر"
     }
   }
 }

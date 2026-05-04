@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  InputAccessoryView,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -8,6 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -39,7 +42,11 @@ import type { CTA } from '@/types/api';
 
 const TITLE_MAX = 80;
 const DESCRIPTION_MAX = 500;
-const PREVIEW_HEIGHT = 200;
+// Portrait-friendly cap. Width is derived from the source aspect ratio so a
+// 9:16 clip renders narrow-and-tall and a landscape clip renders wide-and-
+// short, with both fitting inside the same vertical budget.
+const PREVIEW_MAX_HEIGHT = 320;
+const PREVIEW_DEFAULT_ASPECT = 9 / 16;
 
 const urlSchema = z
   .string()
@@ -49,9 +56,13 @@ const urlSchema = z
 
 interface InlinePreviewProps {
   uri: string;
+  aspectRatio: number;
 }
 
-function InlinePreview({ uri }: InlinePreviewProps): React.ReactElement {
+function InlinePreview({
+  uri,
+  aspectRatio,
+}: InlinePreviewProps): React.ReactElement {
   const { colors, palette, radius, spacing } = useTheme();
   const { t } = useTranslation();
   const player: VideoPlayer = useVideoPlayer(uri, (p) => {
@@ -61,6 +72,21 @@ function InlinePreview({ uri }: InlinePreviewProps): React.ReactElement {
   });
   const [muted, setMuted] = useState<boolean>(false);
   const [playing, setPlaying] = useState<boolean>(true);
+
+  // Pause when the screen loses focus (user opens tags / cta subscreens).
+  // Don't auto-resume on return - they can tap to play again if they want.
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        try {
+          player.pause();
+        } catch {
+          // player may already be released
+        }
+        setPlaying(false);
+      };
+    }, [player]),
+  );
 
   const togglePlay = useCallback((): void => {
     if (player.playing) {
@@ -80,47 +106,27 @@ function InlinePreview({ uri }: InlinePreviewProps): React.ReactElement {
     });
   }, [player]);
 
-  return (
-    <View
-      style={[
-        styles.previewFrame,
-        {
-          height: PREVIEW_HEIGHT,
-          borderRadius: radius.lg,
-          borderColor: colors.border,
-          backgroundColor: colors.bgInput,
-        },
-      ]}
-    >
-      <Pressable
-        style={StyleSheet.absoluteFill}
-        onPress={togglePlay}
-        accessibilityRole="button"
-        accessibilityLabel={
-          playing ? t('composer.edit.videoPause') : t('composer.edit.videoPlay')
-        }
-      >
-        <VideoView
-          style={StyleSheet.absoluteFill}
-          player={player}
-          nativeControls={false}
-          contentFit="cover"
-          accessibilityIgnoresInvertColors
-        />
-        {!playing ? (
-          <View style={styles.previewOverlay} pointerEvents="none">
-            <Play size={36} color={palette.white} strokeWidth={1.75} />
-          </View>
-        ) : null}
-      </Pressable>
+  // Frame fits within PREVIEW_MAX_HEIGHT while preserving the source aspect.
+  // Width derives from height so portrait clips stay portrait, centered.
+  const frameHeight = PREVIEW_MAX_HEIGHT;
+  const frameWidth = Math.round(PREVIEW_MAX_HEIGHT * aspectRatio);
 
+  return (
+    <View style={{ alignItems: 'center' }}>
       <View
         style={[
-          styles.previewControls,
-          { right: spacing.sm, top: spacing.sm },
+          styles.previewFrame,
+          {
+            width: frameWidth,
+            height: frameHeight,
+            borderRadius: radius.lg,
+            borderColor: colors.border,
+            backgroundColor: colors.bgInput,
+          },
         ]}
       >
         <Pressable
+          style={StyleSheet.absoluteFill}
           onPress={togglePlay}
           accessibilityRole="button"
           accessibilityLabel={
@@ -128,38 +134,68 @@ function InlinePreview({ uri }: InlinePreviewProps): React.ReactElement {
               ? t('composer.edit.videoPause')
               : t('composer.edit.videoPlay')
           }
-          hitSlop={6}
-          style={({ pressed }) => [
-            styles.previewBtn,
-            { backgroundColor: colors.bgOverlay, opacity: pressed ? 0.8 : 1 },
+        >
+          <VideoView
+            style={StyleSheet.absoluteFill}
+            player={player}
+            nativeControls={false}
+            contentFit="cover"
+            accessibilityIgnoresInvertColors
+          />
+          {!playing ? (
+            <View style={styles.previewOverlay} pointerEvents="none">
+              <Play size={36} color={palette.white} strokeWidth={1.75} />
+            </View>
+          ) : null}
+        </Pressable>
+
+        <View
+          style={[
+            styles.previewControls,
+            { right: spacing.sm, top: spacing.sm },
           ]}
         >
-          {playing ? (
-            <Pause size={16} color={palette.white} strokeWidth={1.75} />
-          ) : (
-            <Play size={16} color={palette.white} strokeWidth={1.75} />
-          )}
-        </Pressable>
-        <Pressable
-          onPress={toggleMute}
-          accessibilityRole="button"
-          accessibilityLabel={
-            muted
-              ? t('composer.edit.videoUnmute')
-              : t('composer.edit.videoMute')
-          }
-          hitSlop={6}
-          style={({ pressed }) => [
-            styles.previewBtn,
-            { backgroundColor: colors.bgOverlay, opacity: pressed ? 0.8 : 1 },
-          ]}
-        >
-          {muted ? (
-            <VolumeX size={16} color={palette.white} strokeWidth={1.75} />
-          ) : (
-            <Volume2 size={16} color={palette.white} strokeWidth={1.75} />
-          )}
-        </Pressable>
+          <Pressable
+            onPress={togglePlay}
+            accessibilityRole="button"
+            accessibilityLabel={
+              playing
+                ? t('composer.edit.videoPause')
+                : t('composer.edit.videoPlay')
+            }
+            hitSlop={6}
+            style={({ pressed }) => [
+              styles.previewBtn,
+              { backgroundColor: colors.bgOverlay, opacity: pressed ? 0.8 : 1 },
+            ]}
+          >
+            {playing ? (
+              <Pause size={16} color={palette.white} strokeWidth={1.75} />
+            ) : (
+              <Play size={16} color={palette.white} strokeWidth={1.75} />
+            )}
+          </Pressable>
+          <Pressable
+            onPress={toggleMute}
+            accessibilityRole="button"
+            accessibilityLabel={
+              muted
+                ? t('composer.edit.videoUnmute')
+                : t('composer.edit.videoMute')
+            }
+            hitSlop={6}
+            style={({ pressed }) => [
+              styles.previewBtn,
+              { backgroundColor: colors.bgOverlay, opacity: pressed ? 0.8 : 1 },
+            ]}
+          >
+            {muted ? (
+              <VolumeX size={16} color={palette.white} strokeWidth={1.75} />
+            ) : (
+              <Volume2 size={16} color={palette.white} strokeWidth={1.75} />
+            )}
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -229,6 +265,9 @@ interface FieldProps {
   maxLength: number;
   error?: string;
   multiline?: boolean;
+  inputAccessoryViewID?: string;
+  returnKeyType?: 'done' | 'next' | 'default';
+  blurOnSubmit?: boolean;
 }
 
 function Field({
@@ -239,6 +278,9 @@ function Field({
   maxLength,
   error,
   multiline = false,
+  inputAccessoryViewID,
+  returnKeyType,
+  blurOnSubmit,
 }: FieldProps): React.ReactElement {
   const { colors, radius, spacing, accent } = useTheme();
   const [focused, setFocused] = useState<boolean>(false);
@@ -286,6 +328,11 @@ function Field({
           maxLength={maxLength}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
+          returnKeyType={returnKeyType}
+          blurOnSubmit={blurOnSubmit}
+          inputAccessoryViewID={
+            Platform.OS === 'ios' ? inputAccessoryViewID : undefined
+          }
           style={[
             styles.input,
             {
@@ -309,10 +356,15 @@ function Field({
   );
 }
 
+// inputAccessoryViewID for the iOS Done bar over the description (multiline
+// fields don't get a Return-key dismiss).
+const ACCESSORY_DONE_ID = 'composer-edit-done';
+
 export default function ComposerEditScreen(): React.ReactElement | null {
   const router = useRouter();
   const { t } = useTranslation();
   const { colors, spacing, accent } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const activeWorkspaceId = useTenantStore((s) => s.activeWorkspaceId);
   const workspaceQuery = useWorkspace(activeWorkspaceId);
@@ -324,6 +376,9 @@ export default function ComposerEditScreen(): React.ReactElement | null {
   const [ctaId, setCtaId] = useState<string | null>(null);
   const [dynamicUrl, setDynamicUrl] = useState<string>('');
   const [localUri, setLocalUri] = useState<string | null>(null);
+  const [previewAspect, setPreviewAspect] = useState<number>(
+    PREVIEW_DEFAULT_ASPECT,
+  );
 
   const [titleError, setTitleError] = useState<string | undefined>(undefined);
 
@@ -345,6 +400,14 @@ export default function ComposerEditScreen(): React.ReactElement | null {
         setCtaId(existing.ctaId);
         setDynamicUrl(existing.ctaUrl ?? '');
         setLocalUri(existing.localUri);
+        if (
+          existing.width != null &&
+          existing.height != null &&
+          existing.width > 0 &&
+          existing.height > 0
+        ) {
+          setPreviewAspect(existing.width / existing.height);
+        }
       }
     }, [activeWorkspaceId, router]),
   );
@@ -456,9 +519,10 @@ export default function ComposerEditScreen(): React.ReactElement | null {
     tagsEnabled && tagTopology.length === 0;
 
   return (
-    <ScreenContainer edges={['top', 'left', 'right', 'bottom']} bg="bg">
+    <ScreenContainer edges={['top', 'left', 'right']} bg="bg">
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
         style={{ flex: 1 }}
       >
         {/* Header */}
@@ -491,6 +555,7 @@ export default function ComposerEditScreen(): React.ReactElement | null {
         <ScrollView
           style={{ flex: 1 }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           contentContainerStyle={{
             padding: spacing.md,
             paddingBottom: spacing.xxl,
@@ -498,7 +563,9 @@ export default function ComposerEditScreen(): React.ReactElement | null {
           }}
         >
           {/* Inline video preview */}
-          {localUri ? <InlinePreview uri={localUri} /> : null}
+          {localUri ? (
+            <InlinePreview uri={localUri} aspectRatio={previewAspect} />
+          ) : null}
 
           {/* Details */}
           <View style={{ gap: spacing.md }}>
@@ -509,6 +576,8 @@ export default function ComposerEditScreen(): React.ReactElement | null {
               onChangeText={setTitle}
               maxLength={TITLE_MAX}
               error={titleError}
+              returnKeyType="done"
+              blurOnSubmit
             />
             <Field
               label={t('composer.edit.descriptionLabel')}
@@ -517,6 +586,7 @@ export default function ComposerEditScreen(): React.ReactElement | null {
               onChangeText={setDescription}
               maxLength={DESCRIPTION_MAX}
               multiline
+              inputAccessoryViewID={ACCESSORY_DONE_ID}
             />
           </View>
 
@@ -559,7 +629,8 @@ export default function ComposerEditScreen(): React.ReactElement | null {
           />
         </ScrollView>
 
-        {/* Sticky bottom bar */}
+        {/* Sticky bottom bar - manual safe-area inset so we can drop the
+            ScreenContainer "bottom" edge that fights KeyboardAvoidingView. */}
         <View
           style={[
             styles.bottomBar,
@@ -567,7 +638,8 @@ export default function ComposerEditScreen(): React.ReactElement | null {
               borderTopColor: colors.border,
               backgroundColor: colors.bg,
               paddingHorizontal: spacing.md,
-              paddingVertical: spacing.sm,
+              paddingTop: spacing.sm,
+              paddingBottom: spacing.sm + insets.bottom,
               gap: spacing.sm,
             },
           ]}
@@ -590,6 +662,42 @@ export default function ComposerEditScreen(): React.ReactElement | null {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      {/* iOS Done bar over the multiline description. Android shows the
+          system "back" gesture or returnKeyType="done" on single fields,
+          so this is iOS-only. */}
+      {Platform.OS === 'ios' ? (
+        <InputAccessoryView nativeID={ACCESSORY_DONE_ID}>
+          <View
+            style={[
+              styles.accessoryBar,
+              {
+                backgroundColor: colors.bgElevated,
+                borderTopColor: colors.border,
+                paddingHorizontal: spacing.md,
+              },
+            ]}
+          >
+            <Pressable
+              onPress={() => Keyboard.dismiss()}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={t('composer.edit.keyboardDone')}
+              style={({ pressed }) => [
+                styles.accessoryBtn,
+                { opacity: pressed ? 0.6 : 1 },
+              ]}
+            >
+              <ThemedText
+                variant="bodyMed"
+                style={{ color: accent.primary }}
+              >
+                {t('composer.edit.keyboardDone')}
+              </ThemedText>
+            </Pressable>
+          </View>
+        </InputAccessoryView>
+      ) : null}
 
       <ModalSheet
         visible={discardOpen}
@@ -684,6 +792,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'Outfit_400Regular',
     fontSize: 15,
+    // Pin letterSpacing explicitly. iOS sometimes injects default
+    // tracking on single-line TextInput placeholders that doesn't match
+    // multiline. Setting 0 keeps the placeholder visually consistent
+    // across both fields.
+    letterSpacing: 0,
     paddingVertical: 0,
   },
   labelRow: {
@@ -694,5 +807,19 @@ const styles = StyleSheet.create({
   bottomBar: {
     flexDirection: 'row',
     borderTopWidth: 1,
+  },
+  accessoryBar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    minHeight: 44,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  accessoryBtn: {
+    minHeight: 44,
+    minWidth: 60,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

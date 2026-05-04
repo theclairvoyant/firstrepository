@@ -13,6 +13,10 @@ export type ComposerDraft = {
   tagIds: string[];
   ctaId: string | null;
   ctaUrl: string | null;
+  // When set, the draft represents an in-progress edit of an existing
+  // post. The submit step in composer/preview deletes this post id
+  // before creating the new one (delist + resubmit).
+  editingPostId: string | null;
   updatedAt: string;
 };
 
@@ -36,6 +40,7 @@ const emptyDraft = (workspaceId: string): ComposerDraft => ({
   tagIds: [],
   ctaId: null,
   ctaUrl: null,
+  editingPostId: null,
   updatedAt: new Date(0).toISOString(),
 });
 
