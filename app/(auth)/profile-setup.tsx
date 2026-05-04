@@ -1,10 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
+  ActivityIndicator,
+  Alert,
+  findNodeHandle,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +15,8 @@ import { useForm, Controller } from 'react-hook-form';
 import type { FieldErrors, Resolver } from 'react-hook-form';
 import { z } from 'zod';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ImagePlus } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { ThemedText } from '@/components/ThemedText';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -20,6 +25,7 @@ import { Avatar } from '@/components/Avatar';
 import { useTheme } from '@/lib/theme/useTheme';
 import { useCreateProfile, useUsernameAvailable } from '@/lib/api/queries';
 import { showToast } from '@/lib/toast';
+import { MOCK_ASSETS } from '@/lib/api/mocks/assets';
 
 // Phone is optional: empty string OR 7-20 digits (with optional + and spaces).
 // Verification is a future server feature - the field is collected today and
@@ -82,9 +88,45 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
 export default function ProfileSetupScreen(): React.ReactElement {
   const router = useRouter();
   const { t } = useTranslation();
-  const { spacing } = useTheme();
+  const { spacing, colors, accent } = useTheme();
   const insets = useSafeAreaInsets();
   const createProfile = useCreateProfile();
+  const scrollRef = useRef<ScrollView | null>(null);
+  // Random silhouette is the default so the slot is never blank, but users
+  // can tap to replace it with a gallery photo.
+  const defaultAvatar = useMemo<string>(() => {
+    const list = MOCK_ASSETS.presetAvatars;
+    return list[Math.floor(Math.random() * list.length)];
+  }, []);
+  const [avatarUrl, setAvatarUrl] = useState<string>(defaultAvatar);
+  const [pickingAvatar, setPickingAvatar] = useState<boolean>(false);
+
+  const handleAvatarPress = async (): Promise<void> => {
+    if (pickingAvatar) return;
+    setPickingAvatar(true);
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(
+          t('auth.profile.avatarPermissionTitle'),
+          t('auth.profile.avatarPermissionBody'),
+        );
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.85,
+        selectionLimit: 1,
+      });
+      if (result.canceled) return;
+      const asset = result.assets[0];
+      if (asset?.uri) setAvatarUrl(asset.uri);
+    } finally {
+      setPickingAvatar(false);
+    }
+  };
 
   const { control, handleSubmit, watch, formState } = useForm<ProfileFormValues>({
     defaultValues: { firstName: '', lastName: '', globalUsername: '', phone: '' },
@@ -130,6 +172,7 @@ export default function ProfileSetupScreen(): React.ReactElement {
         lastName: values.lastName,
         globalUsername: values.globalUsername,
         phone: trimmedPhone.length > 0 ? trimmedPhone : undefined,
+        avatarUrl,
       });
       router.replace('/');
     } catch {
@@ -137,20 +180,42 @@ export default function ProfileSetupScreen(): React.ReactElement {
     }
   });
 
-  const handleAvatarPress = (): void => {
-    showToast({ variant: 'info', message: t('auth.profile.avatarSoon') });
+  // Scroll to the focused field so it sits above the keyboard. KAV with
+  // padding behavior on iOS handles the initial lift but a long form like
+  // this benefits from explicit scrollTo for the lower fields (phone).
+  const handleFocus = (e: { target: unknown }): void => {
+    const node = findNodeHandle(e.target as never);
+    if (node == null) return;
+    setTimeout(() => {
+      const scroll = scrollRef.current as
+        | (ScrollView & {
+            scrollResponderScrollNativeHandleToKeyboard?: (
+              handle: number,
+              additionalOffset: number,
+              preventNegativeScrollOffset: boolean,
+            ) => void;
+          })
+        | null;
+      scroll?.scrollResponderScrollNativeHandleToKeyboard?.(node, 140, true);
+    }, 60);
   };
 
   return (
     <ScreenContainer padded>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
         style={{ flex: 1 }}
       >
         <ScrollView
+          ref={scrollRef}
           style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: spacing.xl }}
+          contentContainerStyle={{
+            paddingBottom: spacing.xxxl + spacing.xl,
+          }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
         >
           <ThemedText
             variant="title"
@@ -166,24 +231,46 @@ export default function ProfileSetupScreen(): React.ReactElement {
             {t('auth.profile.body')}
           </ThemedText>
 
-          <View
-            style={{ alignItems: 'center', marginBottom: spacing.xl }}
-          >
+          <View style={{ alignItems: 'center', marginBottom: spacing.xl }}>
             <Pressable
-              onPress={handleAvatarPress}
+              onPress={() => {
+                void handleAvatarPress();
+              }}
               accessibilityRole="button"
-              accessibilityLabel={t('auth.profile.avatarChange')}
+              accessibilityLabel={t('auth.profile.avatarPickFromGallery')}
               hitSlop={8}
+              disabled={pickingAvatar || createProfile.isPending}
+              style={{ position: 'relative' }}
             >
-              <Avatar size={80} name={fullName || ' '} />
+              <Avatar
+                size={80}
+                uri={avatarUrl}
+                name={fullName || ' '}
+                accessibilityLabel={fullName || 'avatar'}
+                style={{ width: 96, height: 96, borderRadius: 48 }}
+              />
+              <View
+                style={{
+                  position: 'absolute',
+                  right: -2,
+                  bottom: -2,
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  borderWidth: 2,
+                  borderColor: colors.bg,
+                  backgroundColor: accent.primary,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {pickingAvatar ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <ImagePlus size={16} color="#fff" strokeWidth={2} />
+                )}
+              </View>
             </Pressable>
-            <ThemedText
-              variant="caption"
-              tone="muted"
-              style={{ marginTop: spacing.xs }}
-            >
-              {t('auth.profile.avatarChange')}
-            </ThemedText>
           </View>
 
           <View style={{ gap: spacing.md }}>
@@ -196,9 +283,11 @@ export default function ProfileSetupScreen(): React.ReactElement {
                   value={field.value}
                   onChangeText={field.onChange}
                   onBlur={field.onBlur}
+                  onFocus={handleFocus}
                   autoCapitalize="words"
                   autoComplete="given-name"
                   maxLength={40}
+                  returnKeyType="next"
                 />
               )}
             />
@@ -211,9 +300,11 @@ export default function ProfileSetupScreen(): React.ReactElement {
                   value={field.value}
                   onChangeText={field.onChange}
                   onBlur={field.onBlur}
+                  onFocus={handleFocus}
                   autoCapitalize="words"
                   autoComplete="family-name"
                   maxLength={40}
+                  returnKeyType="next"
                 />
               )}
             />
@@ -226,10 +317,12 @@ export default function ProfileSetupScreen(): React.ReactElement {
                   value={field.value}
                   onChangeText={(v) => field.onChange(v.toLowerCase())}
                   onBlur={field.onBlur}
+                  onFocus={handleFocus}
                   autoCapitalize="none"
                   autoComplete="username"
                   autoCorrect={false}
                   maxLength={30}
+                  returnKeyType="next"
                   helperText={
                     !fieldState.error && usernameStatus === 'idle'
                       ? t('auth.profile.usernameHint')
@@ -263,11 +356,13 @@ export default function ProfileSetupScreen(): React.ReactElement {
                   value={field.value}
                   onChangeText={field.onChange}
                   onBlur={field.onBlur}
+                  onFocus={handleFocus}
                   autoCapitalize="none"
                   autoComplete="tel"
                   keyboardType="phone-pad"
                   maxLength={24}
                   placeholder={t('auth.profile.phonePlaceholder')}
+                  returnKeyType="done"
                   helperText={
                     !fieldState.error
                       ? t('auth.profile.phoneOptional')

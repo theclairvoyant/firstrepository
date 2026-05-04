@@ -135,7 +135,10 @@ function InviteCard({ onAdded }: InviteCardProps): React.ReactElement {
                   {resolved.brand.name}
                 </ThemedText>
               </View>
-              <WorkspaceTypeBadge type={resolved.workspace.type} />
+              <WorkspaceTypeBadge
+                type={resolved.workspace.type}
+                style={{ alignSelf: 'center' }}
+              />
             </View>
             <PrimaryButton
               label={t('addTenant.inviteCard.redeem')}
@@ -251,7 +254,7 @@ function DomainEntryRow({ entry }: DomainEntryRowProps): React.ReactElement {
           {ws.brand.name}
         </ThemedText>
       </View>
-      <WorkspaceTypeBadge type={ws.type} />
+      <WorkspaceTypeBadge type={ws.type} style={{ alignSelf: 'center' }} />
       <View>
         <SecondaryButton
           label={buttonLabel}

@@ -11,14 +11,22 @@ import {
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { ChevronDown, ChevronUp, X } from 'lucide-react-native';
-import { CTAPicker } from '@/components/CTAPicker';
-import { EmptyState } from '@/components/EmptyState';
+import { useVideoPlayer, VideoView } from 'expo-video';
+import type { VideoPlayer } from 'expo-video';
+import {
+  ChevronRight,
+  Pause,
+  Play,
+  Tag as TagIcon,
+  Volume2,
+  VolumeX,
+  X,
+  Zap,
+} from 'lucide-react-native';
 import { GhostButton } from '@/components/GhostButton';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { ThemedText } from '@/components/ThemedText';
-import { TagSection } from '@/components/TagSection';
 import { ModalSheet } from '@/components/ModalSheet';
 import { SecondaryButton } from '@/components/SecondaryButton';
 import { DestructiveButton } from '@/components/DestructiveButton';
@@ -27,12 +35,11 @@ import { useTheme } from '@/lib/theme/useTheme';
 import { useTenantStore } from '@/lib/store/tenantStore';
 import { useDraftStore } from '@/lib/store/draftStore';
 import { useTagTopology, useWorkspace } from '@/lib/api/queries';
-import type { CTA, Tag, TagCategory } from '@/types/api';
+import type { CTA } from '@/types/api';
 
 const TITLE_MAX = 80;
 const DESCRIPTION_MAX = 500;
-
-type SectionId = 'meta' | 'tags' | 'cta';
+const PREVIEW_HEIGHT = 200;
 
 const urlSchema = z
   .string()
@@ -40,42 +47,181 @@ const urlSchema = z
   .url()
   .regex(/^https?:\/\//);
 
-interface SectionHeaderProps {
-  title: string;
-  expanded: boolean;
-  onToggle: () => void;
+interface InlinePreviewProps {
+  uri: string;
 }
 
-function SectionHeader({
-  title,
-  expanded,
-  onToggle,
-}: SectionHeaderProps): React.ReactElement {
-  const { colors, spacing } = useTheme();
-  const Icon = expanded ? ChevronUp : ChevronDown;
+function InlinePreview({ uri }: InlinePreviewProps): React.ReactElement {
+  const { colors, palette, radius, spacing } = useTheme();
+  const { t } = useTranslation();
+  const player: VideoPlayer = useVideoPlayer(uri, (p) => {
+    p.loop = true;
+    p.muted = false;
+    p.play();
+  });
+  const [muted, setMuted] = useState<boolean>(false);
+  const [playing, setPlaying] = useState<boolean>(true);
+
+  const togglePlay = useCallback((): void => {
+    if (player.playing) {
+      player.pause();
+      setPlaying(false);
+    } else {
+      player.play();
+      setPlaying(true);
+    }
+  }, [player]);
+
+  const toggleMute = useCallback((): void => {
+    setMuted((prev) => {
+      const next = !prev;
+      player.muted = next;
+      return next;
+    });
+  }, [player]);
+
   return (
-    <Pressable
-      onPress={onToggle}
-      accessibilityRole="button"
-      accessibilityLabel={title}
-      accessibilityState={{ expanded }}
-      style={({ pressed }) => [
-        styles.sectionHeader,
+    <View
+      style={[
+        styles.previewFrame,
         {
-          paddingVertical: spacing.sm,
-          opacity: pressed ? 0.7 : 1,
+          height: PREVIEW_HEIGHT,
+          borderRadius: radius.lg,
+          borderColor: colors.border,
+          backgroundColor: colors.bgInput,
         },
       ]}
     >
-      <ThemedText variant="heading" style={{ flex: 1 }}>
-        {title}
-      </ThemedText>
-      <Icon size={20} color={colors.textSecondary} strokeWidth={1.75} />
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        onPress={togglePlay}
+        accessibilityRole="button"
+        accessibilityLabel={
+          playing ? t('composer.edit.videoPause') : t('composer.edit.videoPlay')
+        }
+      >
+        <VideoView
+          style={StyleSheet.absoluteFill}
+          player={player}
+          nativeControls={false}
+          contentFit="cover"
+          accessibilityIgnoresInvertColors
+        />
+        {!playing ? (
+          <View style={styles.previewOverlay} pointerEvents="none">
+            <Play size={36} color={palette.white} strokeWidth={1.75} />
+          </View>
+        ) : null}
+      </Pressable>
+
+      <View
+        style={[
+          styles.previewControls,
+          { right: spacing.sm, top: spacing.sm },
+        ]}
+      >
+        <Pressable
+          onPress={togglePlay}
+          accessibilityRole="button"
+          accessibilityLabel={
+            playing
+              ? t('composer.edit.videoPause')
+              : t('composer.edit.videoPlay')
+          }
+          hitSlop={6}
+          style={({ pressed }) => [
+            styles.previewBtn,
+            { backgroundColor: colors.bgOverlay, opacity: pressed ? 0.8 : 1 },
+          ]}
+        >
+          {playing ? (
+            <Pause size={16} color={palette.white} strokeWidth={1.75} />
+          ) : (
+            <Play size={16} color={palette.white} strokeWidth={1.75} />
+          )}
+        </Pressable>
+        <Pressable
+          onPress={toggleMute}
+          accessibilityRole="button"
+          accessibilityLabel={
+            muted
+              ? t('composer.edit.videoUnmute')
+              : t('composer.edit.videoMute')
+          }
+          hitSlop={6}
+          style={({ pressed }) => [
+            styles.previewBtn,
+            { backgroundColor: colors.bgOverlay, opacity: pressed ? 0.8 : 1 },
+          ]}
+        >
+          {muted ? (
+            <VolumeX size={16} color={palette.white} strokeWidth={1.75} />
+          ) : (
+            <Volume2 size={16} color={palette.white} strokeWidth={1.75} />
+          )}
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+interface NavRowProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  onPress: () => void;
+  disabled?: boolean;
+  disabledHint?: string;
+}
+
+function NavRow({
+  icon,
+  label,
+  value,
+  onPress,
+  disabled = false,
+  disabledHint,
+}: NavRowProps): React.ReactElement {
+  const { colors, spacing, radius } = useTheme();
+  return (
+    <Pressable
+      onPress={disabled ? undefined : onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      style={({ pressed }) => [
+        styles.navRow,
+        {
+          backgroundColor: colors.bgCard,
+          borderColor: colors.border,
+          borderRadius: radius.md,
+          paddingVertical: spacing.sm,
+          paddingHorizontal: spacing.md,
+          opacity: disabled ? 0.55 : pressed ? 0.85 : 1,
+        },
+      ]}
+    >
+      <View style={styles.navRowIcon}>{icon}</View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <ThemedText variant="bodyMed" tone="primary">
+          {label}
+        </ThemedText>
+        <ThemedText variant="caption" tone="muted" numberOfLines={1}>
+          {disabled && disabledHint ? disabledHint : value}
+        </ThemedText>
+      </View>
+      {!disabled ? (
+        <ChevronRight
+          size={20}
+          color={colors.textMuted}
+          strokeWidth={1.75}
+        />
+      ) : null}
     </Pressable>
   );
 }
 
-interface MultilineFieldProps {
+interface FieldProps {
   label: string;
   placeholder: string;
   value: string;
@@ -85,7 +231,7 @@ interface MultilineFieldProps {
   multiline?: boolean;
 }
 
-function MultilineField({
+function Field({
   label,
   placeholder,
   value,
@@ -93,7 +239,7 @@ function MultilineField({
   maxLength,
   error,
   multiline = false,
-}: MultilineFieldProps): React.ReactElement {
+}: FieldProps): React.ReactElement {
   const { colors, radius, spacing, accent } = useTheme();
   const [focused, setFocused] = useState<boolean>(false);
   const { t } = useTranslation();
@@ -107,11 +253,7 @@ function MultilineField({
   return (
     <View>
       <View style={styles.labelRow}>
-        <ThemedText
-          variant="caption"
-          tone="secondary"
-          style={{ flex: 1 }}
-        >
+        <ThemedText variant="caption" tone="secondary" style={{ flex: 1 }}>
           {label}
         </ThemedText>
         <ThemedText variant="mono" tone="muted">
@@ -130,7 +272,7 @@ function MultilineField({
             borderRadius: radius.md,
             paddingHorizontal: spacing.md,
             paddingVertical: multiline ? spacing.sm : 0,
-            minHeight: multiline ? 120 : 52,
+            minHeight: multiline ? 110 : 48,
           },
         ]}
       >
@@ -148,7 +290,7 @@ function MultilineField({
             styles.input,
             {
               color: colors.textPrimary,
-              minHeight: multiline ? 110 : 48,
+              minHeight: multiline ? 100 : 44,
             },
           ]}
           accessibilityLabel={label}
@@ -170,7 +312,7 @@ function MultilineField({
 export default function ComposerEditScreen(): React.ReactElement | null {
   const router = useRouter();
   const { t } = useTranslation();
-  const { colors, spacing } = useTheme();
+  const { colors, spacing, accent } = useTheme();
 
   const activeWorkspaceId = useTenantStore((s) => s.activeWorkspaceId);
   const workspaceQuery = useWorkspace(activeWorkspaceId);
@@ -181,28 +323,20 @@ export default function ComposerEditScreen(): React.ReactElement | null {
   const [tagIds, setTagIds] = useState<string[]>([]);
   const [ctaId, setCtaId] = useState<string | null>(null);
   const [dynamicUrl, setDynamicUrl] = useState<string>('');
+  const [localUri, setLocalUri] = useState<string | null>(null);
 
   const [titleError, setTitleError] = useState<string | undefined>(undefined);
-  const [urlError, setUrlError] = useState<string | undefined>(undefined);
-
-  const [openSections, setOpenSections] = useState<Record<SectionId, boolean>>({
-    meta: true,
-    tags: false,
-    cta: false,
-  });
 
   const [discardOpen, setDiscardOpen] = useState<boolean>(false);
 
-  // Prefill from draft on first focus.
-  const hasPrefilledRef = React.useRef<boolean>(false);
-
+  // Re-sync from the draft store every focus so subscreens (tags / cta) can
+  // patch the draft and have us pick up the change on return.
   useFocusEffect(
     useCallback(() => {
       if (!activeWorkspaceId) {
         router.replace('/(tabs)/profile');
         return;
       }
-      if (hasPrefilledRef.current) return;
       const existing = useDraftStore.getState().getDraft(activeWorkspaceId);
       if (existing) {
         setTitle(existing.title);
@@ -210,49 +344,43 @@ export default function ComposerEditScreen(): React.ReactElement | null {
         setTagIds(existing.tagIds);
         setCtaId(existing.ctaId);
         setDynamicUrl(existing.ctaUrl ?? '');
+        setLocalUri(existing.localUri);
       }
-      hasPrefilledRef.current = true;
     }, [activeWorkspaceId, router]),
   );
 
-  // Persist on field changes (cheap; the draft store is already debounced via storage write).
+  // Persist title / description on change. Tags + CTA are persisted by the
+  // subscreens themselves so we don't fight them on return.
   useEffect(() => {
-    if (!activeWorkspaceId || !hasPrefilledRef.current) return;
+    if (!activeWorkspaceId) return;
     useDraftStore.getState().patchDraft(activeWorkspaceId, {
       title,
       description,
-      tagIds,
-      ctaId,
-      ctaUrl: dynamicUrl.length > 0 ? dynamicUrl : null,
     });
-  }, [activeWorkspaceId, title, description, tagIds, ctaId, dynamicUrl]);
+  }, [activeWorkspaceId, title, description]);
 
   const workspace = workspaceQuery.data ?? null;
-  const tagTopology: TagCategory[] = tagTopologyQuery.data ?? [];
   const allowedCtas: CTA[] = workspace?.capabilities.allowedCtas ?? [];
   const tagsEnabled: boolean =
     workspace?.capabilities.creatorTagsEnabled ?? false;
+  const tagTopology = tagTopologyQuery.data ?? [];
+
+  const tagSummary: string = useMemo(() => {
+    if (!tagsEnabled) return t('composer.edit.tagsRowDisabled');
+    if (tagIds.length === 0) return t('composer.edit.tagsRowEmpty');
+    return t('composer.edit.tagsRowCount', { count: tagIds.length });
+  }, [tagsEnabled, tagIds.length, t]);
 
   const selectedCta: CTA | null = useMemo(() => {
     if (!ctaId) return null;
     return allowedCtas.find((c) => c.id === ctaId) ?? null;
   }, [allowedCtas, ctaId]);
 
-  const toggleSection = useCallback((id: SectionId) => {
-    setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
-  }, []);
-
-  const toggleTag = useCallback(
-    (categoryTags: Tag[], tagName: string) => {
-      const tag = categoryTags.find((t2) => t2.name === tagName);
-      if (!tag) return;
-      setTagIds((prev) => {
-        if (prev.includes(tag.id)) return prev.filter((id) => id !== tag.id);
-        return [...prev, tag.id];
-      });
-    },
-    [],
-  );
+  const ctaSummary: string = useMemo(() => {
+    if (allowedCtas.length === 0) return t('composer.edit.ctaRowDisabled');
+    if (!selectedCta) return t('composer.edit.ctaRowEmpty');
+    return selectedCta.label;
+  }, [allowedCtas.length, selectedCta, t]);
 
   const handleClose = useCallback(() => {
     setDiscardOpen(true);
@@ -272,29 +400,21 @@ export default function ComposerEditScreen(): React.ReactElement | null {
 
   const validate = useCallback((): boolean => {
     let valid = true;
-
     const trimmed = title.trim();
     if (trimmed.length < 1 || trimmed.length > TITLE_MAX) {
       setTitleError(t('composer.edit.titleRequired'));
-      setOpenSections((prev) => ({ ...prev, meta: true }));
       valid = false;
     } else {
       setTitleError(undefined);
     }
-
     if (selectedCta && selectedCta.kind === 'dynamic') {
       const parsed = urlSchema.safeParse(dynamicUrl);
       if (!parsed.success) {
-        setUrlError(t('composer.edit.urlInvalid'));
-        setOpenSections((prev) => ({ ...prev, cta: true }));
+        // CTA url errors are surfaced on the CTA subscreen; show a toast
+        // here so the user knows where to look.
         valid = false;
-      } else {
-        setUrlError(undefined);
       }
-    } else {
-      setUrlError(undefined);
     }
-
     return valid;
   }, [title, selectedCta, dynamicUrl, t]);
 
@@ -322,9 +442,18 @@ export default function ComposerEditScreen(): React.ReactElement | null {
     router,
   ]);
 
-  if (!activeWorkspaceId || !workspace) {
-    return null;
-  }
+  const handleOpenTags = useCallback(() => {
+    router.push('/composer/tags');
+  }, [router]);
+
+  const handleOpenCta = useCallback(() => {
+    router.push('/composer/cta');
+  }, [router]);
+
+  if (!activeWorkspaceId || !workspace) return null;
+
+  const tagTopologyEmpty: boolean =
+    tagsEnabled && tagTopology.length === 0;
 
   return (
     <ScreenContainer edges={['top', 'left', 'right', 'bottom']} bg="bg">
@@ -332,7 +461,7 @@ export default function ComposerEditScreen(): React.ReactElement | null {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
-        {/* Custom top header */}
+        {/* Header */}
         <View
           style={[
             styles.headerBar,
@@ -368,132 +497,66 @@ export default function ComposerEditScreen(): React.ReactElement | null {
             gap: spacing.md,
           }}
         >
-          {/* Section 1 - Title and description */}
-          <View
-            style={[
-              styles.sectionCard,
-              {
-                backgroundColor: colors.bgCard,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <SectionHeader
-              title={t('composer.edit.sectionTitleAndDescription')}
-              expanded={openSections.meta}
-              onToggle={() => toggleSection('meta')}
+          {/* Inline video preview */}
+          {localUri ? <InlinePreview uri={localUri} /> : null}
+
+          {/* Details */}
+          <View style={{ gap: spacing.md }}>
+            <Field
+              label={t('composer.edit.titleLabel')}
+              placeholder={t('composer.edit.titlePlaceholder')}
+              value={title}
+              onChangeText={setTitle}
+              maxLength={TITLE_MAX}
+              error={titleError}
             />
-            {openSections.meta ? (
-              <View style={{ padding: spacing.md, paddingTop: 0, gap: spacing.md }}>
-                <MultilineField
-                  label={t('composer.edit.titleLabel')}
-                  placeholder={t('composer.edit.titlePlaceholder')}
-                  value={title}
-                  onChangeText={setTitle}
-                  maxLength={TITLE_MAX}
-                  error={titleError}
-                />
-                <MultilineField
-                  label={t('composer.edit.descriptionLabel')}
-                  placeholder={t('composer.edit.descriptionPlaceholder')}
-                  value={description}
-                  onChangeText={setDescription}
-                  maxLength={DESCRIPTION_MAX}
-                  multiline
-                />
-              </View>
-            ) : null}
+            <Field
+              label={t('composer.edit.descriptionLabel')}
+              placeholder={t('composer.edit.descriptionPlaceholder')}
+              value={description}
+              onChangeText={setDescription}
+              maxLength={DESCRIPTION_MAX}
+              multiline
+            />
           </View>
 
-          {/* Section 2 - Tags */}
-          {tagsEnabled ? (
-            <View
-              style={[
-                styles.sectionCard,
-                {
-                  backgroundColor: colors.bgCard,
-                  borderColor: colors.border,
-                },
-              ]}
-            >
-              <SectionHeader
-                title={t('composer.edit.sectionTags')}
-                expanded={openSections.tags}
-                onToggle={() => toggleSection('tags')}
-              />
-              {openSections.tags ? (
-                <View
-                  style={{
-                    padding: spacing.md,
-                    paddingTop: 0,
-                    gap: spacing.md,
-                  }}
-                >
-                  {tagTopology.map((category) => {
-                    const tagNames = category.tags.map((tg) => tg.name);
-                    const selectedNames = category.tags
-                      .filter((tg) => tagIds.includes(tg.id))
-                      .map((tg) => tg.name);
-                    return (
-                      <TagSection
-                        key={category.id}
-                        title={category.name}
-                        tags={tagNames}
-                        selected={selectedNames}
-                        onToggle={(name) => toggleTag(category.tags, name)}
-                      />
-                    );
-                  })}
-                </View>
-              ) : null}
-            </View>
+          {/* Tags row */}
+          {tagsEnabled || tagTopologyEmpty ? (
+            <NavRow
+              icon={
+                <TagIcon
+                  size={18}
+                  color={accent.primary}
+                  strokeWidth={1.75}
+                />
+              }
+              label={t('composer.edit.tagsRowLabel')}
+              value={tagSummary}
+              onPress={handleOpenTags}
+              disabled={!tagsEnabled || tagTopology.length === 0}
+              disabledHint={
+                !tagsEnabled
+                  ? t('composer.edit.tagsRowDisabled')
+                  : t('composer.tagsScreen.emptyTitle')
+              }
+            />
           ) : null}
 
-          {/* Section 3 - Conversion */}
-          <View
-            style={[
-              styles.sectionCard,
-              {
-                backgroundColor: colors.bgCard,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <SectionHeader
-              title={t('composer.edit.sectionCta')}
-              expanded={openSections.cta}
-              onToggle={() => toggleSection('cta')}
-            />
-            {openSections.cta ? (
-              <View
-                style={{
-                  padding: spacing.md,
-                  paddingTop: 0,
-                }}
-              >
-                {allowedCtas.length === 0 ? (
-                  <EmptyState
-                    title={t('composer.edit.noCtas')}
-                  />
-                ) : (
-                  <CTAPicker
-                    ctas={allowedCtas}
-                    selectedId={ctaId}
-                    onSelect={(id) => {
-                      setCtaId(id);
-                      setUrlError(undefined);
-                    }}
-                    dynamicUrl={dynamicUrl}
-                    onChangeDynamicUrl={(url) => {
-                      setDynamicUrl(url);
-                      setUrlError(undefined);
-                    }}
-                    dynamicUrlError={urlError}
-                  />
-                )}
-              </View>
-            ) : null}
-          </View>
+          {/* CTA row */}
+          <NavRow
+            icon={
+              <Zap
+                size={18}
+                color={accent.primary}
+                strokeWidth={1.75}
+              />
+            }
+            label={t('composer.edit.ctaRowLabel')}
+            value={ctaSummary}
+            onPress={handleOpenCta}
+            disabled={allowedCtas.length === 0}
+            disabledHint={t('composer.edit.ctaRowDisabled')}
+          />
         </ScrollView>
 
         {/* Sticky bottom bar */}
@@ -577,15 +640,40 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
-  sectionCard: {
-    borderWidth: 1,
-    borderRadius: 16,
+  previewFrame: {
     overflow: 'hidden',
+    borderWidth: 1,
+    position: 'relative',
   },
-  sectionHeader: {
+  previewOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.25)',
+  },
+  previewControls: {
+    position: 'absolute',
+    flexDirection: 'row',
+    gap: 6,
+  },
+  previewBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navRow: {
+    borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    gap: 12,
+  },
+  navRowIcon: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fieldShell: {
     borderWidth: 1,

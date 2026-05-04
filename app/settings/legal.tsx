@@ -83,6 +83,11 @@ export default function LegalWebViewScreen(): React.ReactElement {
             originWhitelist={['https://*']}
             onLoadStart={() => setLoading(true)}
             onLoadEnd={() => setLoading(false)}
+            allowsInlineMediaPlayback
+            mediaPlaybackRequiresUserAction={false}
+            domStorageEnabled
+            javaScriptEnabled
+            decelerationRate="normal"
             style={{ flex: 1, backgroundColor: colors.bg }}
           />
           {loading ? (

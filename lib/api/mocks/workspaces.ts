@@ -65,6 +65,10 @@ export async function patchMembership(
     ...seedState.memberships[idx],
     workspaceUsername: input.workspaceUsername ?? seedState.memberships[idx].workspaceUsername,
     bio: input.bio ?? seedState.memberships[idx].bio,
+    displayName:
+      input.displayName !== undefined
+        ? input.displayName
+        : seedState.memberships[idx].displayName,
   };
   seedState.memberships[idx] = next;
   return next;
@@ -72,9 +76,35 @@ export async function patchMembership(
 
 export async function uploadMembershipAvatar(
   membershipId: string,
+  form?: FormData,
 ): Promise<MembershipAvatarResponse> {
   await simulateLatency(360);
-  const url = `https://example.com/avatars/membership/${membershipId}.jpg`;
+  // In SCAFFOLD mode the picked file://... URI is the source of truth - no
+  // upload happens. The real backend ignores this hint and reads the file
+  // from the FormData body. We try to recover the picked URI from the
+  // FormData payload (the hook attaches it under the "file" field) so
+  // subsequent fetches reflect what the user picked. The optimistic cache
+  // update in useUploadMembershipAvatar handles the immediate UI flicker;
+  // this just keeps the seed state consistent with later refetches.
+  let pickedUri: string | undefined;
+  if (form) {
+    const probe = (form as unknown as { _parts?: Array<[string, unknown]> })._parts;
+    if (Array.isArray(probe)) {
+      for (const [key, value] of probe) {
+        if (key === 'file' && value && typeof value === 'object') {
+          const uri = (value as { uri?: string }).uri;
+          if (typeof uri === 'string') {
+            pickedUri = uri;
+            break;
+          }
+        }
+      }
+    }
+  }
+  const url =
+    pickedUri && pickedUri.length > 0
+      ? pickedUri
+      : `https://example.com/avatars/membership/${membershipId}.jpg`;
   const idx = seedState.memberships.findIndex((x) => x.membershipId === membershipId);
   if (idx >= 0) {
     seedState.memberships[idx] = { ...seedState.memberships[idx], workspaceAvatarUrl: url };

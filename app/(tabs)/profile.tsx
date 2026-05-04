@@ -18,7 +18,6 @@ import {
   Film,
 } from 'lucide-react-native';
 import { Avatar } from '@/components/Avatar';
-import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenContainer } from '@/components/ScreenContainer';
@@ -41,6 +40,9 @@ import type { Post, MembershipStatus } from '@/types/api';
 
 const SKELETON_COUNT = 6;
 const GRID_GAP = 2;
+// Floating tab pill (height 56) + safe area + spacing.sm gap. Mirrors the
+// pill layout in app/(tabs)/_layout.tsx so content never tucks under it.
+const TAB_PILL_RESERVE = 56 + 24;
 
 function formatCount(n: number): string {
   if (n < 1000) return String(n);
@@ -60,20 +62,25 @@ interface StatCellProps {
 }
 
 function StatCell({ value, label }: StatCellProps): React.ReactElement {
-  const { spacing } = useTheme();
+  const { spacing, colors } = useTheme();
   return (
     <View style={styles.statCell}>
       <ThemedText
-        variant="title"
         tone="primary"
-        style={{ textAlign: 'center' }}
+        style={{
+          textAlign: 'center',
+          fontFamily: 'Outfit_600SemiBold',
+          fontSize: 17,
+          lineHeight: 20,
+          color: colors.textPrimary,
+        }}
       >
         {formatCount(value)}
       </ThemedText>
       <ThemedText
-        variant="mono"
+        variant="caption"
         tone="muted"
-        style={{ marginTop: spacing.xxs, textAlign: 'center' }}
+        style={{ marginTop: spacing.xxs, textAlign: 'center', fontSize: 11 }}
       >
         {label}
       </ThemedText>
@@ -291,84 +298,81 @@ export default function ProfileTabScreen(): React.ReactElement {
           />
         ) : null}
 
-        <Card padded style={{ marginTop: spacing.md }}>
-          <View style={styles.headerTop}>
-            <Avatar
-              size={80}
-              name={membership.workspaceUsername}
-              uri={membership.workspaceAvatarUrl || undefined}
-              accessibilityLabel={membership.workspaceUsername}
-              style={
-                membership.bannerUrl
-                  ? {
-                      marginTop: -72,
-                      borderWidth: 3,
-                      borderColor: colors.bgCard,
-                    }
-                  : undefined
-              }
+        <View style={styles.headerTop}>
+          <Avatar
+            size={80}
+            name={membership.workspaceUsername}
+            uri={membership.workspaceAvatarUrl || undefined}
+            accessibilityLabel={membership.workspaceUsername}
+            style={
+              membership.bannerUrl
+                ? {
+                    marginTop: -40,
+                    borderWidth: 3,
+                    borderColor: colors.bg,
+                  }
+                : undefined
+            }
+          />
+          <View style={styles.statsRow}>
+            <StatCell
+              value={membership.postCount}
+              label={t('profileTab.stats.posts')}
             />
-            <View style={styles.statsRow}>
-              <StatCell
-                value={membership.postCount}
-                label={t('profileTab.stats.posts')}
-              />
-              <StatCell
-                value={membership.totalViews}
-                label={t('profileTab.stats.views')}
-              />
-              <StatCell
-                value={membership.totalClicks}
-                label={t('profileTab.stats.clicks')}
-              />
-            </View>
+            <StatCell
+              value={membership.totalViews}
+              label={t('profileTab.stats.views')}
+            />
+            <StatCell
+              value={membership.totalLikes}
+              label={t('profileTab.stats.likes')}
+            />
           </View>
+        </View>
 
-          <View style={{ marginTop: spacing.lg, gap: spacing.xs }}>
-            <ThemedText variant="heading" numberOfLines={1}>
-              {membership.workspace.name}
+        <View style={{ marginTop: spacing.md, gap: spacing.xxs }}>
+          <ThemedText variant="heading" numberOfLines={1}>
+            {membership.displayName && membership.displayName.length > 0
+              ? membership.displayName
+              : membership.workspace.name}
+          </ThemedText>
+          <ThemedText variant="mono" tone="muted">
+            {`@${membership.workspaceUsername}`}
+          </ThemedText>
+          {membership.bio ? (
+            <ThemedText
+              variant="body"
+              tone="secondary"
+              numberOfLines={3}
+              style={{ marginTop: spacing.xs }}
+            >
+              {membership.bio}
             </ThemedText>
-            <ThemedText variant="body" tone="secondary" numberOfLines={1}>
-              {membership.workspace.brand.name}
-            </ThemedText>
-            <ThemedText variant="mono" tone="muted">
-              {`@${membership.workspaceUsername}`}
-            </ThemedText>
-            {membership.bio ? (
-              <ThemedText
-                variant="body"
-                tone="secondary"
-                numberOfLines={3}
-                style={{ marginTop: spacing.xs }}
-              >
-                {membership.bio}
-              </ThemedText>
-            ) : null}
-          </View>
+          ) : null}
+        </View>
 
-          <View
-            style={{
-              flexDirection: 'row',
-              gap: spacing.md,
-              marginTop: spacing.lg,
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <SecondaryButton
-                label={t('profileTab.editProfile')}
-                accessibilityLabel={t('profileTab.editProfile')}
-                onPress={handleEditProfilePress}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <SecondaryButton
-                label={t('profileTab.shareProfile')}
-                accessibilityLabel={t('profileTab.shareProfile')}
-                onPress={handleSharePress}
-              />
-            </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: spacing.sm,
+            marginTop: spacing.lg,
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <SecondaryButton
+              label={t('profileTab.editProfile')}
+              accessibilityLabel={t('profileTab.editProfile')}
+              onPress={handleEditProfilePress}
+            />
           </View>
-        </Card>
+          <View style={{ flex: 1 }}>
+            <SecondaryButton
+              label={t('profileTab.shareProfile')}
+              accessibilityLabel={t('profileTab.shareProfile')}
+              onPress={handleSharePress}
+            />
+          </View>
+        </View>
 
         {membership.status !== 'active' ? (
           <View style={{ marginTop: spacing.md }}>
@@ -381,7 +385,7 @@ export default function ProfileTabScreen(): React.ReactElement {
     membership,
     workspaceQuery.data,
     spacing,
-    colors.bgCard,
+    colors.bg,
     colors.bgInput,
     t,
     handleBannerCancel,
@@ -411,11 +415,18 @@ export default function ProfileTabScreen(): React.ReactElement {
             title={t('profileTab.noWorkspaceTitle')}
             description={t('profileTab.noWorkspaceBody')}
             cta={
-              <PrimaryButton
-                label={t('profileTab.findWorkspace')}
-                accessibilityLabel={t('profileTab.findWorkspace')}
-                onPress={() => router.push('/add-tenant')}
-              />
+              <View style={{ alignSelf: 'stretch', gap: spacing.sm }}>
+                <PrimaryButton
+                  label={t('profileTab.pasteInviteCode')}
+                  accessibilityLabel={t('profileTab.pasteInviteCode')}
+                  onPress={() => router.push('/add-tenant')}
+                />
+                <SecondaryButton
+                  label={t('profileTab.searchByEmail')}
+                  accessibilityLabel={t('profileTab.searchByEmail')}
+                  onPress={() => router.push('/add-tenant')}
+                />
+              </View>
             }
           />
         </View>
@@ -432,11 +443,18 @@ export default function ProfileTabScreen(): React.ReactElement {
             title={t('profileTab.noWorkspaceTitle')}
             description={t('profileTab.noWorkspaceBody')}
             cta={
-              <PrimaryButton
-                label={t('profileTab.findWorkspace')}
-                accessibilityLabel={t('profileTab.findWorkspace')}
-                onPress={() => router.push('/add-tenant')}
-              />
+              <View style={{ alignSelf: 'stretch', gap: spacing.sm }}>
+                <PrimaryButton
+                  label={t('profileTab.pasteInviteCode')}
+                  accessibilityLabel={t('profileTab.pasteInviteCode')}
+                  onPress={() => router.push('/add-tenant')}
+                />
+                <SecondaryButton
+                  label={t('profileTab.searchByEmail')}
+                  accessibilityLabel={t('profileTab.searchByEmail')}
+                  onPress={() => router.push('/add-tenant')}
+                />
+              </View>
             }
           />
         </View>
@@ -464,7 +482,7 @@ export default function ProfileTabScreen(): React.ReactElement {
   if (!isActiveMembership) {
     return (
       <ScreenContainer padded edges={['left', 'right']}>
-        <View style={{ flex: 1, paddingVertical: spacing.lg }}>
+        <View style={{ flex: 1, paddingTop: spacing.lg, paddingBottom: TAB_PILL_RESERVE }}>
           {renderHeader()}
         </View>
       </ScreenContainer>
@@ -474,7 +492,7 @@ export default function ProfileTabScreen(): React.ReactElement {
   if (isPostsInitialLoading) {
     return (
       <ScreenContainer padded edges={['left', 'right']}>
-        <View style={{ flex: 1, paddingVertical: spacing.lg, gap: spacing.md }}>
+        <View style={{ flex: 1, paddingTop: spacing.lg, gap: spacing.md, paddingBottom: TAB_PILL_RESERVE }}>
           {renderHeader()}
           <SkeletonGrid count={SKELETON_COUNT} />
         </View>
@@ -485,7 +503,7 @@ export default function ProfileTabScreen(): React.ReactElement {
   if (isPostsError) {
     return (
       <ScreenContainer padded edges={['left', 'right']}>
-        <View style={{ flex: 1, paddingVertical: spacing.lg, gap: spacing.md }}>
+        <View style={{ flex: 1, paddingTop: spacing.lg, gap: spacing.md, paddingBottom: TAB_PILL_RESERVE }}>
           {renderHeader()}
           <EmptyState
             icon={AlertCircle}
@@ -512,19 +530,12 @@ export default function ProfileTabScreen(): React.ReactElement {
   if (showEmpty) {
     return (
       <ScreenContainer padded edges={['left', 'right']}>
-        <View style={{ flex: 1, paddingVertical: spacing.lg, gap: spacing.md }}>
+        <View style={{ flex: 1, paddingTop: spacing.lg, gap: spacing.md, paddingBottom: TAB_PILL_RESERVE }}>
           {renderHeader()}
           <EmptyState
             icon={Film}
             title={t('profileTab.empty.title')}
             description={t('profileTab.empty.body')}
-            cta={
-              <PrimaryButton
-                label={t('profileTab.empty.cta')}
-                accessibilityLabel={t('profileTab.empty.cta')}
-                onPress={() => router.push('/(tabs)/upload')}
-              />
-            }
           />
         </View>
       </ScreenContainer>
@@ -557,7 +568,7 @@ export default function ProfileTabScreen(): React.ReactElement {
             }
           }}
           onEndReachedThreshold={0.4}
-          contentContainerStyle={{ paddingBottom: spacing.xxxl + spacing.xl }}
+          contentContainerStyle={{ paddingBottom: TAB_PILL_RESERVE + spacing.lg }}
           refreshControl={
             <RefreshControl
               refreshing={
@@ -582,7 +593,7 @@ const styles = StyleSheet.create({
   },
   banner: {
     width: '100%',
-    aspectRatio: 5 / 2,
+    aspectRatio: 16 / 7,
   },
   headerTop: {
     flexDirection: 'row',
@@ -591,7 +602,7 @@ const styles = StyleSheet.create({
   statsRow: {
     flex: 1,
     flexDirection: 'row',
-    marginLeft: 24,
+    marginLeft: 16,
   },
   statCell: {
     flex: 1,

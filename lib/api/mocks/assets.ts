@@ -32,6 +32,24 @@ export const MOCK_ASSETS = {
     avatar: PICSUM('ec-kiran', 240, 240),
   },
 
+  // Neutral silhouette placeholders shown on profile-setup. Each entry is a
+  // `silhouette:#RRGGBB` sentinel URI that the Avatar component renders as a
+  // face icon over the given background. Zero-bandwidth and locale-neutral.
+  //
+  // SCAFFOLD-ONLY: these strings must never reach the backend. The wrappers
+  // in lib/api/identity.ts (createProfile / patchMe) strip any `avatarUrl`
+  // beginning with `silhouette:` before sending. If you add a new code path
+  // that submits an avatar URL (e.g. /v1/identity/avatar JSON variant), add
+  // the same scrub there too.
+  presetAvatars: [
+    'silhouette:#64748B', // slate
+    'silhouette:#475569', // slate dark
+    'silhouette:#0E8A6F', // teal
+    'silhouette:#2A6DF4', // blue
+    'silhouette:#7B3AB5', // violet
+    'silhouette:#C2410C', // ember
+  ],
+
   brands: {
     // Square logo placeholders. Real logos should be square SVG / PNG with
     // transparent background; the UI wraps them in a 1px border so light

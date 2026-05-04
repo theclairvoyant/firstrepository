@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -42,7 +41,6 @@ import {
   unregisterPushNotifications,
 } from '@/lib/notifications/register';
 import { useSignOut } from '@/lib/api/queries';
-import { showToast } from '@/lib/toast';
 
 type ThemeSegmentKey = 'system' | 'light' | 'dark';
 
@@ -257,7 +255,9 @@ export default function SettingsIndexScreen(): React.ReactElement {
     router.push({
       pathname: '/settings/legal',
       params: {
-        url: process.env.EXPO_PUBLIC_PRIVACY_URL ?? '',
+        url:
+          process.env.EXPO_PUBLIC_PRIVACY_URL ??
+          'https://www.blinklink.com/privacy-policy',
         title: t('settings.privacyTitle'),
       },
     });
@@ -267,29 +267,17 @@ export default function SettingsIndexScreen(): React.ReactElement {
     router.push({
       pathname: '/settings/legal',
       params: {
-        url: process.env.EXPO_PUBLIC_TERMS_URL ?? '',
+        url:
+          process.env.EXPO_PUBLIC_TERMS_URL ??
+          'https://www.blinklink.com/terms-and-conditions',
         title: t('settings.termsTitle'),
       },
     });
   }, [router, t]);
 
   const handleSupportPress = useCallback((): void => {
-    const email: string = process.env.EXPO_PUBLIC_SUPPORT_EMAIL ?? '';
-    if (!email) {
-      showToast({
-        variant: 'info',
-        message: t('settings.support.notConfigured'),
-      });
-      return;
-    }
-    const subject = encodeURIComponent(t('settings.support.mailSubject'));
-    void Linking.openURL(`mailto:${email}?subject=${subject}`).catch(() => {
-      showToast({
-        variant: 'danger',
-        message: t('settings.support.notConfigured'),
-      });
-    });
-  }, [t]);
+    router.push('/settings/support');
+  }, [router]);
 
   const handleLanguagePress = useCallback((): void => {
     router.push('/settings/language');

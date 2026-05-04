@@ -41,6 +41,10 @@ export async function patchMembership(
   membershipId: string,
   input: PatchMembershipInput,
 ): Promise<WorkspaceMembership> {
+  // TODO(schema): docs/06-api-contracts.md only documents
+  // `{ workspaceUsername?, bio? }` for PATCH /v1/memberships/{id}, but the
+  // app currently sends `displayName` (and the membership shape carries
+  // `bannerUrl`). Align with the CTO before depending on these server-side.
   if (MOCK_API) return mock.patchMembership(membershipId, input);
   return httpPatch<WorkspaceMembership>(`/v1/memberships/${membershipId}`, input);
 }
@@ -49,7 +53,11 @@ export async function uploadMembershipAvatar(
   membershipId: string,
   form?: FormData,
 ): Promise<MembershipAvatarResponse> {
-  if (MOCK_API) return mock.uploadMembershipAvatar(membershipId);
+  // SCAFFOLD: the mock layer reads the picked file://... URI from FormData
+  // for parity with FULL mode. The optimistic UI update lives in the
+  // useUploadMembershipAvatar hook (queries.ts) so the wrapper signature
+  // does not need a separate previewUri.
+  if (MOCK_API) return mock.uploadMembershipAvatar(membershipId, form);
   return httpPost<MembershipAvatarResponse>(
     `/v1/memberships/${membershipId}/avatar`,
     form,

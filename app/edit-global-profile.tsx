@@ -5,7 +5,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  TextInput,
   StyleSheet,
   ActivityIndicator,
   Alert,
@@ -23,41 +22,29 @@ import { SecondaryButton } from '@/components/SecondaryButton';
 import { Input } from '@/components/Input';
 import { Avatar } from '@/components/Avatar';
 import { useTheme } from '@/lib/theme/useTheme';
-import { useTenantStore } from '@/lib/store/tenantStore';
-import {
-  useMemberships,
-  usePatchMembership,
-  useUploadMembershipAvatar,
-} from '@/lib/api/queries';
+import { useAuthStore } from '@/lib/store/authStore';
+import { usePatchMe, useUploadAvatar } from '@/lib/api/queries';
 import { showToast } from '@/lib/toast';
 
 const USERNAME_RE = /^[a-z0-9._-]+$/;
-const BIO_MAX = 160;
 
-export default function EditMembershipScreen(): React.ReactElement {
+export default function EditGlobalProfileScreen(): React.ReactElement {
   const router = useRouter();
   const { t } = useTranslation();
-  const { colors, spacing, radius, accent } = useTheme();
+  const { colors, spacing, accent } = useTheme();
   const insets = useSafeAreaInsets();
 
-  const activeWorkspaceId = useTenantStore((s) => s.activeWorkspaceId);
-  const membershipsQuery = useMemberships();
-  const patchMembership = usePatchMembership();
-  const uploadAvatar = useUploadMembershipAvatar();
+  const creator = useAuthStore((s) => s.creator);
+  const setCreator = useAuthStore((s) => s.setCreator);
+  const patchMe = usePatchMe();
+  const uploadAvatar = useUploadAvatar();
 
-  const membership = useMemo(() => {
-    if (!activeWorkspaceId) return null;
-    const list = membershipsQuery.data ?? [];
-    return list.find((m) => m.workspace.id === activeWorkspaceId) ?? null;
-  }, [activeWorkspaceId, membershipsQuery.data]);
-
-  const [displayName, setDisplayName] = useState<string>(
-    membership?.displayName ?? '',
-  );
+  const [firstName, setFirstName] = useState<string>(creator?.firstName ?? '');
+  const [lastName, setLastName] = useState<string>(creator?.lastName ?? '');
   const [username, setUsername] = useState<string>(
-    membership?.workspaceUsername ?? '',
+    creator?.globalUsername ?? '',
   );
-  const [bio, setBio] = useState<string>(membership?.bio ?? '');
+  const [phone, setPhone] = useState<string>(creator?.phone ?? '');
   const [usernameTouched, setUsernameTouched] = useState<boolean>(false);
 
   const usernameValid: boolean =
@@ -65,32 +52,37 @@ export default function EditMembershipScreen(): React.ReactElement {
     username.length >= 3 &&
     username.length <= 30;
 
-  const displayNameValid: boolean =
-    displayName.length === 0 || displayName.trim().length <= 60;
-
-  const bioValid: boolean = bio.length <= BIO_MAX;
+  const phoneValid: boolean =
+    phone.trim().length === 0 ||
+    /^[+]?[\d\s().-]{7,24}$/.test(phone.trim());
 
   const dirty: boolean =
-    !!membership &&
-    (username !== membership.workspaceUsername ||
-      bio !== membership.bio ||
-      displayName !== (membership.displayName ?? ''));
+    !!creator &&
+    (firstName !== creator.firstName ||
+      lastName !== creator.lastName ||
+      username !== creator.globalUsername ||
+      (phone !== (creator.phone ?? '')));
 
   const canSubmit: boolean =
-    !!membership &&
+    !!creator &&
+    firstName.trim().length > 0 &&
+    lastName.trim().length > 0 &&
     usernameValid &&
-    displayNameValid &&
-    bioValid &&
+    phoneValid &&
     dirty &&
-    !patchMembership.isPending;
+    !patchMe.isPending;
+
+  const fullName: string = useMemo(() => {
+    return `${firstName} ${lastName}`.trim();
+  }, [firstName, lastName]);
 
   const onAvatarPress = async (): Promise<void> => {
-    if (!membership || uploadAvatar.isPending) return;
+    if (uploadAvatar.isPending) return;
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
       Alert.alert(
-        t('editMembership.avatarPermissionTitle'),
-        t('editMembership.avatarPermissionBody'),
+        t('editGlobalProfile.avatarPermissionTitle'),
+        t('editGlobalProfile.avatarPermissionBody'),
       );
       return;
     }
@@ -105,51 +97,45 @@ export default function EditMembershipScreen(): React.ReactElement {
     const asset = result.assets[0];
     if (!asset?.uri) return;
     try {
-      // Build a multipart payload that matches what the FULL backend expects
-      // (file under "file"). SCAFFOLD's mock plucks the picked URI back out
-      // for parity. The hook does the optimistic UI patch off `previewUri`.
-      const form = new FormData();
-      const filename = asset.fileName ?? `avatar-${Date.now()}.jpg`;
-      const mime = asset.mimeType ?? 'image/jpeg';
-      form.append('file', {
-        uri: asset.uri,
-        name: filename,
-        type: mime,
-      } as unknown as Blob);
-      await uploadAvatar.mutateAsync({
-        membershipId: membership.membershipId,
-        form,
-        previewUri: asset.uri,
-      });
+      const { avatarUrl } = await uploadAvatar.mutateAsync({});
+      // SCAFFOLD mock returns a fixed URL; replace the local creator with the
+      // picked URI so the UI reflects the choice immediately.
+      if (creator) {
+        setCreator({ ...creator, avatarUrl: asset.uri || avatarUrl });
+      }
     } catch {
       showToast({
         variant: 'danger',
-        message: t('editMembership.avatarSaveError'),
+        message: t('editGlobalProfile.avatarSaveError'),
       });
     }
   };
 
   const onCancel = (): void => {
-    router.back();
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/profile');
   };
 
   const onSave = async (): Promise<void> => {
-    if (!membership || !canSubmit) return;
+    if (!creator || !canSubmit) return;
     try {
-      await patchMembership.mutateAsync({
-        membershipId: membership.membershipId,
-        input: {
-          workspaceUsername: username,
-          bio,
-          displayName: displayName.trim(),
-        },
+      const trimmedPhone = phone.trim();
+      const next = await patchMe.mutateAsync({
+        firstName,
+        lastName,
+        globalUsername: username,
+        phone: trimmedPhone.length > 0 ? trimmedPhone : undefined,
       });
-      showToast({ variant: 'success', message: t('editMembership.saved') });
-      router.back();
+      setCreator(next);
+      showToast({
+        variant: 'success',
+        message: t('editGlobalProfile.saved'),
+      });
+      onCancel();
     } catch {
       showToast({
         variant: 'danger',
-        message: t('editMembership.saveError'),
+        message: t('editGlobalProfile.saveError'),
       });
     }
   };
@@ -165,26 +151,33 @@ export default function EditMembershipScreen(): React.ReactElement {
     backgroundColor: colors.bgElevated,
   };
 
-  if (!membership) {
+  if (!creator) {
     return (
       <ScreenContainer edges={['left', 'right']}>
         <View style={headerStyle}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={t('editMembership.back')}
+            accessibilityLabel={t('common.back')}
             onPress={onCancel}
             hitSlop={8}
-            style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
+            style={({ pressed }) => [
+              styles.backBtn,
+              pressed && styles.pressed,
+            ]}
           >
-            <ChevronLeft size={24} color={colors.textPrimary} strokeWidth={1.75} />
+            <ChevronLeft
+              size={24}
+              color={colors.textPrimary}
+              strokeWidth={1.75}
+            />
           </Pressable>
           <ThemedText variant="heading" style={styles.headerTitle}>
-            {t('editMembership.title')}
+            {t('editGlobalProfile.title')}
           </ThemedText>
         </View>
         <View style={styles.center}>
           <ThemedText variant="body" tone="muted">
-            {t('profileTab.noWorkspaceTitle')}
+            {t('editGlobalProfile.noProfile')}
           </ThemedText>
         </View>
       </ScreenContainer>
@@ -196,15 +189,19 @@ export default function EditMembershipScreen(): React.ReactElement {
       <View style={headerStyle}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t('editMembership.back')}
+          accessibilityLabel={t('common.back')}
           onPress={onCancel}
           hitSlop={8}
           style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
         >
-          <ChevronLeft size={24} color={colors.textPrimary} strokeWidth={1.75} />
+          <ChevronLeft
+            size={24}
+            color={colors.textPrimary}
+            strokeWidth={1.75}
+          />
         </Pressable>
         <ThemedText variant="heading" style={styles.headerTitle}>
-          {t('editMembership.title')}
+          {t('editGlobalProfile.title')}
         </ThemedText>
       </View>
 
@@ -227,15 +224,15 @@ export default function EditMembershipScreen(): React.ReactElement {
                 void onAvatarPress();
               }}
               accessibilityRole="button"
-              accessibilityLabel={t('editMembership.avatarPickFromGallery')}
+              accessibilityLabel={t('editGlobalProfile.avatarPickFromGallery')}
               hitSlop={8}
               disabled={uploadAvatar.isPending}
               style={{ position: 'relative' }}
             >
               <Avatar
                 size={80}
-                name={membership.workspaceUsername}
-                uri={membership.workspaceAvatarUrl || undefined}
+                name={fullName || ' '}
+                uri={creator.avatarUrl || undefined}
               />
               <View
                 style={{
@@ -264,22 +261,29 @@ export default function EditMembershipScreen(): React.ReactElement {
               tone="muted"
               style={{ marginTop: spacing.sm }}
             >
-              {t('editMembership.avatarPickFromGallery')}
+              {t('editGlobalProfile.avatarPickFromGallery')}
             </ThemedText>
           </View>
 
           <View style={{ gap: spacing.md }}>
             <Input
-              label={t('editMembership.displayNameLabel')}
-              value={displayName}
-              onChangeText={setDisplayName}
+              label={t('editGlobalProfile.firstName')}
+              value={firstName}
+              onChangeText={setFirstName}
               autoCapitalize="words"
-              autoComplete="name"
-              maxLength={60}
-              helperText={t('editMembership.displayNameHint')}
+              autoComplete="given-name"
+              maxLength={40}
             />
             <Input
-              label={t('editMembership.usernameLabel')}
+              label={t('editGlobalProfile.lastName')}
+              value={lastName}
+              onChangeText={setLastName}
+              autoCapitalize="words"
+              autoComplete="family-name"
+              maxLength={40}
+            />
+            <Input
+              label={t('editGlobalProfile.username')}
               value={username}
               onChangeText={(v) => setUsername(v.toLowerCase())}
               onBlur={() => setUsernameTouched(true)}
@@ -289,63 +293,35 @@ export default function EditMembershipScreen(): React.ReactElement {
               maxLength={30}
               helperText={
                 !usernameTouched || usernameValid
-                  ? t('editMembership.usernameHint')
+                  ? t('editGlobalProfile.usernameHint')
                   : undefined
               }
               error={
                 usernameTouched && !usernameValid
-                  ? t('editMembership.usernameInvalid')
+                  ? t('editGlobalProfile.usernameInvalid')
                   : undefined
               }
             />
-
-            <View>
-              <ThemedText
-                variant="caption"
-                tone="secondary"
-                style={{ marginBottom: spacing.xs }}
-              >
-                {t('editMembership.bioLabel')}
-              </ThemedText>
-              <View
-                style={[
-                  styles.bioField,
-                  {
-                    backgroundColor: colors.bgInput,
-                    borderColor: bio.length > BIO_MAX ? accent.danger : colors.border,
-                    borderRadius: radius.md,
-                    paddingHorizontal: spacing.md,
-                    paddingVertical: spacing.sm,
-                  },
-                ]}
-              >
-                <TextInput
-                  value={bio}
-                  onChangeText={setBio}
-                  placeholder={t('editMembership.bioPlaceholder')}
-                  placeholderTextColor={colors.textMuted}
-                  multiline
-                  maxLength={BIO_MAX}
-                  textAlignVertical="top"
-                  style={{
-                    color: colors.textPrimary,
-                    fontFamily: 'Outfit_400Regular',
-                    fontSize: 15,
-                    minHeight: 96,
-                  }}
-                />
-              </View>
-              <ThemedText
-                variant="caption"
-                tone="muted"
-                style={{ marginTop: spacing.xs, textAlign: 'right' }}
-              >
-                {t('editMembership.bioCounter', {
-                  current: bio.length,
-                  max: BIO_MAX,
-                })}
-              </ThemedText>
-            </View>
+            <Input
+              label={t('editGlobalProfile.email')}
+              value={creator.email}
+              editable={false}
+              helperText={t('editGlobalProfile.emailLocked')}
+            />
+            <Input
+              label={t('editGlobalProfile.phone')}
+              value={phone}
+              onChangeText={setPhone}
+              autoCapitalize="none"
+              autoComplete="tel"
+              keyboardType="phone-pad"
+              maxLength={24}
+              placeholder={t('editGlobalProfile.phonePlaceholder')}
+              helperText={t('editGlobalProfile.phoneOptional')}
+              error={
+                !phoneValid ? t('editGlobalProfile.phoneInvalid') : undefined
+              }
+            />
           </View>
         </ScrollView>
 
@@ -363,17 +339,17 @@ export default function EditMembershipScreen(): React.ReactElement {
         >
           <View style={{ flex: 1 }}>
             <SecondaryButton
-              label={t('editMembership.cancel')}
-              accessibilityLabel={t('editMembership.cancel')}
+              label={t('editGlobalProfile.cancel')}
+              accessibilityLabel={t('editGlobalProfile.cancel')}
               onPress={onCancel}
             />
           </View>
           <View style={{ flex: 1 }}>
             <PrimaryButton
-              label={t('editMembership.save')}
-              accessibilityLabel={t('editMembership.save')}
+              label={t('editGlobalProfile.save')}
+              accessibilityLabel={t('editGlobalProfile.save')}
               disabled={!canSubmit}
-              loading={patchMembership.isPending}
+              loading={patchMe.isPending}
               onPress={() => {
                 void onSave();
               }}
@@ -402,8 +378,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  bioField: {
-    borderWidth: 1,
   },
 });

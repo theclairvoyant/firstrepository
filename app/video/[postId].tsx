@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Dimensions,
   Pressable,
+  ScrollView,
   Share,
   StyleSheet,
   View,
@@ -25,10 +26,13 @@ import {
   ChevronRight,
   Copy,
   Film,
+  Heart,
+  Info,
   MoreHorizontal,
   Play,
   Pause,
   Share2,
+  ThumbsDown,
   Trash2,
   Volume2,
   VolumeX,
@@ -57,8 +61,28 @@ import { showToast } from '@/lib/toast';
 import { buildPostUrl } from '@/lib/deeplinks/parser';
 import type { CTA, CtaStyle, Post, TagCategory } from '@/types/api';
 
-const VIDEO_HEIGHT_PCT = 0.5;
+// Cap so a tall vertical video doesn't dominate the screen.
+const VIDEO_MAX_HEIGHT_PCT = 0.55;
 const CONTROL_HIDE_MS = 2000;
+// Default to a vertical 9:16 frame when the post has no recorded media specs.
+const DEFAULT_ASPECT = 9 / 16;
+
+function formatFileSize(bytes: number | undefined): string {
+  if (!bytes || bytes <= 0) return '-';
+  if (bytes >= 1024 * 1024) {
+    const mb = bytes / (1024 * 1024);
+    return `${mb >= 10 ? Math.round(mb) : mb.toFixed(1)} MB`;
+  }
+  if (bytes >= 1024) {
+    return `${Math.round(bytes / 1024)} KB`;
+  }
+  return `${bytes} B`;
+}
+
+function formatResolution(w: number | undefined, h: number | undefined): string {
+  if (!w || !h) return '-';
+  return `${w} x ${h}`;
+}
 
 interface PageScrollEventData {
   position: number;
@@ -168,24 +192,53 @@ interface PostPageProps {
   post: Post;
   isActive: boolean;
   tagCategories: TagCategory[];
-  videoHeight: number;
+  screenWidth: number;
+  screenHeight: number;
 }
 
 function PostPage({
   post,
   isActive,
   tagCategories,
-  videoHeight,
+  screenWidth,
+  screenHeight,
 }: PostPageProps): React.ReactElement {
   const { t } = useTranslation();
-  const { colors, spacing, radius, palette } = useTheme();
+  const { colors, spacing, radius, palette, accent } = useTheme();
   const locale = useLanguageStore((s) => s.resolved);
 
   const [adminNoteOpen, setAdminNoteOpen] = useState<boolean>(false);
+  const [statusOpen, setStatusOpen] = useState<boolean>(false);
+  const [specsOpen, setSpecsOpen] = useState<boolean>(false);
+  const [descExpanded, setDescExpanded] = useState<boolean>(false);
   const [muted, setMuted] = useState<boolean>(true);
   const [showControls, setShowControls] = useState<boolean>(true);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [playing, setPlaying] = useState<boolean>(false);
+
+  // Char threshold beyond which the description gets a Show more / Show less
+  // toggle. ~140 chars roughly fits 3 lines at body size.
+  const DESC_TRUNCATE_AT = 140;
+  const descIsLong: boolean = (post.description?.length ?? 0) > DESC_TRUNCATE_AT;
+
+  // Compute frame dimensions from the post's intrinsic media aspect, capped
+  // by both the screen width (minus side margin) and a max screen-height
+  // percentage so very tall vertical videos still leave room for content.
+  const frame = useMemo<{ width: number; height: number }>(() => {
+    const aspect: number =
+      post.mediaWidth && post.mediaHeight
+        ? post.mediaWidth / post.mediaHeight
+        : DEFAULT_ASPECT;
+    const maxWidth = screenWidth - 32; // 16 each side
+    const maxHeight = screenHeight * VIDEO_MAX_HEIGHT_PCT;
+    let height = maxWidth / aspect;
+    let width = maxWidth;
+    if (height > maxHeight) {
+      height = maxHeight;
+      width = height * aspect;
+    }
+    return { width: Math.round(width), height: Math.round(height) };
+  }, [post.mediaWidth, post.mediaHeight, screenWidth, screenHeight]);
 
   const player: VideoPlayer = useVideoPlayer(post.mediaUrl || null, (p) => {
     p.loop = true;
@@ -255,104 +308,157 @@ function PostPage({
 
   const playerOverlayLabel = playing ? t('video.playToggle') : t('video.playToggle');
 
+  const statusKey: string =
+    post.status === 'needs_edits' ? 'needsEdits' : post.status;
+  const statusLabel: string = t(`status.${statusKey}`);
+  const statusDescription: string = t(`status.descriptions.${statusKey}`);
+
   return (
     <View style={{ flex: 1 }}>
-      {/* Video player area */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingBottom: spacing.xxxl,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Video frame - scrolls together with the body */}
       <View
         style={[
-          styles.playerContainer,
-          {
-            height: videoHeight,
-            backgroundColor: colors.bgInput,
-          },
+          styles.frameStage,
+          { paddingTop: spacing.md, paddingBottom: spacing.md },
         ]}
       >
-        {post.mediaUrl ? (
-          <Pressable
-            style={styles.playerPressable}
-            onPress={togglePlay}
-            accessibilityRole="button"
-            accessibilityLabel={playerOverlayLabel}
-          >
-            <VideoView
-              style={StyleSheet.absoluteFill}
-              player={player}
-              nativeControls={false}
-              contentFit="contain"
-              accessibilityIgnoresInvertColors
-            />
-            {showControls ? (
-              <View
-                pointerEvents="none"
-                style={[
-                  styles.playOverlay,
-                  { backgroundColor: colors.bgOverlay },
-                ]}
-              >
-                {playing ? (
-                  <Pause
-                    size={48}
-                    color={palette.white}
-                    strokeWidth={1.75}
-                  />
-                ) : (
-                  <Play size={48} color={palette.white} strokeWidth={1.75} />
-                )}
-              </View>
-            ) : null}
-          </Pressable>
-        ) : (
-          <View style={styles.placeholderCenter}>
-            <Film size={48} color={colors.textMuted} strokeWidth={1.75} />
-            <ThemedText
-              variant="caption"
-              tone="muted"
-              style={{ marginTop: spacing.sm, textAlign: 'center' }}
+        <View
+          style={[
+            styles.frame,
+            {
+              width: frame.width,
+              height: frame.height,
+              borderRadius: radius.lg,
+              borderColor: colors.border,
+              backgroundColor: colors.bgInput,
+            },
+          ]}
+        >
+          {post.mediaUrl ? (
+            <Pressable
+              style={styles.playerPressable}
+              onPress={togglePlay}
+              accessibilityRole="button"
+              accessibilityLabel={playerOverlayLabel}
             >
-              {t('video.scaffoldNoPreview')}
-            </ThemedText>
-          </View>
-        )}
-
-        {/* Volume toggle */}
-        {post.mediaUrl ? (
-          <Pressable
-            onPress={toggleMute}
-            accessibilityRole="button"
-            accessibilityLabel={t('video.volumeToggle')}
-            style={({ pressed }) => [
-              styles.volumeButton,
-              {
-                backgroundColor: colors.bgOverlay,
-                borderRadius: radius.pill,
-                opacity: pressed ? 0.85 : 1,
-              },
-            ]}
-            hitSlop={8}
-          >
-            {muted ? (
-              <VolumeX
-                size={18}
-                color={palette.white}
-                strokeWidth={1.75}
+              <VideoView
+                style={StyleSheet.absoluteFill}
+                player={player}
+                nativeControls={false}
+                contentFit="cover"
+                accessibilityIgnoresInvertColors
               />
-            ) : (
-              <Volume2 size={18} color={palette.white} strokeWidth={1.75} />
-            )}
-          </Pressable>
-        ) : null}
+              {showControls ? (
+                <View
+                  pointerEvents="none"
+                  style={[
+                    styles.playOverlay,
+                    { backgroundColor: colors.bgOverlay },
+                  ]}
+                >
+                  {playing ? (
+                    <Pause
+                      size={42}
+                      color={palette.white}
+                      strokeWidth={1.75}
+                    />
+                  ) : (
+                    <Play size={42} color={palette.white} strokeWidth={1.75} />
+                  )}
+                </View>
+              ) : null}
+            </Pressable>
+          ) : (
+            <View style={styles.placeholderCenter}>
+              <Film size={42} color={colors.textMuted} strokeWidth={1.75} />
+              <ThemedText
+                variant="caption"
+                tone="muted"
+                style={{ marginTop: spacing.sm, textAlign: 'center' }}
+              >
+                {t('video.scaffoldNoPreview')}
+              </ThemedText>
+            </View>
+          )}
+
+          {/* Volume toggle - top-right inside frame */}
+          {post.mediaUrl ? (
+            <Pressable
+              onPress={toggleMute}
+              accessibilityRole="button"
+              accessibilityLabel={t('video.volumeToggle')}
+              style={({ pressed }) => [
+                styles.volumeButton,
+                {
+                  backgroundColor: colors.bgOverlay,
+                  borderRadius: radius.pill,
+                  opacity: pressed ? 0.85 : 1,
+                },
+              ]}
+              hitSlop={8}
+            >
+              {muted ? (
+                <VolumeX
+                  size={16}
+                  color={palette.white}
+                  strokeWidth={1.75}
+                />
+              ) : (
+                <Volume2 size={16} color={palette.white} strokeWidth={1.75} />
+              )}
+            </Pressable>
+          ) : null}
+        </View>
       </View>
 
       {/* Body */}
       <View
         style={{
-          flex: 1,
           paddingHorizontal: spacing.md,
-          paddingTop: spacing.md,
           gap: spacing.md,
         }}
       >
-        {/* Status row */}
+        {/* Title + description (right under the video) */}
+        <View style={{ gap: spacing.xs }}>
+          <ThemedText variant="heading" tone="primary">
+            {post.title}
+          </ThemedText>
+          <ThemedText
+            variant="body"
+            tone={post.description ? 'secondary' : 'muted'}
+            numberOfLines={
+              !post.description ? 1 : descExpanded ? undefined : 3
+            }
+          >
+            {post.description || t('video.noDescription')}
+          </ThemedText>
+          {descIsLong ? (
+            <Pressable
+              onPress={() => setDescExpanded((v) => !v)}
+              accessibilityRole="button"
+              accessibilityLabel={
+                descExpanded ? t('video.showLess') : t('video.showMore')
+              }
+              hitSlop={6}
+            >
+              <ThemedText
+                variant="caption"
+                style={{ color: accent.primary, fontFamily: 'Outfit_600SemiBold' }}
+              >
+                {descExpanded ? t('video.showLess') : t('video.showMore')}
+              </ThemedText>
+            </Pressable>
+          ) : null}
+        </View>
+
+        {/* Status + specs row */}
         <View
           style={{
             flexDirection: 'row',
@@ -360,13 +466,18 @@ function PostPage({
             gap: spacing.sm,
           }}
         >
-          <StatusBadge
-            status={post.status}
-            surface="overSurface"
-            label={t(`status.${
-              post.status === 'needs_edits' ? 'needsEdits' : post.status
-            }`)}
-          />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('video.openStatus')}
+            onPress={() => setStatusOpen(true)}
+            hitSlop={6}
+          >
+            <StatusBadge
+              status={post.status}
+              surface="overSurface"
+              label={statusLabel}
+            />
+          </Pressable>
           {post.adminNote ? (
             <Pressable
               accessibilityRole="button"
@@ -383,7 +494,89 @@ function PostPage({
                 {post.adminNote}
               </ThemedText>
             </Pressable>
-          ) : null}
+          ) : (
+            <View style={{ flex: 1 }} />
+          )}
+          <Pressable
+            onPress={() => setSpecsOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={t('video.specs.open')}
+            style={({ pressed }) => [
+              styles.specsChip,
+              {
+                backgroundColor: colors.bgInput,
+                borderRadius: radius.pill,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+            hitSlop={6}
+          >
+            <Info
+              size={13}
+              color={colors.textSecondary}
+              strokeWidth={1.75}
+            />
+            <ThemedText
+              variant="mono"
+              style={{ color: colors.textPrimary, fontSize: 11, marginLeft: 6 }}
+            >
+              {formatFileSize(post.fileSizeBytes)}
+            </ThemedText>
+          </Pressable>
+        </View>
+
+        {/* Engagement chips */}
+        <View style={styles.engagementRow}>
+          <View
+            style={[
+              styles.engagementChip,
+              { backgroundColor: colors.bgInput, borderRadius: radius.pill },
+            ]}
+          >
+            <Heart size={14} color={accent.danger} strokeWidth={1.75} />
+            <ThemedText
+              variant="caption"
+              style={{ color: colors.textPrimary, marginLeft: 6 }}
+            >
+              {formatNumber(post.stats.likes ?? 0, locale)}
+            </ThemedText>
+          </View>
+          <View
+            style={[
+              styles.engagementChip,
+              { backgroundColor: colors.bgInput, borderRadius: radius.pill },
+            ]}
+          >
+            <ThumbsDown
+              size={14}
+              color={colors.textSecondary}
+              strokeWidth={1.75}
+            />
+            <ThemedText
+              variant="caption"
+              style={{ color: colors.textPrimary, marginLeft: 6 }}
+            >
+              {formatNumber(post.stats.dislikes ?? 0, locale)}
+            </ThemedText>
+          </View>
+          <View
+            style={[
+              styles.engagementChip,
+              { backgroundColor: colors.bgInput, borderRadius: radius.pill },
+            ]}
+          >
+            <Share2
+              size={14}
+              color={colors.textSecondary}
+              strokeWidth={1.75}
+            />
+            <ThemedText
+              variant="caption"
+              style={{ color: colors.textPrimary, marginLeft: 6 }}
+            >
+              {formatNumber(post.stats.shares ?? 0, locale)}
+            </ThemedText>
+          </View>
         </View>
 
         {/* Stats grid 2x2 */}
@@ -415,37 +608,70 @@ function PostPage({
           </View>
         </View>
 
-        {/* Meta */}
-        <View style={{ gap: spacing.xs }}>
-          <ThemedText variant="heading" tone="primary" numberOfLines={2}>
-            {post.title}
-          </ThemedText>
+        {/* Timeline - lifecycle timestamps */}
+        <View
+          style={[
+            styles.timelineCard,
+            {
+              borderColor: colors.border,
+              borderRadius: radius.lg,
+              backgroundColor: colors.bgCard,
+            },
+          ]}
+        >
           <ThemedText
-            variant="body"
-            tone={post.description ? 'secondary' : 'muted'}
-            numberOfLines={3}
+            variant="mono"
+            tone="muted"
+            style={{ marginBottom: spacing.sm }}
           >
-            {post.description || t('video.noDescription')}
+            {t('video.timeline.title')}
           </ThemedText>
-          {tagNames.length > 0 ? (
-            <View style={styles.tagRow}>
-              {tagNames.map((name, idx) => (
-                <TagPill
-                  key={`${name}-${idx}`}
-                  label={name}
-                  selected
-                  onPress={undefined}
-                />
-              ))}
-            </View>
+          <TimelineRow
+            label={t('video.timeline.uploaded')}
+            value={formatPostedDate(post.createdAt, locale)}
+            dotColor={colors.textMuted}
+            isLast={!post.approvedAt && !post.publishedAt}
+          />
+          {post.approvedAt ? (
+            <TimelineRow
+              label={t('video.timeline.approved')}
+              value={formatPostedDate(post.approvedAt, locale)}
+              dotColor={accent.info}
+              isLast={!post.publishedAt}
+            />
           ) : null}
-          {post.cta ? (
-            <View style={{ marginTop: spacing.xs }}>
-              <CtaPreview cta={post.cta} ctaUrl={post.ctaUrl ?? null} />
-            </View>
+          {post.publishedAt ? (
+            <TimelineRow
+              label={t('video.timeline.published')}
+              value={formatPostedDate(post.publishedAt, locale)}
+              dotColor={accent.success}
+              isLast
+            />
           ) : null}
         </View>
+
+        {/* Tags */}
+        {tagNames.length > 0 ? (
+          <View style={styles.tagRow}>
+            {tagNames.map((name, idx) => (
+              <TagPill
+                key={`${name}-${idx}`}
+                label={name}
+                selected
+                onPress={undefined}
+              />
+            ))}
+          </View>
+        ) : null}
+
+        {/* CTA preview */}
+        {post.cta ? (
+          <View style={{ marginTop: spacing.xs }}>
+            <CtaPreview cta={post.cta} ctaUrl={post.ctaUrl ?? null} />
+          </View>
+        ) : null}
       </View>
+      </ScrollView>
 
       {/* Admin note expanded modal */}
       {post.adminNote ? (
@@ -453,7 +679,7 @@ function PostPage({
           visible={adminNoteOpen}
           onClose={() => setAdminNoteOpen(false)}
           title={t('video.adminNote')}
-          height="40%"
+          height="32%"
         >
           <View
             style={{
@@ -468,6 +694,139 @@ function PostPage({
         </ModalSheet>
       ) : null}
 
+      {/* Status popup - explains what the badge means */}
+      <ModalSheet
+        visible={statusOpen}
+        onClose={() => setStatusOpen(false)}
+        title={statusLabel}
+        height="32%"
+      >
+        <View style={{ padding: spacing.lg, gap: spacing.md }}>
+          <View style={{ alignSelf: 'flex-start' }}>
+            <StatusBadge
+              status={post.status}
+              surface="overSurface"
+              label={statusLabel}
+            />
+          </View>
+          <ThemedText variant="body" tone="secondary">
+            {statusDescription}
+          </ThemedText>
+        </View>
+      </ModalSheet>
+
+      {/* Specs popup - file size, resolution, duration */}
+      <ModalSheet
+        visible={specsOpen}
+        onClose={() => setSpecsOpen(false)}
+        title={t('video.specs.title')}
+        height="34%"
+      >
+        <View style={{ padding: spacing.lg, gap: spacing.sm }}>
+          <SpecRow
+            label={t('video.specs.fileSize')}
+            value={formatFileSize(post.fileSizeBytes)}
+          />
+          <SpecRow
+            label={t('video.specs.resolution')}
+            value={formatResolution(post.mediaWidth, post.mediaHeight)}
+          />
+          <SpecRow
+            label={t('video.specs.duration')}
+            value={t('video.secondsShort', {
+              seconds: formatNumber(post.durationSeconds, locale),
+            })}
+          />
+        </View>
+      </ModalSheet>
+    </View>
+  );
+}
+
+interface SpecRowProps {
+  label: string;
+  value: string;
+}
+
+function SpecRow({ label, value }: SpecRowProps): React.ReactElement {
+  const { colors, spacing } = useTheme();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: spacing.xs,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: colors.border,
+      }}
+    >
+      <ThemedText variant="caption" tone="muted">
+        {label}
+      </ThemedText>
+      <ThemedText variant="bodyMed" tone="primary">
+        {value}
+      </ThemedText>
+    </View>
+  );
+}
+
+interface TimelineRowProps {
+  label: string;
+  value: string;
+  dotColor: string;
+  isLast?: boolean;
+}
+
+function TimelineRow({
+  label,
+  value,
+  dotColor,
+  isLast = false,
+}: TimelineRowProps): React.ReactElement {
+  const { colors, spacing } = useTheme();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+      }}
+    >
+      <View
+        style={{
+          alignItems: 'center',
+          width: 16,
+          marginRight: spacing.sm,
+          alignSelf: 'stretch',
+        }}
+      >
+        <View
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            marginTop: 6,
+            backgroundColor: dotColor,
+          }}
+        />
+        {!isLast ? (
+          <View
+            style={{
+              flex: 1,
+              width: 1,
+              backgroundColor: colors.border,
+              marginTop: 2,
+            }}
+          />
+        ) : null}
+      </View>
+      <View style={{ flex: 1, paddingBottom: isLast ? 0 : spacing.sm }}>
+        <ThemedText variant="caption" tone="muted">
+          {label}
+        </ThemedText>
+        <ThemedText variant="bodyMed" tone="primary">
+          {value}
+        </ThemedText>
+      </View>
     </View>
   );
 }
@@ -477,7 +836,6 @@ export default function VideoDetailScreen(): React.ReactElement {
   const { t } = useTranslation();
   const { colors, spacing, accent, radius } = useTheme();
   const queryClient = useQueryClient();
-  const locale = useLanguageStore((s) => s.resolved);
 
   const params = useLocalSearchParams<{ postId?: string }>();
   const postId: string =
@@ -518,7 +876,7 @@ export default function VideoDetailScreen(): React.ReactElement {
   }, [initialIndex, activeIndexInitialized]);
 
   const screenHeight = Dimensions.get('window').height;
-  const videoHeight = Math.round(screenHeight * VIDEO_HEIGHT_PCT);
+  const screenWidth = Dimensions.get('window').width;
 
   const handlePageSelected = useCallback(
     (event: NativeSyntheticEvent<PageScrollEventData>): void => {
@@ -648,9 +1006,6 @@ export default function VideoDetailScreen(): React.ReactElement {
 
   const canPrev: boolean = activeIndex > 0;
   const canNext: boolean = activeIndex < posts.length - 1;
-  const postedDate: string = activePost
-    ? formatPostedDate(activePost.createdAt, locale)
-    : '';
 
   return (
     <ScreenContainer edges={['top', 'left', 'right', 'bottom']}>
@@ -767,7 +1122,8 @@ export default function VideoDetailScreen(): React.ReactElement {
                 post={post}
                 isActive={idx === activeIndex}
                 tagCategories={tagCategories}
-                videoHeight={videoHeight}
+                screenWidth={screenWidth}
+                screenHeight={screenHeight}
               />
             </View>
           ))}
@@ -778,38 +1134,14 @@ export default function VideoDetailScreen(): React.ReactElement {
         </View>
       )}
 
-      {/* Footer */}
-      {activePost ? (
-        <View
-          style={[
-            styles.footer,
-            {
-              paddingHorizontal: spacing.md,
-              paddingVertical: spacing.sm,
-              borderTopColor: colors.border,
-              backgroundColor: colors.bg,
-            },
-          ]}
-        >
-          <ThemedText variant="caption" tone="muted">
-            {t('video.postedOn', { date: postedDate })}
-          </ThemedText>
-        </View>
-      ) : null}
-
-      {/* More actions sheet */}
+      {/* More actions sheet - compact list, tap target stays at 44pt */}
       <ModalSheet
         visible={moreOpen}
         onClose={() => setMoreOpen(false)}
         title={t('video.moreActions')}
-        height="40%"
+        height="28%"
       >
-        <View
-          style={{
-            padding: spacing.lg,
-            gap: spacing.md,
-          }}
-        >
+        <View style={{ paddingHorizontal: spacing.sm, paddingBottom: spacing.md }}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('video.share')}
@@ -819,18 +1151,14 @@ export default function VideoDetailScreen(): React.ReactElement {
             style={({ pressed }) => [
               styles.sheetRow,
               {
-                paddingVertical: spacing.md,
+                paddingVertical: spacing.sm,
                 opacity: pressed ? 0.7 : 1,
                 borderRadius: radius.md,
                 backgroundColor: pressed ? colors.bgInput : 'transparent',
               },
             ]}
           >
-            <Share2
-              size={20}
-              color={colors.textPrimary}
-              strokeWidth={1.75}
-            />
+            <Share2 size={18} color={colors.textPrimary} strokeWidth={1.75} />
             <ThemedText variant="bodyMed" tone="primary">
               {t('video.share')}
             </ThemedText>
@@ -844,14 +1172,14 @@ export default function VideoDetailScreen(): React.ReactElement {
             style={({ pressed }) => [
               styles.sheetRow,
               {
-                paddingVertical: spacing.md,
+                paddingVertical: spacing.sm,
                 opacity: pressed ? 0.7 : 1,
                 borderRadius: radius.md,
                 backgroundColor: pressed ? colors.bgInput : 'transparent',
               },
             ]}
           >
-            <Copy size={20} color={colors.textPrimary} strokeWidth={1.75} />
+            <Copy size={18} color={colors.textPrimary} strokeWidth={1.75} />
             <ThemedText variant="bodyMed" tone="primary">
               {t('video.copyLink')}
             </ThemedText>
@@ -863,14 +1191,14 @@ export default function VideoDetailScreen(): React.ReactElement {
             style={({ pressed }) => [
               styles.sheetRow,
               {
-                paddingVertical: spacing.md,
+                paddingVertical: spacing.sm,
                 opacity: pressed ? 0.7 : 1,
                 borderRadius: radius.md,
                 backgroundColor: pressed ? colors.bgInput : 'transparent',
               },
             ]}
           >
-            <Trash2 size={20} color={accent.danger} strokeWidth={1.75} />
+            <Trash2 size={18} color={accent.danger} strokeWidth={1.75} />
             <ThemedText variant="bodyMed" tone="danger">
               {t('video.delete')}
             </ThemedText>
@@ -952,9 +1280,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  playerContainer: {
-    width: '100%',
+  frameStage: {
+    alignItems: 'center',
+    position: 'relative',
+  },
+  frame: {
     overflow: 'hidden',
+    borderWidth: 1,
     position: 'relative',
   },
   playerPressable: {
@@ -973,12 +1305,36 @@ const styles = StyleSheet.create({
   },
   volumeButton: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    minWidth: 44,
-    minHeight: 44,
+    top: 8,
+    right: 8,
+    minWidth: 36,
+    minHeight: 36,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // Inline pill on the status row showing the file size at a glance; tap
+  // opens the full specs popup.
+  specsChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  timelineCard: {
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+  },
+  engagementRow: {
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  engagementChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   statsGrid: {
     gap: 8,
@@ -996,10 +1352,8 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 4,
   },
-  footer: {
-    borderTopWidth: 1,
-    alignItems: 'center',
-  },
+  // Tighter more-actions row: smaller vertical padding so the sheet doesn't
+  // feel sparse when there are only 3 entries.
   sheetRow: {
     flexDirection: 'row',
     alignItems: 'center',

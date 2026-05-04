@@ -14,6 +14,13 @@ export type VideoPipelineErrorCode =
   | 'ASPECT_RATIO_INVALID'
   | 'UNREADABLE'
   | 'CANCELLED'
+  // FULL-mode upload boundary errors. These map to the same i18n surface as
+  // the validation codes so banners and toasts can render them without
+  // special casing.
+  | 'SIGN_FAILED'
+  | 'UPLOAD_FAILED'
+  | 'UPLOAD_REJECTED'
+  | 'NETWORK'
   | 'GENERIC';
 
 export type VideoPipelineErrorParams = Readonly<Record<string, string | number>>;

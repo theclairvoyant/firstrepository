@@ -14,7 +14,14 @@ import type {
   UsernameAvailableResponse,
 } from '@/types/api';
 import { useAuthStore } from '@/lib/store/authStore';
-import { nextPushTokenId, seedState, simulateLatency } from './__seed';
+import {
+  nextPushTokenId,
+  readPersistedHasCreatorProfile,
+  readPersistedHasJoinedAnyWorkspace,
+  seedState,
+  simulateLatency,
+  writePersistedHasCreatorProfile,
+} from './__seed';
 
 const TAKEN_USERNAMES = new Set<string>(['admin', 'kiran', 'support', 'team']);
 
@@ -23,14 +30,32 @@ export async function me(): Promise<IdentityMeResponse> {
   if (!useAuthStore.getState().jwt) {
     return { creator: null, memberships: [] };
   }
+  // hasCreatorProfile is in-memory and resets on cold start, but the JWT
+  // persists across launches. Without a persistent flag, returning users
+  // would land back on profile-setup forever. Read the persisted flag
+  // and sync it into seedState so the rest of the mock surface matches.
   if (!seedState.hasCreatorProfile) {
-    // Authenticated but profile-setup not completed yet. Surface the same
-    // shape the real backend will return for a creator-less account.
+    const persisted = await readPersistedHasCreatorProfile();
+    if (persisted) {
+      seedState.hasCreatorProfile = true;
+    }
+  }
+  if (!seedState.hasCreatorProfile) {
     return { creator: null, memberships: [] };
+  }
+  // Memberships are gated behind "have you joined anything yet?" so a
+  // freshly verified user lands on the no-workspace empty state instead of
+  // pre-seeded sample memberships. The flag flips on the first redeem /
+  // request and is cleared on signOut.
+  if (!seedState.hasJoinedAnyWorkspace) {
+    const persistedJoin = await readPersistedHasJoinedAnyWorkspace();
+    if (persistedJoin) {
+      seedState.hasJoinedAnyWorkspace = true;
+    }
   }
   return {
     creator: seedState.creator,
-    memberships: seedState.memberships,
+    memberships: seedState.hasJoinedAnyWorkspace ? seedState.memberships : [],
   };
 }
 
@@ -54,6 +79,7 @@ export async function createProfile(input: CreateProfileInput): Promise<Enterpri
   };
   seedState.creator = next;
   seedState.hasCreatorProfile = true;
+  await writePersistedHasCreatorProfile(true);
   return next;
 }
 

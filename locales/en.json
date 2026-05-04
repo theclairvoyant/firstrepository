@@ -56,7 +56,7 @@
       "errorGeneric": "We couldn't find that invite. Check the code and try again."
     },
     "profile": {
-      "title": "Set up your profile",
+      "title": "Set up your global profile",
       "body": "This is how you'll appear across Enterprise Creator.",
       "firstName": "First name",
       "lastName": "Last name",
@@ -66,8 +66,11 @@
       "usernameChecking": "Checking",
       "usernameAvailable": "Available",
       "usernameTaken": "Taken",
-      "avatarChange": "Change photo",
-      "avatarSoon": "Avatar upload coming soon",
+      "avatarPickFromGallery": "Pick photo from gallery",
+      "avatarPickPreset": "Pick a preset avatar",
+      "avatarPermissionTitle": "Photo access needed",
+      "avatarPermissionBody": "Allow photo access in Settings to pick an avatar from your gallery.",
+      "avatarUploadError": "Couldn't upload that image. Try another.",
       "phone": "Phone",
       "phonePlaceholder": "+1 555 123 4567",
       "phoneOptional": "Optional. We will not text you yet.",
@@ -80,7 +83,14 @@
     "approved": "Approved",
     "live": "Live",
     "rejected": "Rejected",
-    "needsEdits": "Edits requested"
+    "needsEdits": "Edits requested",
+    "descriptions": {
+      "pending": "An admin is reviewing this post. You'll get a notification when there's a decision.",
+      "approved": "Approved and queued. It will go live as soon as scheduling allows.",
+      "live": "Published and visible to viewers. Stats below are updating in real time.",
+      "rejected": "An admin removed this post from review. See the note above for the reason.",
+      "needsEdits": "An admin asked for changes. Open the post, apply the requested edits, then resubmit."
+    }
   },
   "shell": {
     "topBar": {
@@ -107,15 +117,18 @@
   },
   "profileTab": {
     "title": "Profile",
-    "noWorkspaceTitle": "No workspace selected",
-    "noWorkspaceBody": "Join a workspace to start posting.",
+    "noWorkspaceTitle": "No workspaces yet",
+    "noWorkspaceBody": "You're all set, but you haven't joined a workspace yet. If your team sent you an invite code, paste it below. Otherwise see if your work email gets you in automatically.",
     "findWorkspace": "Find a workspace",
+    "pasteInviteCode": "Paste invite code",
+    "searchByEmail": "Search by work email",
     "postsCount_one": "{{count}} post",
     "postsCount_other": "{{count}} posts",
     "stats": {
       "posts": "Posts",
       "views": "Views",
-      "clicks": "Clicks"
+      "clicks": "Clicks",
+      "likes": "Likes"
     },
     "banner": {
       "pendingInvite": "Invite pending. The admin has not yet activated your access.",
@@ -136,11 +149,39 @@
     "openPostSoon": "Opening this post is coming soon",
     "uploadCancelled": "Upload cancelled"
   },
+  "editGlobalProfile": {
+    "title": "Edit global profile",
+    "noProfile": "No profile to edit.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "username": "Username",
+    "usernameHint": "Lowercase letters, numbers, dot, dash, underscore.",
+    "usernameInvalid": "3 to 30 characters. Lowercase letters, numbers, dot, dash, underscore only.",
+    "email": "Email",
+    "emailLocked": "Email is fixed for now. Contact support to change it.",
+    "phone": "Phone",
+    "phonePlaceholder": "+1 555 123 4567",
+    "phoneOptional": "Optional. We will not text you yet.",
+    "phoneInvalid": "Enter a valid phone number",
+    "avatarPickFromGallery": "Change photo",
+    "avatarPermissionTitle": "Photo access needed",
+    "avatarPermissionBody": "Allow photo access in Settings to pick a profile photo.",
+    "avatarSaveError": "Couldn't save the new photo. Try again.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saved": "Profile updated",
+    "saveError": "We couldn't save your changes. Try again."
+  },
   "editMembership": {
     "title": "Edit workspace profile",
     "back": "back",
     "avatarChange": "Change photo",
-    "avatarSoon": "Avatar upload coming soon",
+    "avatarPickFromGallery": "Pick photo from gallery",
+    "avatarPermissionTitle": "Photo access needed",
+    "avatarPermissionBody": "Allow photo access in Settings to pick a workspace avatar.",
+    "avatarSaveError": "Couldn't save the new avatar. Try again.",
+    "displayNameLabel": "Display name",
+    "displayNameHint": "How viewers see you in this workspace. Leave blank to use the workspace name.",
     "usernameLabel": "Workspace username",
     "usernameHint": "Lowercase letters, numbers, dot, dash, underscore.",
     "usernameInvalid": "3 to 30 characters. Lowercase letters, numbers, dot, dash, underscore only.",
@@ -170,14 +211,14 @@
     "edit": {
       "title": "Edit post",
       "close": "close",
-      "sectionTitleAndDescription": "Title and description",
+      "sectionTitleAndDescription": "Details",
       "sectionTags": "Tags",
       "sectionCta": "Conversion",
       "titleLabel": "Title",
-      "titlePlaceholder": "Give your post a short, catchy title",
+      "titlePlaceholder": "Add a title",
       "titleRequired": "Add a title to continue",
       "descriptionLabel": "Description",
-      "descriptionPlaceholder": "Describe what viewers will see",
+      "descriptionPlaceholder": "Say a little about this clip",
       "charCounter": "{{current}} / {{max}}",
       "urlInvalid": "Enter a valid https link",
       "noCtas": "No CTAs configured",
@@ -186,7 +227,19 @@
       "discard": "Discard",
       "stay": "Stay here",
       "cancel": "Cancel",
-      "preview": "Preview"
+      "preview": "Preview",
+      "tagsRowLabel": "Tags",
+      "tagsRowEmpty": "Add",
+      "tagsRowCount_one": "{{count}} selected",
+      "tagsRowCount_other": "{{count}} selected",
+      "tagsRowDisabled": "Not enabled in this workspace",
+      "ctaRowLabel": "Conversion",
+      "ctaRowEmpty": "None",
+      "ctaRowDisabled": "No options available",
+      "videoMute": "mute video",
+      "videoUnmute": "unmute video",
+      "videoPlay": "play video",
+      "videoPause": "pause video"
     },
     "preview": {
       "title": "Preview",
@@ -217,6 +270,31 @@
       "permissionTitle": "Camera and microphone access required",
       "permissionBody": "Grant camera and microphone access to record a video.",
       "openSettings": "Open Settings"
+    },
+    "tagsScreen": {
+      "title": "Tags",
+      "body": "Pick tags so the right viewers find your post. Optional.",
+      "done": "Done",
+      "clearAll": "Clear all",
+      "emptyTitle": "No tags configured",
+      "emptyBody": "Your workspace admin has not set up tags yet.",
+      "addToCategory": "Add tag",
+      "noneSelected": "None selected"
+    },
+    "ctaScreen": {
+      "title": "Conversion",
+      "body": "Pick a conversion to show with your post. Optional.",
+      "done": "Done",
+      "removeSelection": "Remove selection",
+      "emptyTitle": "No conversions available",
+      "emptyBody": "Your workspace admin has not enabled any conversions.",
+      "noneOption": "None",
+      "noneOptionBody": "No conversion shown with this post.",
+      "linkLabel": "Link",
+      "linkPlaceholder": "https://example.com/landing",
+      "linkRequired": "Add a link to use this conversion.",
+      "fixedTagLine": "Set by your admin",
+      "dynamicTagLine": "Add your link below"
     }
   },
   "videoErrors": {
@@ -227,6 +305,10 @@
     "ASPECT_RATIO_INVALID": "Videos must be vertical (9:16).",
     "UNREADABLE": "We couldn't read that video. Try a different one.",
     "CANCELLED": "Upload cancelled",
+    "SIGN_FAILED": "We couldn't prepare the upload. Try again.",
+    "UPLOAD_FAILED": "Upload failed. Tap retry to try again.",
+    "UPLOAD_REJECTED": "The server rejected this upload. Try a different video.",
+    "NETWORK": "No connection. We'll resume when you're back online.",
     "GENERIC": "Something went wrong with the video. Try again."
   },
   "cellularSheet": {
@@ -377,7 +459,13 @@
     "support": {
       "label": "Help and support",
       "notConfigured": "Support email is not configured.",
-      "mailSubject": "Enterprise Creator support"
+      "mailSubject": "Enterprise Creator support",
+      "screenTitle": "Support",
+      "heading": "Need a hand?",
+      "body": "Email our team and we'll get back to you within one business day. Include screenshots and the steps you took so we can help faster.",
+      "emailLabel": "Email us at",
+      "openMail": "Email us",
+      "openError": "Couldn't open your email app. Copy the address above and email us directly."
     },
     "about": {
       "label": "About",
@@ -427,7 +515,10 @@
       "views": "Views",
       "clicks": "Clicks",
       "watchThroughRate": "Watch through",
-      "avgWatch": "Avg watch"
+      "avgWatch": "Avg watch",
+      "likes": "Likes",
+      "dislikes": "Dislikes",
+      "shares": "Shares"
     },
     "scaffoldNoPreview": "Preview not available in scaffold mode",
     "postNotFound": "Post not found",
@@ -439,6 +530,25 @@
     "volumeToggle": "toggle volume",
     "moreActions": "more actions",
     "noDescription": "No description",
-    "secondsShort": "{{seconds}}s"
+    "secondsShort": "{{seconds}}s",
+    "openStatus": "open status details",
+    "specs": {
+      "title": "Specs",
+      "open": "open video specs",
+      "fileSize": "File size",
+      "resolution": "Resolution",
+      "duration": "Duration"
+    },
+    "statusPopup": {
+      "title": "{{status}}"
+    },
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "timeline": {
+      "title": "Timeline",
+      "uploaded": "Uploaded",
+      "approved": "Approved",
+      "published": "Published"
+    }
   }
 }

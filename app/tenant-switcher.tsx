@@ -72,7 +72,7 @@ function MembershipRow({
           {ws.brand.name}
         </ThemedText>
       </View>
-      <WorkspaceTypeBadge type={ws.type} />
+      <WorkspaceTypeBadge type={ws.type} style={{ alignSelf: 'center' }} />
       {rightSlot ? <View style={{ alignItems: 'flex-end' }}>{rightSlot}</View> : null}
     </>
   );

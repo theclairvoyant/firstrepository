@@ -124,7 +124,10 @@ export default function InviteCodeScreen(): React.ReactElement {
                     {resolved.brand.name}
                   </ThemedText>
                 </View>
-                <WorkspaceTypeBadge type={resolved.workspace.type} />
+                <WorkspaceTypeBadge
+                  type={resolved.workspace.type}
+                  style={{ alignSelf: 'center' }}
+                />
               </View>
             </Card>
           ) : (

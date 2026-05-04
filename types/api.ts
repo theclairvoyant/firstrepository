@@ -74,6 +74,9 @@ export type WorkspaceMembership = {
   membershipId: string;
   workspace: Workspace;
   status: MembershipStatus;
+  // Public-facing display name (e.g. "Kiran Patel"). Optional - falls back
+  // to the global creator name if unset.
+  displayName?: string;
   workspaceUsername: string;
   workspaceAvatarUrl: string;
   bannerUrl?: string;
@@ -81,6 +84,7 @@ export type WorkspaceMembership = {
   postCount: number;
   totalViews: number;
   totalClicks: number;
+  totalLikes: number;
   joinedAt: string | null;
 };
 
@@ -108,6 +112,9 @@ export type PostStats = {
   clicks: number;
   watchThroughRate: number;
   avgWatchSeconds: number;
+  likes?: number;
+  dislikes?: number;
+  shares?: number;
 };
 
 export type Post = {
@@ -123,8 +130,17 @@ export type Post = {
   mediaUrl: string;
   thumbnailUrl: string;
   durationSeconds: number;
+  // Lifecycle timestamps. createdAt is when the post was first uploaded.
+  // approvedAt is set when an admin moves it from pending -> approved (or
+  // straight to live). publishedAt is set when it goes live to viewers.
   createdAt: string;
+  approvedAt?: string;
+  publishedAt?: string;
   stats: PostStats;
+  // File and source media specs (optional - may be missing on legacy posts).
+  fileSizeBytes?: number;
+  mediaWidth?: number;
+  mediaHeight?: number;
 };
 
 export type PostListResponse = {
@@ -257,6 +273,7 @@ export type CancelRequestInviteResponse = {
 export type PatchMembershipInput = {
   workspaceUsername?: string;
   bio?: string;
+  displayName?: string;
 };
 
 export type MembershipAvatarResponse = {

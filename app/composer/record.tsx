@@ -181,7 +181,10 @@ export default function ComposerRecordScreen(): React.ReactElement {
   );
 
   const handleRecordPress = useCallback(async () => {
-    if (busy) return;
+    // Tap-to-stop must work even though `busy` is true while the recordAsync
+    // promise is in flight. Only block press when we're busy AND not yet
+    // recording (e.g. permission request or post-stop processing).
+    if (busy && !recording) return;
     if (cameraPerm !== 'granted') {
       void requestPerms();
       return;

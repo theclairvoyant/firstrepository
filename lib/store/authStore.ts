@@ -1,9 +1,18 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { EnterpriseCreator } from '@/types/api';
+import { MOCK_API } from '@/lib/api/config';
 
 const KEY_JWT = 'ec.auth.jwt';
 const KEY_REFRESH = 'ec.auth.refresh';
+
+// SCAFFOLD-only AsyncStorage keys defined in lib/api/mocks/__seed.ts. We
+// duplicate the literals here so authStore can best-effort wipe them on FULL
+// boot without importing the mock module (which would pull mock seed data
+// into the production bundle path).
+const MOCK_KEY_HAS_CREATOR_PROFILE = 'ec.mock.hasCreatorProfile';
+const MOCK_KEY_HAS_JOINED_ANY_WORKSPACE = 'ec.mock.hasJoinedAnyWorkspace';
 
 export type AuthState = {
   jwt: string | null;
@@ -44,8 +53,31 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   hydrate: async () => {
-    const jwt = (await SecureStore.getItemAsync(KEY_JWT).catch(() => null)) ?? null;
-    const refreshToken = (await SecureStore.getItemAsync(KEY_REFRESH).catch(() => null)) ?? null;
+    let jwt = (await SecureStore.getItemAsync(KEY_JWT).catch(() => null)) ?? null;
+    let refreshToken = (await SecureStore.getItemAsync(KEY_REFRESH).catch(() => null)) ?? null;
+
+    // Mock-token guard: if FULL mode is active but the persisted JWT was
+    // created under SCAFFOLD ("mock_*"), wipe it before any request fires.
+    // Otherwise the axios interceptor would forward the literal string
+    // "mock_jwt" as a Bearer token to the real backend, which would 401 and
+    // attempt a refresh with an equally fake refresh token.
+    if (!MOCK_API && jwt && jwt.startsWith('mock_')) {
+      await SecureStore.deleteItemAsync(KEY_JWT).catch(() => undefined);
+      await SecureStore.deleteItemAsync(KEY_REFRESH).catch(() => undefined);
+      jwt = null;
+      refreshToken = null;
+    }
+
+    // Cleanup: wipe SCAFFOLD-only AsyncStorage keys when running FULL. They
+    // are inert in FULL but bloat persistent storage and can confuse anyone
+    // inspecting the app's data dir. Best-effort; never blocks hydration.
+    if (!MOCK_API) {
+      await Promise.allSettled([
+        AsyncStorage.removeItem(MOCK_KEY_HAS_CREATOR_PROFILE),
+        AsyncStorage.removeItem(MOCK_KEY_HAS_JOINED_ANY_WORKSPACE),
+      ]);
+    }
+
     set({ jwt, refreshToken, isHydrated: true });
   },
 }));

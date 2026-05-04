@@ -6,6 +6,12 @@ export default function ComposerLayout(): React.ReactElement {
     <Stack
       initialRouteName="edit"
       screenOptions={{ headerShown: false }}
-    />
+    >
+      <Stack.Screen name="edit" />
+      <Stack.Screen name="preview" />
+      <Stack.Screen name="record" />
+      <Stack.Screen name="tags" options={{ presentation: 'card' }} />
+      <Stack.Screen name="cta" options={{ presentation: 'card' }} />
+    </Stack>
   );
 }

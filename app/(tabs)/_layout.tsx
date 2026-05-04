@@ -1,28 +1,25 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Platform } from 'react-native';
-import type { ViewStyle } from 'react-native';
+import { Pressable, View, StyleSheet, Platform } from 'react-native';
+import type { GestureResponderEvent, ViewStyle } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { Plus, User } from 'lucide-react-native';
 import { TopBar } from '@/components/TopBar';
-import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/lib/theme/useTheme';
 import { useTenantStore } from '@/lib/store/tenantStore';
 import { useMemberships } from '@/lib/api/queries';
 
 const ICON_SIZE = 22;
-const UPLOAD_DIAMETER = 44;
-const TAB_HEIGHT = 64;
+// Identical diameter for both tab buttons so they read as a balanced pair
+// inside the floating bar.
+const TAB_DISC = 40;
+const TAB_HEIGHT = 56;
 const PILL_RADIUS = 999;
-// Active tab indicator background uses accent.primary with 16% alpha (0x29 / 0xff approx 0.16)
+// Active tab indicator background uses accent.primary with 16% alpha
+// (0x29 / 0xff approx 0.16).
 const ACTIVE_TINT_ALPHA_HEX = '29';
-
-interface TabIconProps {
-  color: string;
-  focused: boolean;
-}
 
 interface TabBarBackgroundProps {
   isDark: boolean;
@@ -65,42 +62,46 @@ function TabBarBackground({
   );
 }
 
-interface TabPillProps {
-  focused: boolean;
-  label: string;
-  icon: React.ReactNode;
-  activeColor: string;
-  mutedColor: string;
+// Subset of the props React Navigation passes to tabBarButton. Typing
+// loosely on purpose so the layout owns the press behaviour and we don't
+// fight the upstream PressableProps signature (which differs from
+// Pressable's by including legacy fields).
+interface TabBarButtonRenderProps {
+  onPress: (e: GestureResponderEvent) => void;
+  accessibilityLabel?: string;
+  accessibilityState?: { selected?: boolean };
+  testID?: string;
+  children?: React.ReactNode;
 }
 
-function TabPill({
-  focused,
-  label,
-  icon,
-  activeColor,
-  mutedColor,
-}: TabPillProps): React.ReactElement {
-  const bg = focused ? `${activeColor}${ACTIVE_TINT_ALPHA_HEX}` : 'transparent';
+interface DiscButtonProps {
+  rnProps: TabBarButtonRenderProps;
+  bg: string;
+  children: React.ReactNode;
+}
+
+// Single, predictable button: fills the full tab item, perfectly centers a
+// 40px disc. We render the disc ourselves so React Navigation's icon-area
+// padding never gets to push it around.
+function DiscButton({
+  rnProps,
+  bg,
+  children,
+}: DiscButtonProps): React.ReactElement {
   return (
-    <View
-      style={[
-        styles.tabPill,
-        { backgroundColor: bg },
+    <Pressable
+      onPress={rnProps.onPress}
+      accessibilityRole="button"
+      accessibilityLabel={rnProps.accessibilityLabel}
+      accessibilityState={rnProps.accessibilityState}
+      testID={rnProps.testID}
+      style={({ pressed }) => [
+        styles.tabButton,
+        { opacity: pressed ? 0.75 : 1 },
       ]}
     >
-      {icon}
-      <ThemedText
-        variant="caption"
-        style={{
-          color: focused ? activeColor : mutedColor,
-          fontFamily: 'Outfit_600SemiBold',
-          fontSize: 11,
-          marginLeft: 6,
-        }}
-      >
-        {label}
-      </ThemedText>
-    </View>
+      <View style={[styles.disc, { backgroundColor: bg }]}>{children}</View>
+    </Pressable>
   );
 }
 
@@ -121,34 +122,6 @@ export default function TabsLayout(): React.ReactElement {
 
   const showUpload: boolean =
     !!activeMembership && activeMembership.status === 'active';
-
-  const renderProfileIcon = ({ color, focused }: TabIconProps): React.ReactElement => {
-    const tint = focused ? accent.primary : colors.textMuted;
-    return (
-      <TabPill
-        focused={focused}
-        label={t('tabs.profile')}
-        icon={<User size={ICON_SIZE} color={tint} strokeWidth={1.75} />}
-        activeColor={accent.primary}
-        mutedColor={colors.textMuted}
-      />
-    );
-  };
-
-  const renderUploadIcon = (): React.ReactElement => (
-    <View
-      style={{
-        width: UPLOAD_DIAMETER,
-        height: UPLOAD_DIAMETER,
-        borderRadius: UPLOAD_DIAMETER / 2,
-        backgroundColor: accent.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Plus size={24} color={palette.white} strokeWidth={2} />
-    </View>
-  );
 
   const tabBarStyle: ViewStyle = {
     position: 'absolute',
@@ -178,13 +151,7 @@ export default function TabsLayout(): React.ReactElement {
         tabBarInactiveTintColor: colors.textMuted,
         tabBarShowLabel: false,
         tabBarStyle,
-        tabBarItemStyle: {
-          height: TAB_HEIGHT,
-          paddingTop: 0,
-          paddingBottom: 0,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
+        tabBarItemStyle: { height: TAB_HEIGHT },
         tabBarBackground: () => (
           <TabBarBackground
             isDark={isDark}
@@ -199,8 +166,29 @@ export default function TabsLayout(): React.ReactElement {
         options={{
           title: t('tabs.profile'),
           tabBarAccessibilityLabel: t('tabs.profile'),
-          tabBarIcon: renderProfileIcon,
           tabBarLabel: () => null,
+          tabBarButton: (props) => {
+            const focused = props.accessibilityState?.selected ?? false;
+            const tint = focused ? accent.primary : colors.textMuted;
+            const bg = focused
+              ? `${accent.primary}${ACTIVE_TINT_ALPHA_HEX}`
+              : colors.bgInput;
+            return (
+              <DiscButton
+                rnProps={{
+                  onPress: (e: GestureResponderEvent) => {
+                    props.onPress?.(e);
+                  },
+                  accessibilityLabel: props.accessibilityLabel,
+                  accessibilityState: props.accessibilityState,
+                  testID: props.testID,
+                }}
+                bg={bg}
+              >
+                <User size={ICON_SIZE} color={tint} strokeWidth={1.75} />
+              </DiscButton>
+            );
+          },
         }}
       />
       <Tabs.Screen
@@ -208,9 +196,29 @@ export default function TabsLayout(): React.ReactElement {
         options={{
           title: t('tabs.upload'),
           tabBarAccessibilityLabel: t('tabs.upload'),
-          tabBarIcon: renderUploadIcon,
           tabBarLabel: () => null,
-          href: showUpload ? '/(tabs)/upload' : null,
+          // href + tabBarButton can't coexist (expo-router throws). Hide the
+          // upload tab by collapsing its item slot when there is no active
+          // membership instead.
+          tabBarItemStyle: {
+            height: TAB_HEIGHT,
+            display: showUpload ? 'flex' : 'none',
+          },
+          tabBarButton: (props) => (
+            <DiscButton
+              rnProps={{
+                onPress: (e: GestureResponderEvent) => {
+                  props.onPress?.(e);
+                },
+                accessibilityLabel: props.accessibilityLabel,
+                accessibilityState: props.accessibilityState,
+                testID: props.testID,
+              }}
+              bg={accent.primary}
+            >
+              <Plus size={22} color={palette.white} strokeWidth={2} />
+            </DiscButton>
+          ),
         }}
       />
     </Tabs>
@@ -218,12 +226,18 @@ export default function TabsLayout(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
-  tabPill: {
-    flexDirection: 'row',
+  // Fill the entire tab item; center the disc absolutely.
+  tabButton: {
+    flex: 1,
+    alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: PILL_RADIUS,
+  },
+  disc: {
+    width: TAB_DISC,
+    height: TAB_DISC,
+    borderRadius: TAB_DISC / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

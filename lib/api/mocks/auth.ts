@@ -9,7 +9,15 @@ import type {
   SignOutResponse,
   SsoProvider,
 } from '@/types/api';
-import { nextRefreshJwt, seedState, simulateLatency } from './__seed';
+import {
+  clearPersistedHasCreatorProfile,
+  clearPersistedHasJoinedAnyWorkspace,
+  nextRefreshJwt,
+  seedState,
+  simulateLatency,
+  writePersistedHasCreatorProfile,
+  writePersistedHasJoinedAnyWorkspace,
+} from './__seed';
 
 export async function emailStart(_email: string): Promise<EmailStartResponse> {
   await simulateLatency(220);
@@ -40,8 +48,12 @@ export async function emailVerify(_email: string, code: string): Promise<AuthRes
 
 export async function ssoExchange(_provider: SsoProvider, _idToken: string): Promise<AuthResponse> {
   await simulateLatency(320);
-  // SSO is treated as a returning user with an existing creator profile.
+  // SSO is treated as a returning user with an existing creator profile and
+  // existing memberships - skip the no-workspace empty state.
   seedState.hasCreatorProfile = true;
+  seedState.hasJoinedAnyWorkspace = true;
+  await writePersistedHasCreatorProfile(true);
+  await writePersistedHasJoinedAnyWorkspace(true);
   return {
     jwt: 'mock_jwt',
     refreshToken: 'mock_refresh',
@@ -59,5 +71,11 @@ export async function refresh(_refreshToken: string): Promise<RefreshResponse> {
 
 export async function signOut(_pushTokenId?: string): Promise<SignOutResponse> {
   await simulateLatency(210);
+  // Reset mock state so the next sign-in starts fresh (and the next cold
+  // reopen without a JWT lands on welcome instead of profile-setup).
+  seedState.hasCreatorProfile = false;
+  seedState.hasJoinedAnyWorkspace = false;
+  await clearPersistedHasCreatorProfile();
+  await clearPersistedHasJoinedAnyWorkspace();
   return { ok: true };
 }

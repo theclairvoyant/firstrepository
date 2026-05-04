@@ -36,6 +36,7 @@ import type {
   EmailStartResponse,
   EnterpriseCreator,
   IdentityMeResponse,
+  MembershipAvatarResponse,
   PatchMembershipInput,
   PatchMeInput,
   PatchPostInput,
@@ -154,7 +155,10 @@ export function useMyPosts(
       if (!workspaceId) throw new Error('workspace id required');
       return postsApi.listMyPosts(workspaceId, pageParam, 24);
     },
-    getNextPageParam: (last) => last.nextCursor,
+    // Normalize empty-string cursors to undefined. Some backends return ""
+    // instead of null when there is no next page; TanStack treats "" as
+    // truthy and would refetch forever.
+    getNextPageParam: (last) => last.nextCursor || undefined,
   });
 }
 
@@ -324,6 +328,55 @@ export function usePatchMembership(): UseMutationResult<
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (vars) => workspacesApi.patchMembership(vars.membershipId, vars.input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: keys.me });
+      qc.invalidateQueries({ queryKey: keys.memberships });
+    },
+  });
+}
+
+export function useUploadMembershipAvatar(): UseMutationResult<
+  MembershipAvatarResponse,
+  Error,
+  { membershipId: string; form?: FormData; previewUri?: string },
+  { previousMemberships: WorkspaceMembership[] | undefined }
+> {
+  const qc = useQueryClient();
+  return useMutation<
+    MembershipAvatarResponse,
+    Error,
+    { membershipId: string; form?: FormData; previewUri?: string },
+    { previousMemberships: WorkspaceMembership[] | undefined }
+  >({
+    // The wire call only needs the membershipId and the FormData. previewUri
+    // is hook-only: we apply it as an optimistic patch against the
+    // memberships cache so the avatar tile shows the picked image
+    // immediately, then either commit (onSuccess invalidates with the real
+    // URL) or roll back (onError restores the previous list).
+    mutationFn: (vars) =>
+      workspacesApi.uploadMembershipAvatar(vars.membershipId, vars.form),
+    onMutate: async (vars) => {
+      if (!vars.previewUri) {
+        return { previousMemberships: qc.getQueryData<WorkspaceMembership[]>(keys.memberships) };
+      }
+      await qc.cancelQueries({ queryKey: keys.memberships });
+      const previousMemberships = qc.getQueryData<WorkspaceMembership[]>(keys.memberships);
+      if (previousMemberships) {
+        const next = previousMemberships.map((m) =>
+          m.membershipId === vars.membershipId
+            ? { ...m, workspaceAvatarUrl: vars.previewUri as string }
+            : m,
+        );
+        qc.setQueryData<WorkspaceMembership[]>(keys.memberships, next);
+      }
+      return { previousMemberships };
+    },
+    onError: (_err, _vars, ctx) => {
+      // Roll back the optimistic patch.
+      if (ctx?.previousMemberships) {
+        qc.setQueryData(keys.memberships, ctx.previousMemberships);
+      }
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: keys.me });
       qc.invalidateQueries({ queryKey: keys.memberships });

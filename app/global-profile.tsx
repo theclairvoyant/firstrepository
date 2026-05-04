@@ -20,7 +20,6 @@ import { useTheme } from '@/lib/theme/useTheme';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useTenantStore } from '@/lib/store/tenantStore';
 import { useMemberships, useSignOut } from '@/lib/api/queries';
-import { showToast } from '@/lib/toast';
 import type { WorkspaceMembership } from '@/types/api';
 
 function formatDate(iso: string | null | undefined): string {
@@ -80,7 +79,7 @@ function WorkspaceRow({
           {ws.brand.name}
         </ThemedText>
       </View>
-      <WorkspaceTypeBadge type={ws.type} />
+      <WorkspaceTypeBadge type={ws.type} style={{ alignSelf: 'center' }} />
       {membership.status !== 'active' ? (
         <StatusBadge
           status={
@@ -160,10 +159,8 @@ export default function GlobalProfileScreen(): React.ReactElement {
   };
 
   const handleEditProfile = (): void => {
-    showToast({
-      variant: 'info',
-      message: t('globalProfile.editProfileSoon'),
-    });
+    if (router.canGoBack()) router.back();
+    router.push('/edit-global-profile');
   };
 
   const handleSettings = (): void => {

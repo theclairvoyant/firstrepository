@@ -9,7 +9,12 @@ import type {
   ResolveInviteResponse,
   WorkspaceMembership,
 } from '@/types/api';
-import { findWorkspace, seedState, simulateLatency } from './__seed';
+import {
+  findWorkspace,
+  seedState,
+  simulateLatency,
+  writePersistedHasJoinedAnyWorkspace,
+} from './__seed';
 
 export async function resolveInvite(code: string): Promise<ResolveInviteResponse> {
   await simulateLatency(280);
@@ -53,6 +58,10 @@ export async function redeemInvite(_code: string): Promise<RedeemInviteResponse>
     joinedAt: new Date().toISOString(),
   };
   seedState.memberships[idx] = updated;
+  // First join releases the rest of the seeded memberships from the empty
+  // state gate.
+  seedState.hasJoinedAnyWorkspace = true;
+  await writePersistedHasJoinedAnyWorkspace(true);
   return { membership: updated };
 }
 
@@ -91,8 +100,13 @@ export async function requestInvite(workspaceId: string): Promise<RequestInviteR
     postCount: 0,
     totalViews: 0,
     totalClicks: 0,
+    totalLikes: 0,
     joinedAt: null,
   };
+  // Requesting an invite also releases the no-workspace gate so the user
+  // can see their pending state in the UI.
+  seedState.hasJoinedAnyWorkspace = true;
+  await writePersistedHasJoinedAnyWorkspace(true);
   if (idx >= 0) {
     seedState.memberships[idx] = { ...seedState.memberships[idx], status: 'pending_request' };
     return { membership: seedState.memberships[idx] };

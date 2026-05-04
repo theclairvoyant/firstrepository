@@ -3,6 +3,7 @@
 //
 // Source of truth for shapes: types/api.ts (which mirrors docs/06-api-contracts.md).
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {
   CTA,
   EnterpriseCreator,
@@ -14,6 +15,70 @@ import type {
   WorkspaceMembership,
 } from '@/types/api';
 import { MOCK_ASSETS } from './assets';
+
+// Persisted across cold starts so a returning JWT lands on the right
+// screen (profile vs profile-setup). Cleared when the user signs out.
+const KEY_HAS_CREATOR_PROFILE = 'ec.mock.hasCreatorProfile';
+
+export async function readPersistedHasCreatorProfile(): Promise<boolean> {
+  try {
+    const raw = await AsyncStorage.getItem(KEY_HAS_CREATOR_PROFILE);
+    return raw === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export async function writePersistedHasCreatorProfile(value: boolean): Promise<void> {
+  try {
+    await AsyncStorage.setItem(KEY_HAS_CREATOR_PROFILE, value ? 'true' : 'false');
+  } catch {
+    // ignore - mock storage is best-effort.
+  }
+}
+
+export async function clearPersistedHasCreatorProfile(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(KEY_HAS_CREATOR_PROFILE);
+  } catch {
+    // ignore.
+  }
+}
+
+// Tracks whether the user has joined at least one workspace (via redeemInvite
+// or requestInvite). Until it's true, /me returns an empty memberships list
+// so a fresh sign-up sees the "no workspaces yet" empty state instead of
+// pre-seeded sample data. Cleared on signOut so the next session starts
+// fresh.
+const KEY_HAS_JOINED_ANY_WORKSPACE = 'ec.mock.hasJoinedAnyWorkspace';
+
+export async function readPersistedHasJoinedAnyWorkspace(): Promise<boolean> {
+  try {
+    const raw = await AsyncStorage.getItem(KEY_HAS_JOINED_ANY_WORKSPACE);
+    return raw === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export async function writePersistedHasJoinedAnyWorkspace(value: boolean): Promise<void> {
+  try {
+    await AsyncStorage.setItem(
+      KEY_HAS_JOINED_ANY_WORKSPACE,
+      value ? 'true' : 'false',
+    );
+  } catch {
+    // ignore.
+  }
+}
+
+export async function clearPersistedHasJoinedAnyWorkspace(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(KEY_HAS_JOINED_ANY_WORKSPACE);
+  } catch {
+    // ignore.
+  }
+}
 
 // Deterministic time anchor: 30 days ago. Seed timestamps are derived from this via
 // fixed offsets so the data set is stable across runs in a single session.
@@ -93,7 +158,7 @@ export const seedWorkspaces: Workspace[] = [
   {
     id: 'ws_skills_acme',
     type: 'skills',
-    name: 'Global Learning',
+    name: 'Acme Academy',
     brand: {
       id: 'brand_acme',
       name: 'Acme Inc.',
@@ -113,7 +178,7 @@ export const seedWorkspaces: Workspace[] = [
   {
     id: 'ws_social_acme',
     type: 'social',
-    name: 'Brand Social',
+    name: 'Acme Newsroom',
     brand: {
       id: 'brand_acme',
       name: 'Acme Inc.',
@@ -133,7 +198,7 @@ export const seedWorkspaces: Workspace[] = [
   {
     id: 'ws_skills_globex',
     type: 'skills',
-    name: 'Globex Skills',
+    name: 'Frontline Globex',
     brand: {
       id: 'brand_globex',
       name: 'Globex',
@@ -153,7 +218,7 @@ export const seedWorkspaces: Workspace[] = [
   {
     id: 'ws_partner_initech',
     type: 'partner',
-    name: 'Initech Partner',
+    name: 'Initech Field Crew',
     brand: {
       id: 'brand_initech',
       name: 'Initech',
@@ -179,6 +244,7 @@ export const seedMemberships: WorkspaceMembership[] = [
     membershipId: 'mem_skills_acme',
     workspace: seedWorkspaces[0],
     status: 'active',
+    displayName: 'Kiran Patel',
     workspaceUsername: 'kiran.skills',
     workspaceAvatarUrl: MOCK_ASSETS.workspaces.acmeGlobalLearning.avatarUrl,
     bannerUrl: MOCK_ASSETS.workspaces.acmeGlobalLearning.bannerUrl,
@@ -186,12 +252,14 @@ export const seedMemberships: WorkspaceMembership[] = [
     postCount: 12,
     totalViews: 184230,
     totalClicks: 9821,
+    totalLikes: 22107,
     joinedAt: isoOffset(2),
   },
   {
     membershipId: 'mem_social_acme',
     workspace: seedWorkspaces[1],
     status: 'active',
+    displayName: 'Kiran from Acme',
     workspaceUsername: 'kiran.social',
     workspaceAvatarUrl: MOCK_ASSETS.workspaces.acmeSocial.avatarUrl,
     bannerUrl: MOCK_ASSETS.workspaces.acmeSocial.bannerUrl,
@@ -199,6 +267,7 @@ export const seedMemberships: WorkspaceMembership[] = [
     postCount: 0,
     totalViews: 0,
     totalClicks: 0,
+    totalLikes: 0,
     joinedAt: isoOffset(8),
   },
   {
@@ -212,6 +281,7 @@ export const seedMemberships: WorkspaceMembership[] = [
     postCount: 0,
     totalViews: 0,
     totalClicks: 0,
+    totalLikes: 0,
     joinedAt: null,
   },
   {
@@ -225,6 +295,7 @@ export const seedMemberships: WorkspaceMembership[] = [
     postCount: 0,
     totalViews: 0,
     totalClicks: 0,
+    totalLikes: 0,
     joinedAt: null,
   },
 ];
@@ -293,16 +364,43 @@ type SeedPostInput = {
 
 function buildStats(views: number, ctrPercent: number, wtr: number, avg: number): PostStats {
   const clicks = Math.round((views * ctrPercent) / 100);
+  // Derived engagement counts so the dataset shows realistic ratios without
+  // needing to hand-tune every seed entry.
+  const likes = Math.round(views * 0.12);
+  const dislikes = Math.round(views * 0.01);
+  const shares = Math.round(views * 0.03);
   return {
     views,
     clicks,
     watchThroughRate: wtr,
     avgWatchSeconds: avg,
+    likes,
+    dislikes,
+    shares,
   };
 }
 
 function buildPost(workspaceId: string, input: SeedPostInput): Post {
   const cta = input.cta;
+  // Vertical 9:16 source @ 720p. Approx file size at 720p H264 60fps high
+  // bitrate: ~3.5MB per 10s. Compute deterministically so the specs bubble
+  // shows believable but stable values.
+  const mediaWidth = 720;
+  const mediaHeight = 1280;
+  const fileSizeBytes = Math.round(input.durationSeconds * 0.35 * 1024 * 1024);
+  // Derive lifecycle timestamps from status. Approve happens ~1 day after
+  // upload; live publishes ~half a day after approval.
+  const createdAt = isoOffset(input.daysFromEpoch);
+  const approvedAt: string | undefined =
+    input.status === 'approved' ||
+    input.status === 'live' ||
+    input.status === 'needs_edits'
+      ? isoOffset(input.daysFromEpoch + 1)
+      : undefined;
+  const publishedAt: string | undefined =
+    input.status === 'live'
+      ? isoOffset(input.daysFromEpoch + 1.5)
+      : undefined;
   return {
     id: input.id,
     workspaceId,
@@ -316,8 +414,13 @@ function buildPost(workspaceId: string, input: SeedPostInput): Post {
     mediaUrl: MOCK_ASSETS.posts.sampleMediaUrl,
     thumbnailUrl: MOCK_ASSETS.posts.thumbnailFor(input.id),
     durationSeconds: input.durationSeconds,
-    createdAt: isoOffset(input.daysFromEpoch),
+    createdAt,
+    approvedAt,
+    publishedAt,
     stats: buildStats(input.views, input.ctrPercent, input.watchThroughRate, input.avgWatchSeconds),
+    fileSizeBytes,
+    mediaWidth,
+    mediaHeight,
   };
 }
 
@@ -519,6 +622,9 @@ const acmeSkillsPostInputs: SeedPostInput[] = [
 type SeedState = {
   creator: EnterpriseCreator;
   hasCreatorProfile: boolean;
+  // false until the user joins their first workspace (via redeemInvite or
+  // requestInvite). Gates whether /me returns memberships at all.
+  hasJoinedAnyWorkspace: boolean;
   workspaces: Workspace[];
   memberships: WorkspaceMembership[];
   tagTopology: Record<string, TagCategory[]>;
@@ -556,6 +662,7 @@ function buildInitialState(): SeedState {
   return {
     creator,
     hasCreatorProfile: false,
+    hasJoinedAnyWorkspace: false,
     workspaces,
     memberships,
     tagTopology,
