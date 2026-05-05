@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -285,34 +283,29 @@ export default function AddTenantScreen(): React.ReactElement {
         </Pressable>
       </View>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <ScrollView
         style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: spacing.md,
+          paddingBottom: insets.bottom + spacing.xl,
+          gap: spacing.md,
+        }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
       >
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{
-            paddingHorizontal: spacing.md,
-            paddingBottom: insets.bottom + spacing.xl,
-            gap: spacing.md,
-          }}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets
+        <ThemedText variant="title">{t('addTenant.title')}</ThemedText>
+        <ThemedText
+          variant="body"
+          tone="secondary"
+          style={{ marginBottom: spacing.xs }}
         >
-          <ThemedText variant="title">{t('addTenant.title')}</ThemedText>
-          <ThemedText
-            variant="body"
-            tone="secondary"
-            style={{ marginBottom: spacing.xs }}
-          >
-            {t('addTenant.subtitle')}
-          </ThemedText>
+          {t('addTenant.subtitle')}
+        </ThemedText>
 
-          <InviteCard onAdded={(id) => { void handleAdded(id); }} />
-          <EmailCard />
-        </ScrollView>
-      </KeyboardAvoidingView>
+        <InviteCard onAdded={(id) => { void handleAdded(id); }} />
+        <EmailCard />
+      </ScrollView>
     </ScreenContainer>
   );
 }

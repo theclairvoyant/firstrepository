@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   ActivityIndicator,
@@ -202,25 +200,22 @@ export default function ProfileSetupScreen(): React.ReactElement {
 
   return (
     <ScreenContainer padded>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
+      {/* No KeyboardAvoidingView. iOS uses automaticallyAdjustKeyboardInsets
+          which auto-scrolls the ScrollView to keep the focused input above the
+          keyboard. Android's windowSoftInputMode=adjustResize (default) shrinks
+          the app frame so the ScrollView naturally remains scrollable. KAV +
+          auto-insets stack to fight each other and break the lift. */}
+      <ScrollView
+        ref={scrollRef}
         style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingBottom: spacing.xxxl + spacing.xl,
+        }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          ref={scrollRef}
-          style={{ flex: 1 }}
-          contentContainerStyle={{
-            paddingBottom: spacing.xxxl + spacing.xl,
-          }}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          // iOS auto-insets the scroll content by the keyboard height so the
-          // focused input is reachable without extra math. Combined with
-          // KAV behavior=padding above, the form lifts cleanly.
-          automaticallyAdjustKeyboardInsets
-          showsVerticalScrollIndicator={false}
-        >
           <ThemedText
             variant="title"
             style={{ marginBottom: spacing.xs, marginTop: spacing.lg }}
@@ -379,23 +374,22 @@ export default function ProfileSetupScreen(): React.ReactElement {
           </View>
         </ScrollView>
 
-        <View
-          style={{
-            paddingBottom: insets.bottom + spacing.md,
-            paddingTop: spacing.md,
+      <View
+        style={{
+          paddingBottom: insets.bottom + spacing.md,
+          paddingTop: spacing.md,
+        }}
+      >
+        <PrimaryButton
+          label={t('auth.profile.finish')}
+          accessibilityLabel={t('auth.profile.finish')}
+          disabled={!canSubmit}
+          loading={createProfile.isPending}
+          onPress={() => {
+            void onSubmit();
           }}
-        >
-          <PrimaryButton
-            label={t('auth.profile.finish')}
-            accessibilityLabel={t('auth.profile.finish')}
-            disabled={!canSubmit}
-            loading={createProfile.isPending}
-            onPress={() => {
-              void onSubmit();
-            }}
-          />
-        </View>
-      </KeyboardAvoidingView>
+        />
+      </View>
     </ScreenContainer>
   );
 }

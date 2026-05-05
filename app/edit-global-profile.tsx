@@ -1,8 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
   View,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -205,21 +203,17 @@ export default function EditGlobalProfileScreen(): React.ReactElement {
         </ThemedText>
       </View>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <ScrollView
         style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: spacing.md,
+          paddingTop: spacing.xl,
+          paddingBottom: spacing.xl,
+        }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
       >
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{
-            paddingHorizontal: spacing.md,
-            paddingTop: spacing.xl,
-            paddingBottom: spacing.xl,
-          }}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets
-        >
           <View style={{ alignItems: 'center', marginBottom: spacing.xl }}>
             <Pressable
               onPress={() => {
@@ -339,38 +333,37 @@ export default function EditGlobalProfileScreen(): React.ReactElement {
           </View>
         </ScrollView>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: spacing.md,
-            paddingHorizontal: spacing.md,
-            paddingBottom: insets.bottom + spacing.md,
-            paddingTop: spacing.md,
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            backgroundColor: colors.bgElevated,
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <SecondaryButton
-              label={t('editGlobalProfile.cancel')}
-              accessibilityLabel={t('editGlobalProfile.cancel')}
-              onPress={onCancel}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <PrimaryButton
-              label={t('editGlobalProfile.save')}
-              accessibilityLabel={t('editGlobalProfile.save')}
-              disabled={!canSubmit}
-              loading={patchMe.isPending}
-              onPress={() => {
-                void onSave();
-              }}
-            />
-          </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: spacing.md,
+          paddingHorizontal: spacing.md,
+          paddingBottom: insets.bottom + spacing.md,
+          paddingTop: spacing.md,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+          backgroundColor: colors.bgElevated,
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <SecondaryButton
+            label={t('editGlobalProfile.cancel')}
+            accessibilityLabel={t('editGlobalProfile.cancel')}
+            onPress={onCancel}
+          />
         </View>
-      </KeyboardAvoidingView>
+        <View style={{ flex: 1 }}>
+          <PrimaryButton
+            label={t('editGlobalProfile.save')}
+            accessibilityLabel={t('editGlobalProfile.save')}
+            disabled={!canSubmit}
+            loading={patchMe.isPending}
+            onPress={() => {
+              void onSave();
+            }}
+          />
+        </View>
+      </View>
     </ScreenContainer>
   );
 }

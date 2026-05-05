@@ -10,8 +10,6 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -193,22 +191,18 @@ export default function SearchByEmailScreen(): React.ReactElement {
         </ThemedText>
       </View>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <ScrollView
         style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: spacing.md,
+          paddingTop: spacing.xl,
+          paddingBottom: spacing.xl,
+          gap: spacing.md,
+        }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
       >
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{
-            paddingHorizontal: spacing.md,
-            paddingTop: spacing.xl,
-            paddingBottom: spacing.xl,
-            gap: spacing.md,
-          }}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets
-        >
           {step === 'enter' ? (
             <>
               <View style={{ gap: spacing.sm }}>
@@ -407,45 +401,44 @@ export default function SearchByEmailScreen(): React.ReactElement {
           ) : null}
         </ScrollView>
 
-        {step !== 'results' ? (
-          <View
-            style={{
-              paddingHorizontal: spacing.md,
-              paddingBottom: insets.bottom + spacing.md,
-              paddingTop: spacing.md,
-              borderTopWidth: 1,
-              borderTopColor: colors.border,
-              backgroundColor: colors.bgElevated,
-            }}
-          >
-            {step === 'enter' ? (
-              <PrimaryButton
-                label={
-                  emailInheritedFromGlobal
-                    ? t('searchByEmail.searchWorkspaces')
-                    : t('searchByEmail.sendCode')
-                }
-                accessibilityLabel={t('searchByEmail.sendCode')}
-                onPress={() => {
-                  void handleSendOrSkip();
-                }}
-                disabled={!emailValid}
-                loading={emailStart.isPending || byDomain.isPending}
-              />
-            ) : (
-              <PrimaryButton
-                label={t('searchByEmail.verify')}
-                accessibilityLabel={t('searchByEmail.verify')}
-                onPress={() => {
-                  void handleVerify();
-                }}
-                disabled={code.length !== 6}
-                loading={emailVerify.isPending || byDomain.isPending}
-              />
-            )}
-          </View>
-        ) : null}
-      </KeyboardAvoidingView>
+      {step !== 'results' ? (
+        <View
+          style={{
+            paddingHorizontal: spacing.md,
+            paddingBottom: insets.bottom + spacing.md,
+            paddingTop: spacing.md,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+            backgroundColor: colors.bgElevated,
+          }}
+        >
+          {step === 'enter' ? (
+            <PrimaryButton
+              label={
+                emailInheritedFromGlobal
+                  ? t('searchByEmail.searchWorkspaces')
+                  : t('searchByEmail.sendCode')
+              }
+              accessibilityLabel={t('searchByEmail.sendCode')}
+              onPress={() => {
+                void handleSendOrSkip();
+              }}
+              disabled={!emailValid}
+              loading={emailStart.isPending || byDomain.isPending}
+            />
+          ) : (
+            <PrimaryButton
+              label={t('searchByEmail.verify')}
+              accessibilityLabel={t('searchByEmail.verify')}
+              onPress={() => {
+                void handleVerify();
+              }}
+              disabled={code.length !== 6}
+              loading={emailVerify.isPending || byDomain.isPending}
+            />
+          )}
+        </View>
+      ) : null}
     </ScreenContainer>
   );
 }

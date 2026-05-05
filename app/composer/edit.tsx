@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   InputAccessoryView,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -520,11 +519,11 @@ export default function ComposerEditScreen(): React.ReactElement | null {
 
   return (
     <ScreenContainer edges={['top', 'left', 'right']} bg="bg">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={0}
-        style={{ flex: 1 }}
-      >
+      {/* No KeyboardAvoidingView - it stacked with automaticallyAdjustKeyboardInsets
+          on the ScrollView and broke the lift. iOS auto-insets handles the
+          scroll-to-input on its own; Android's adjustResize default handles it
+          natively by resizing the app frame. */}
+      <View style={{ flex: 1 }}>
         {/* Header */}
         <View
           style={[
@@ -662,7 +661,7 @@ export default function ComposerEditScreen(): React.ReactElement | null {
             />
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </View>
 
       {/* iOS Done bar over the multiline description. Android shows the
           system "back" gesture or returnKeyType="done" on single fields,

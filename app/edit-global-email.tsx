@@ -7,8 +7,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -140,22 +138,18 @@ export default function EditGlobalEmailScreen(): React.ReactElement {
         </ThemedText>
       </View>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <ScrollView
         style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: spacing.md,
+          paddingTop: spacing.xl,
+          paddingBottom: spacing.xl,
+          gap: spacing.md,
+        }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
       >
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{
-            paddingHorizontal: spacing.md,
-            paddingTop: spacing.xl,
-            paddingBottom: spacing.xl,
-            gap: spacing.md,
-          }}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets
-        >
           <ThemedText variant="body" tone="secondary">
             {step === 'enter'
               ? t('editGlobalEmail.enterBody', {
@@ -215,41 +209,40 @@ export default function EditGlobalEmailScreen(): React.ReactElement {
               </Pressable>
             </View>
           )}
-        </ScrollView>
+      </ScrollView>
 
-        <View
-          style={{
-            paddingHorizontal: spacing.md,
-            paddingBottom: insets.bottom + spacing.md,
-            paddingTop: spacing.md,
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            backgroundColor: colors.bgElevated,
-          }}
-        >
-          {step === 'enter' ? (
-            <PrimaryButton
-              label={t('editGlobalEmail.sendCode')}
-              accessibilityLabel={t('editGlobalEmail.sendCode')}
-              onPress={() => {
-                void handleSendCode();
-              }}
-              disabled={!emailValid || isSameAsCurrent}
-              loading={emailStart.isPending}
-            />
-          ) : (
-            <PrimaryButton
-              label={t('editGlobalEmail.verify')}
-              accessibilityLabel={t('editGlobalEmail.verify')}
-              onPress={() => {
-                void handleVerify();
-              }}
-              disabled={code.length !== 6}
-              loading={emailVerify.isPending || patchMe.isPending}
-            />
-          )}
-        </View>
-      </KeyboardAvoidingView>
+      <View
+        style={{
+          paddingHorizontal: spacing.md,
+          paddingBottom: insets.bottom + spacing.md,
+          paddingTop: spacing.md,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+          backgroundColor: colors.bgElevated,
+        }}
+      >
+        {step === 'enter' ? (
+          <PrimaryButton
+            label={t('editGlobalEmail.sendCode')}
+            accessibilityLabel={t('editGlobalEmail.sendCode')}
+            onPress={() => {
+              void handleSendCode();
+            }}
+            disabled={!emailValid || isSameAsCurrent}
+            loading={emailStart.isPending}
+          />
+        ) : (
+          <PrimaryButton
+            label={t('editGlobalEmail.verify')}
+            accessibilityLabel={t('editGlobalEmail.verify')}
+            onPress={() => {
+              void handleVerify();
+            }}
+            disabled={code.length !== 6}
+            loading={emailVerify.isPending || patchMe.isPending}
+          />
+        )}
+      </View>
     </ScreenContainer>
   );
 }
