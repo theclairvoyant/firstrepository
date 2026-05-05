@@ -744,21 +744,25 @@ const styles = StyleSheet.create({
   },
   rowPressable: {
     minHeight: 56,
+    justifyContent: 'center',
   },
   rowInner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    minHeight: 44,
+    minHeight: 48,
   },
   rowIcon: {
     width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
   rowRight: {
     marginLeft: 8,
-    alignItems: 'flex-end',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 32,
   },
   divider: {
     height: 1,

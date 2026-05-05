@@ -114,7 +114,8 @@
   },
   "boot": {
     "loading": "Loading",
-    "loadError": "We couldn't reach our servers. Try again."
+    "loadError": "We couldn't reach our servers. Try again.",
+    "opening": "OPENING"
   },
   "profileTab": {
     "title": "Profile",
