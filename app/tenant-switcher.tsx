@@ -5,38 +5,46 @@ import {
   Pressable,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import type { ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Search, AlertCircle } from 'lucide-react-native';
+import {
+  Search,
+  AlertCircle,
+  ChevronDown,
+  ChevronRight,
+  Mail,
+  Send,
+} from 'lucide-react-native';
 import { ModalSheet } from '@/components/ModalSheet';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Input } from '@/components/Input';
 import { Avatar } from '@/components/Avatar';
 import { WorkspaceTypeBadge } from '@/components/WorkspaceTypeBadge';
-import { StatusBadge } from '@/components/StatusBadge';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { SecondaryButton } from '@/components/SecondaryButton';
 import { GhostButton } from '@/components/GhostButton';
 import { EmptyState } from '@/components/EmptyState';
 import { useTheme } from '@/lib/theme/useTheme';
 import { useTenantStore } from '@/lib/store/tenantStore';
-import { useMemberships, useCancelRequestInvite } from '@/lib/api/queries';
+import {
+  useAcceptInvite,
+  useCancelRequestInvite,
+  useDeclineInvite,
+  useMemberships,
+} from '@/lib/api/queries';
 import { showToast } from '@/lib/toast';
 import type { WorkspaceMembership } from '@/types/api';
 
-interface RowProps {
+interface ActiveRowProps {
   membership: WorkspaceMembership;
-  onPress?: () => void;
-  rightSlot?: React.ReactNode;
+  onPress: () => void;
 }
 
-function MembershipRow({
-  membership,
-  onPress,
-  rightSlot,
-}: RowProps): React.ReactElement {
+function ActiveRow({ membership, onPress }: ActiveRowProps): React.ReactElement {
   const { spacing, colors } = useTheme();
   const { t } = useTranslation();
   const ws = membership.workspace;
@@ -50,10 +58,16 @@ function MembershipRow({
     minHeight: 64,
   };
 
-  const accessibilityLabel: string = `${ws.name}, ${ws.brand.name}, ${t('switcher.selectRow')}`;
-
-  const content = (
-    <>
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${ws.name}, ${ws.brand.name}, ${t('switcher.selectRow')}`}
+      style={({ pressed }) => [
+        rowStyle,
+        { backgroundColor: pressed ? colors.bgInput : 'transparent' },
+      ]}
+    >
       <Avatar
         size={40}
         name={ws.name}
@@ -69,33 +83,129 @@ function MembershipRow({
         </ThemedText>
       </View>
       <WorkspaceTypeBadge type={ws.type} style={{ alignSelf: 'center' }} />
-      {rightSlot ? <View style={{ alignItems: 'flex-end' }}>{rightSlot}</View> : null}
-    </>
+      <ThemedText variant="mono" tone="muted">
+        {t('switcher.postsCount', { count: membership.postCount })}
+      </ThemedText>
+    </Pressable>
   );
+}
 
-  if (onPress) {
-    return (
-      <Pressable
-        onPress={onPress}
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel}
-        style={({ pressed }) => [
-          rowStyle,
-          { backgroundColor: pressed ? colors.bgInput : 'transparent' },
-        ]}
-      >
-        {content}
-      </Pressable>
-    );
-  }
+interface PendingCardProps {
+  membership: WorkspaceMembership;
+  onAccept?: () => void;
+  onDecline?: () => void;
+  onCancel?: () => void;
+  busy: boolean;
+}
+
+function PendingCard({
+  membership,
+  onAccept,
+  onDecline,
+  onCancel,
+  busy,
+}: PendingCardProps): React.ReactElement {
+  const { spacing, colors, accent } = useTheme();
+  const { t } = useTranslation();
+  const ws = membership.workspace;
+  const isInvite = membership.status === 'pending_invite';
+
+  const dotColor: string = isInvite ? accent.primary : accent.warning;
+  const chipLabel: string = isInvite
+    ? t('switcher.pendingInvite')
+    : t('switcher.pendingRequest');
 
   return (
     <View
-      style={rowStyle}
-      accessibilityRole="text"
-      accessibilityLabel={`${ws.brand.name} ${ws.name}`}
+      style={{
+        marginHorizontal: spacing.lg,
+        marginBottom: spacing.sm,
+        padding: spacing.md,
+        backgroundColor: colors.bgElevated,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: colors.border,
+        gap: spacing.sm,
+      }}
     >
-      {content}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.md,
+        }}
+      >
+        <Avatar
+          size={56}
+          name={ws.name}
+          uri={ws.brand.logoUrl || undefined}
+          accessibilityLabel={ws.name}
+        />
+        <View style={{ flex: 1, gap: 2 }}>
+          <ThemedText variant="heading" numberOfLines={1}>
+            {ws.name}
+          </ThemedText>
+          <ThemedText variant="mono" tone="muted" numberOfLines={1}>
+            {`@${ws.handle}`}
+          </ThemedText>
+        </View>
+        <WorkspaceTypeBadge type={ws.type} style={{ alignSelf: 'center' }} />
+      </View>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.xs,
+        }}
+      >
+        <View
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: dotColor,
+          }}
+        />
+        <ThemedText variant="caption" tone="secondary">
+          {chipLabel}
+        </ThemedText>
+        {isInvite && membership.invitedBy ? (
+          <ThemedText variant="caption" tone="muted" numberOfLines={1}>
+            {t('switcher.invitedBy', { name: membership.invitedBy })}
+          </ThemedText>
+        ) : null}
+      </View>
+
+      {isInvite ? (
+        <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs }}>
+          <View style={{ flex: 1 }}>
+            <SecondaryButton
+              label={t('switcher.declineInvite')}
+              accessibilityLabel={t('switcher.declineInvite')}
+              onPress={onDecline ?? (() => {})}
+              disabled={busy}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <PrimaryButton
+              label={t('switcher.acceptInvite')}
+              accessibilityLabel={t('switcher.acceptInvite')}
+              onPress={onAccept ?? (() => {})}
+              loading={busy}
+            />
+          </View>
+        </View>
+      ) : (
+        <View style={{ marginTop: spacing.xs }}>
+          <GhostButton
+            label={t('switcher.cancelRequest')}
+            accessibilityLabel={t('switcher.cancelRequest')}
+            fullWidth
+            onPress={onCancel ?? (() => {})}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -103,12 +213,15 @@ function MembershipRow({
 export default function TenantSwitcherScreen(): React.ReactElement {
   const router = useRouter();
   const { t } = useTranslation();
-  const { spacing, colors } = useTheme();
+  const { spacing, colors, accent } = useTheme();
   const [search, setSearch] = useState<string>('');
+  const [pendingExpanded, setPendingExpanded] = useState<boolean>(false);
 
   const setActive = useTenantStore((s) => s.setActive);
   const membershipsQuery = useMemberships();
   const cancelRequest = useCancelRequestInvite();
+  const acceptInvite = useAcceptInvite();
+  const declineInvite = useDeclineInvite();
 
   const allMemberships: WorkspaceMembership[] = membershipsQuery.data ?? [];
 
@@ -134,9 +247,13 @@ export default function TenantSwitcherScreen(): React.ReactElement {
   const active: WorkspaceMembership[] = filtered.filter(
     (m) => m.status === 'active',
   );
-  const pending: WorkspaceMembership[] = filtered.filter(
-    (m) => m.status === 'pending_invite' || m.status === 'pending_request',
+  const pendingInvites: WorkspaceMembership[] = filtered.filter(
+    (m) => m.status === 'pending_invite',
   );
+  const pendingRequests: WorkspaceMembership[] = filtered.filter(
+    (m) => m.status === 'pending_request',
+  );
+  const pendingCount: number = pendingInvites.length + pendingRequests.length;
 
   const handlePickActive = async (m: WorkspaceMembership): Promise<void> => {
     await setActive(m.workspace.id);
@@ -154,6 +271,50 @@ export default function TenantSwitcherScreen(): React.ReactElement {
     } catch {
       showToast({ variant: 'danger', message: t('common.error') });
     }
+  };
+
+  const handleAccept = async (m: WorkspaceMembership): Promise<void> => {
+    try {
+      const res = await acceptInvite.mutateAsync({ membershipId: m.membershipId });
+      showToast({
+        variant: 'success',
+        message: t('switcher.acceptInviteDone', {
+          name: res.membership.workspace.name,
+        }),
+      });
+      await setActive(res.membership.workspace.id);
+      if (router.canGoBack()) router.back();
+      router.replace('/(tabs)/profile');
+    } catch {
+      showToast({ variant: 'danger', message: t('common.error') });
+    }
+  };
+
+  const handleDecline = (m: WorkspaceMembership): void => {
+    Alert.alert(
+      t('switcher.declineConfirmTitle'),
+      t('switcher.declineConfirmBody', { name: m.workspace.name }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('switcher.declineInvite'),
+          style: 'destructive',
+          onPress: () => {
+            void (async () => {
+              try {
+                await declineInvite.mutateAsync({ membershipId: m.membershipId });
+                showToast({
+                  variant: 'success',
+                  message: t('switcher.declineInviteDone'),
+                });
+              } catch {
+                showToast({ variant: 'danger', message: t('common.error') });
+              }
+            })();
+          },
+        },
+      ],
+    );
   };
 
   const goAddTenant = (): void => {
@@ -225,73 +386,141 @@ export default function TenantSwitcherScreen(): React.ReactElement {
             <ThemedText
               variant="mono"
               tone="muted"
-              style={{ paddingHorizontal: spacing.lg, marginBottom: spacing.xs }}
+              style={{
+                paddingHorizontal: spacing.lg,
+                marginBottom: spacing.xs,
+              }}
             >
               {t('switcher.activeSection')}
             </ThemedText>
             {active.map((m) => (
-              <MembershipRow
+              <ActiveRow
                 key={m.membershipId}
                 membership={m}
                 onPress={() => {
                   void handlePickActive(m);
                 }}
-                rightSlot={
-                  <ThemedText variant="mono" tone="muted">
-                    {t('switcher.postsCount', { count: m.postCount })}
-                  </ThemedText>
-                }
               />
             ))}
           </View>
         ) : null}
 
-        {pending.length > 0 ? (
+        {pendingCount > 0 ? (
           <View style={{ marginTop: spacing.md }}>
-            <ThemedText
-              variant="mono"
-              tone="muted"
-              style={{ paddingHorizontal: spacing.lg, marginBottom: spacing.xs }}
+            <Pressable
+              onPress={() => setPendingExpanded((v) => !v)}
+              accessibilityRole="button"
+              accessibilityLabel={
+                pendingExpanded
+                  ? t('switcher.collapsePending')
+                  : t('switcher.expandPending')
+              }
+              style={({ pressed }) => ({
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: spacing.sm,
+                paddingVertical: spacing.sm,
+                paddingHorizontal: spacing.lg,
+                opacity: pressed ? 0.7 : 1,
+              })}
             >
-              {t('switcher.pendingSection')}
-            </ThemedText>
-            {pending.map((m) => (
-              <View key={m.membershipId}>
-                <MembershipRow
-                  membership={m}
-                  rightSlot={
-                    <StatusBadge
-                      status={
-                        m.status === 'pending_invite'
-                          ? 'pending_invite'
-                          : 'pending_request'
-                      }
-                      label={
-                        m.status === 'pending_invite'
-                          ? t('switcher.pendingInvite')
-                          : t('switcher.pendingRequest')
-                      }
-                    />
-                  }
-                />
-                {m.status === 'pending_request' ? (
-                  <View
-                    style={{
-                      paddingHorizontal: spacing.lg,
-                      paddingBottom: spacing.xs,
-                    }}
-                  >
-                    <GhostButton
-                      label={t('switcher.cancelRequest')}
-                      accessibilityLabel={t('switcher.cancelRequest')}
-                      onPress={() => {
-                        void handleCancelRequest(m.workspace.id);
+              {pendingExpanded ? (
+                <ChevronDown size={18} color={colors.textSecondary} strokeWidth={2} />
+              ) : (
+                <ChevronRight size={18} color={colors.textSecondary} strokeWidth={2} />
+              )}
+              <ThemedText variant="heading" style={{ flex: 1 }}>
+                {t('switcher.pendingSection')}
+              </ThemedText>
+              <View
+                style={{
+                  minWidth: 22,
+                  height: 22,
+                  paddingHorizontal: 6,
+                  borderRadius: 11,
+                  backgroundColor: accent.primary,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <ThemedText
+                  variant="caption"
+                  style={{ color: '#fff', fontWeight: '600' }}
+                >
+                  {String(pendingCount)}
+                </ThemedText>
+              </View>
+            </Pressable>
+
+            {pendingExpanded ? (
+              <View style={{ marginTop: spacing.xs }}>
+                {pendingInvites.length > 0 ? (
+                  <View style={{ marginBottom: spacing.xs }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 6,
+                        paddingHorizontal: spacing.lg,
+                        marginBottom: spacing.xs,
                       }}
-                    />
+                    >
+                      <Mail size={14} color={colors.textMuted} strokeWidth={1.75} />
+                      <ThemedText variant="mono" tone="muted">
+                        {t('switcher.invitesSubsection')}
+                      </ThemedText>
+                    </View>
+                    {pendingInvites.map((m) => (
+                      <PendingCard
+                        key={m.membershipId}
+                        membership={m}
+                        onAccept={() => {
+                          void handleAccept(m);
+                        }}
+                        onDecline={() => handleDecline(m)}
+                        busy={
+                          (acceptInvite.isPending || declineInvite.isPending) &&
+                          (acceptInvite.variables?.membershipId === m.membershipId ||
+                            declineInvite.variables?.membershipId === m.membershipId)
+                        }
+                      />
+                    ))}
+                  </View>
+                ) : null}
+
+                {pendingRequests.length > 0 ? (
+                  <View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 6,
+                        paddingHorizontal: spacing.lg,
+                        marginBottom: spacing.xs,
+                      }}
+                    >
+                      <Send size={14} color={colors.textMuted} strokeWidth={1.75} />
+                      <ThemedText variant="mono" tone="muted">
+                        {t('switcher.requestsSubsection')}
+                      </ThemedText>
+                    </View>
+                    {pendingRequests.map((m) => (
+                      <PendingCard
+                        key={m.membershipId}
+                        membership={m}
+                        onCancel={() => {
+                          void handleCancelRequest(m.workspace.id);
+                        }}
+                        busy={
+                          cancelRequest.isPending &&
+                          cancelRequest.variables?.workspaceId === m.workspace.id
+                        }
+                      />
+                    ))}
                   </View>
                 ) : null}
               </View>
-            ))}
+            ) : null}
           </View>
         ) : null}
       </View>

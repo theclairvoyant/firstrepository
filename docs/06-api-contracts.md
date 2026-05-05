@@ -37,14 +37,20 @@ Base URL: `process.env.EXPO_PUBLIC_API_BASE_URL`. JWT bearer in Authorization. A
 | POST | /v1/workspaces/{id}/request-invite | - | { membership } |
 | DELETE | /v1/workspaces/{id}/request-invite | - | { ok } |
 
-## Memberships (4)
+## Memberships (6)
 
 | Method | Path | Body | Response |
 |--------|------|------|----------|
 | GET | /v1/memberships | - | WorkspaceMembership[] |
 | GET | /v1/memberships/{id} | - | WorkspaceMembership |
-| PATCH | /v1/memberships/{id} | { workspaceUsername?, bio? } | WorkspaceMembership |
+| PATCH | /v1/memberships/{id} | { workspaceUsername?, bio?, displayName?, bannerUrl? } | WorkspaceMembership |
 | POST | /v1/memberships/{id}/avatar | multipart | { workspaceAvatarUrl } |
+| POST | /v1/memberships/{id}/accept | - | { membership } |
+| POST | /v1/memberships/{id}/decline | - | { ok } |
+
+`accept` only valid on `pending_invite` memberships; flips status to `active` and assigns a workspaceUsername.
+`decline` only valid on `pending_invite`; removes the membership.
+A `pending_invite` membership carries `invitedAt` (ISO timestamp) and `invitedBy` (display name of the admin who issued the invite).
 
 ## Workspace metadata (3)
 

@@ -128,6 +128,10 @@ export type WorkspaceMembership = {
   totalClicks: number;
   totalLikes: number;
   joinedAt: string | null;
+  // Set on pending_invite memberships: when the admin issued the invite,
+  // and the human-readable name of the inviter (e.g. "Priya from Pinecrest").
+  invitedAt?: string;
+  invitedBy?: string;
 };
 
 // Tags
@@ -311,6 +315,14 @@ export type RequestInviteResponse = {
 };
 
 export type CancelRequestInviteResponse = {
+  ok: true;
+};
+
+export type AcceptInviteResponse = {
+  membership: WorkspaceMembership;
+};
+
+export type DeclineInviteResponse = {
   ok: true;
 };
 

@@ -25,11 +25,13 @@ import * as tenantsApi from './tenants';
 import * as workspacesApi from './workspaces';
 
 import type {
+  AcceptInviteResponse,
   AuthResponse,
   CancelRequestInviteResponse,
   CreatePostInput,
   CreateProfileInput,
   CTA,
+  DeclineInviteResponse,
   DeleteMeResponse,
   DeletePushTokenResponse,
   DiscoveryByDomainResponse,
@@ -259,6 +261,35 @@ export function useCancelRequestInvite(): UseMutationResult<
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (vars) => tenantsApi.cancelRequestInvite(vars.workspaceId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: keys.memberships });
+    },
+  });
+}
+
+export function useAcceptInvite(): UseMutationResult<
+  AcceptInviteResponse,
+  Error,
+  { membershipId: string }
+> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (vars) => tenantsApi.acceptInvite(vars.membershipId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: keys.memberships });
+      qc.invalidateQueries({ queryKey: keys.me });
+    },
+  });
+}
+
+export function useDeclineInvite(): UseMutationResult<
+  DeclineInviteResponse,
+  Error,
+  { membershipId: string }
+> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (vars) => tenantsApi.declineInvite(vars.membershipId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: keys.memberships });
     },

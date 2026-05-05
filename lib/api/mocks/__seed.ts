@@ -311,6 +311,8 @@ export const seedMemberships: WorkspaceMembership[] = [
     totalClicks: 0,
     totalLikes: 0,
     joinedAt: null,
+    invitedAt: isoOffset(2),
+    invitedBy: 'Priya Shah',
   },
   {
     membershipId: 'mem_partner_initech',

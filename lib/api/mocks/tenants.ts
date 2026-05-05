@@ -2,7 +2,9 @@
 
 import { ApiError } from '@/types/api';
 import type {
+  AcceptInviteResponse,
   CancelRequestInviteResponse,
+  DeclineInviteResponse,
   DiscoveryByDomainResponse,
   RedeemInviteResponse,
   RequestInviteResponse,
@@ -120,6 +122,45 @@ export async function cancelRequestInvite(workspaceId: string): Promise<CancelRe
   await simulateLatency(240);
   const idx = seedState.memberships.findIndex(
     (m) => m.workspace.id === workspaceId && m.status === 'pending_request',
+  );
+  if (idx >= 0) {
+    seedState.memberships.splice(idx, 1);
+  }
+  return { ok: true };
+}
+
+export async function acceptInvite(membershipId: string): Promise<AcceptInviteResponse> {
+  await simulateLatency(300);
+  const idx = seedState.memberships.findIndex(
+    (m) => m.membershipId === membershipId && m.status === 'pending_invite',
+  );
+  if (idx < 0) {
+    throw new ApiError({
+      code: 'NOT_FOUND',
+      message: 'Pending invite not found.',
+      status: 404,
+    });
+  }
+  const updated: WorkspaceMembership = {
+    ...seedState.memberships[idx],
+    status: 'active',
+    workspaceUsername:
+      seedState.memberships[idx].workspaceUsername ||
+      `${seedState.creator.globalUsername}.${seedState.memberships[idx].workspace.handle.split('-')[0] ?? 'team'}`,
+    joinedAt: new Date().toISOString(),
+    invitedAt: undefined,
+    invitedBy: undefined,
+  };
+  seedState.memberships[idx] = updated;
+  seedState.hasJoinedAnyWorkspace = true;
+  await writePersistedHasJoinedAnyWorkspace(true);
+  return { membership: updated };
+}
+
+export async function declineInvite(membershipId: string): Promise<DeclineInviteResponse> {
+  await simulateLatency(240);
+  const idx = seedState.memberships.findIndex(
+    (m) => m.membershipId === membershipId && m.status === 'pending_invite',
   );
   if (idx >= 0) {
     seedState.memberships.splice(idx, 1);

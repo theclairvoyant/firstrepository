@@ -4,7 +4,9 @@ import { MOCK_API } from './config';
 import { httpDelete, httpGet, httpPost } from './client';
 import * as mock from './mocks/tenants';
 import type {
+  AcceptInviteResponse,
   CancelRequestInviteResponse,
+  DeclineInviteResponse,
   DiscoveryByDomainResponse,
   RedeemInviteResponse,
   RequestInviteResponse,
@@ -37,5 +39,23 @@ export async function cancelRequestInvite(
   if (MOCK_API) return mock.cancelRequestInvite(workspaceId);
   return httpDelete<CancelRequestInviteResponse>(
     `/v1/workspaces/${workspaceId}/request-invite`,
+  );
+}
+
+export async function acceptInvite(
+  membershipId: string,
+): Promise<AcceptInviteResponse> {
+  if (MOCK_API) return mock.acceptInvite(membershipId);
+  return httpPost<AcceptInviteResponse>(
+    `/v1/memberships/${membershipId}/accept`,
+  );
+}
+
+export async function declineInvite(
+  membershipId: string,
+): Promise<DeclineInviteResponse> {
+  if (MOCK_API) return mock.declineInvite(membershipId);
+  return httpPost<DeclineInviteResponse>(
+    `/v1/memberships/${membershipId}/decline`,
   );
 }
