@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
+  HardDrive,
   Info,
   Languages,
   LifeBuoy,
@@ -296,6 +297,10 @@ export default function SettingsIndexScreen(): React.ReactElement {
     router.push('/settings/notifications');
   }, [router]);
 
+  const handleStoragePress = useCallback((): void => {
+    router.push('/settings/storage');
+  }, [router]);
+
   const handleDeleteAccountPress = useCallback((): void => {
     router.push('/settings/delete-account');
   }, [router]);
@@ -564,6 +569,28 @@ export default function SettingsIndexScreen(): React.ReactElement {
                     false: colors.bgInput,
                     true: accent.primary,
                   }}
+                />
+              }
+            />
+            <View
+              style={[styles.divider, { backgroundColor: colors.border }]}
+            />
+            <Row
+              icon={
+                <HardDrive
+                  size={20}
+                  color={colors.textPrimary}
+                  strokeWidth={1.75}
+                />
+              }
+              label={t('settings.storage.rowLabel')}
+              accessibilityLabel={t('settings.storage.rowLabel')}
+              onPress={handleStoragePress}
+              right={
+                <ChevronRight
+                  size={18}
+                  color={colors.textMuted}
+                  strokeWidth={1.75}
                 />
               }
             />

@@ -543,6 +543,22 @@
       "label": "Avertir avant les envois en data",
       "description": "Confirmez avant d'envoyer de grosses vidéos en data mobile."
     },
+    "storage": {
+      "rowLabel": "Stockage",
+      "title": "Stockage",
+      "heading": "Données locales",
+      "body": "Enterprise Creator garde un petit cache pour rester rapide. L'essentiel se nettoie tout seul ; touchez ci-dessous pour le vider maintenant.",
+      "uploadHistoryLabel": "Historique des envois",
+      "draftsLabel": "Brouillons",
+      "imageCacheLabel": "Cache d'images",
+      "imageCacheManaged": "Géré par le système",
+      "itemCount_one": "{{count}} élément",
+      "itemCount_other": "{{count}} éléments",
+      "autoMaintenance": "Les vieux envois, brouillons orphelins et miniatures inutilisées sont nettoyés automatiquement à chaque ouverture de l'app.",
+      "clearAction": "Vider le cache",
+      "cleared": "Vidé - {{uploads}} envois, {{drafts}} brouillons, cache d'images.",
+      "clearError": "Impossible de vider le cache. Réessayez."
+    },
     "privacyTitle": "Politique de confidentialité",
     "termsTitle": "Conditions d'utilisation",
     "privacyLabel": "Politique de confidentialité",

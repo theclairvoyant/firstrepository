@@ -543,6 +543,22 @@
       "label": "Avisar antes de subir por datos",
       "description": "Confirma antes de enviar vídeos grandes por datos móviles."
     },
+    "storage": {
+      "rowLabel": "Almacenamiento",
+      "title": "Almacenamiento",
+      "heading": "Datos locales",
+      "body": "Enterprise Creator guarda una caché pequeña para que la app vaya rápida. La mayoría se limpia sola; toca abajo para vaciarla ahora.",
+      "uploadHistoryLabel": "Historial de subidas",
+      "draftsLabel": "Borradores",
+      "imageCacheLabel": "Caché de imágenes",
+      "imageCacheManaged": "Lo gestiona el sistema",
+      "itemCount_one": "{{count}} elemento",
+      "itemCount_other": "{{count}} elementos",
+      "autoMaintenance": "Las subidas antiguas, los borradores huérfanos y las miniaturas en desuso se limpian automáticamente cada vez que abres la app.",
+      "clearAction": "Vaciar la caché ahora",
+      "cleared": "Vaciado - {{uploads}} subidas, {{drafts}} borradores, caché de imágenes.",
+      "clearError": "No pudimos vaciar la caché. Inténtalo de nuevo."
+    },
     "privacyTitle": "Política de privacidad",
     "termsTitle": "Términos del servicio",
     "privacyLabel": "Política de privacidad",

@@ -543,6 +543,22 @@
       "label": "Warn on cellular uploads",
       "description": "Confirm before sending large videos over cellular."
     },
+    "storage": {
+      "rowLabel": "Storage",
+      "title": "Storage",
+      "heading": "Local data",
+      "body": "Enterprise Creator keeps a small cache so the app feels fast. Most of it is cleaned up automatically; tap below to flush it now.",
+      "uploadHistoryLabel": "Upload history",
+      "draftsLabel": "Drafts",
+      "imageCacheLabel": "Image cache",
+      "imageCacheManaged": "Managed by the OS",
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items",
+      "autoMaintenance": "Old uploads, orphan drafts, and unused thumbnails are pruned automatically each time you open the app.",
+      "clearAction": "Clear cache now",
+      "cleared": "Cleared - {{uploads}} uploads, {{drafts}} drafts, image cache flushed.",
+      "clearError": "Couldn't clear the cache. Try again."
+    },
     "privacyTitle": "Privacy Policy",
     "termsTitle": "Terms of Service",
     "privacyLabel": "Privacy Policy",

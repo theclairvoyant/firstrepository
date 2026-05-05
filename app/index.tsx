@@ -10,6 +10,7 @@ import { useTenantStore } from '@/lib/store/tenantStore';
 import { useDeeplinkIntentStore } from '@/lib/deeplinks/intentStore';
 import { parseDeeplinkUrl } from '@/lib/deeplinks/parser';
 import { useMe } from '@/lib/api/queries';
+import { runStartupMaintenance } from '@/lib/storage/maintenance';
 import { showToast } from '@/lib/toast';
 import type { WorkspaceMembership } from '@/types/api';
 
@@ -105,6 +106,11 @@ export default function BootScreen(): React.ReactElement {
     setCreator(data.creator);
 
     const memberships: WorkspaceMembership[] = data.memberships ?? [];
+
+    // Storage hygiene: cap terminal upload jobs and drop drafts for any
+    // workspace the user is no longer a member of. Fire-and-forget; never
+    // blocks routing.
+    void runStartupMaintenance(memberships);
 
     // Branch B: no creator profile -> profile-setup.
     if (!data.creator) {

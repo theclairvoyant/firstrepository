@@ -27,6 +27,10 @@ interface DraftState {
   patchDraft: (workspaceId: string, patch: Partial<ComposerDraft>) => void;
   clearDraft: (workspaceId: string) => void;
   clearAll: () => void;
+  // Drops drafts belonging to workspaces no longer in the user's membership
+  // list. Called from the storage maintenance pass on app start. Returns the
+  // number of drafts removed for visibility.
+  pruneFor: (activeWorkspaceIds: ReadonlyArray<string>) => number;
 }
 
 const emptyDraft = (workspaceId: string): ComposerDraft => ({
@@ -76,6 +80,23 @@ export const useDraftStore = create<DraftState>()(
         }),
 
       clearAll: () => set({ drafts: {} }),
+
+      pruneFor: (activeWorkspaceIds) => {
+        const allowed = new Set(activeWorkspaceIds);
+        let removed = 0;
+        set((state) => {
+          const next: Record<string, ComposerDraft> = {};
+          for (const [wsId, draft] of Object.entries(state.drafts)) {
+            if (allowed.has(wsId)) {
+              next[wsId] = draft;
+            } else {
+              removed += 1;
+            }
+          }
+          return removed > 0 ? { drafts: next } : state;
+        });
+        return removed;
+      },
     }),
     {
       name: 'enterprise-creator.drafts',

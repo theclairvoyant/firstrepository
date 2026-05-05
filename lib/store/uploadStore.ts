@@ -47,6 +47,11 @@ interface UploadStoreState {
   markFailed: (id: string, errorCode: string) => void;
   retry: (id: string) => void;
   clearTerminal: () => void;
+  // Caps the persisted job list to keep storage bounded over time. Active /
+  // queued / waiting_wifi / failed jobs are always retained; only done +
+  // cancelled jobs (terminal) are trimmed when the cap is exceeded, oldest
+  // first by updatedAt.
+  pruneTerminal: (keep?: number) => number;
   getActive: () => UploadJob | null;
   getQueued: () => UploadJob[];
   getResumable: () => UploadJob | null;
@@ -128,6 +133,20 @@ export const useUploadStore = create<UploadStoreState>()(
 
       clearTerminal: () =>
         set((state) => ({ jobs: state.jobs.filter((j) => !TERMINAL.includes(j.state)) })),
+
+      pruneTerminal: (keep = 20) => {
+        let removed = 0;
+        set((state) => {
+          const terminal = state.jobs
+            .filter((j) => TERMINAL.includes(j.state))
+            .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+          if (terminal.length <= keep) return state;
+          const drop = new Set(terminal.slice(keep).map((j) => j.id));
+          removed = drop.size;
+          return { jobs: state.jobs.filter((j) => !drop.has(j.id)) };
+        });
+        return removed;
+      },
 
       getActive: () => {
         const j = get().jobs.find(

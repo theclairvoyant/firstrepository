@@ -14,12 +14,28 @@
 // it imports `postsApi.createPost` directly rather than using the
 // useCreatePost mutation hook.
 
+import { deleteAsync } from 'expo-file-system/legacy';
 import { createPost } from '@/lib/api/posts';
 import { useUploadStore } from '@/lib/store/uploadStore';
 import type { UploadJob } from '@/lib/store/uploadStore';
 import type { CreatePostInput, Post } from '@/types/api';
 import { VideoPipelineError, isVideoPipelineError } from './errors';
 import { uploadVideo } from './uploader';
+
+// After a successful upload + post creation we no longer need the local
+// source file (recorded clips and gallery copies sit in the cache directory
+// and would otherwise accumulate). Best-effort: don't fail the whole flow if
+// the OS already moved or pruned the file. Only delete file:// URIs - leave
+// content://, asset-library://, ph:// alone since those are OS-managed
+// references, not files we own.
+async function deleteLocalSource(localUri: string): Promise<void> {
+  if (!localUri.startsWith('file://')) return;
+  try {
+    await deleteAsync(localUri, { idempotent: true });
+  } catch {
+    // ignore
+  }
+}
 
 export type RunUploadInput = {
   workspaceId: string;
@@ -175,6 +191,11 @@ export function runUpload(input: RunUploadInput): RunUploadHandle {
         state: 'done',
         progressPct: 100,
       });
+
+      // The bytes are safely on the backend now. Drop the local copy so the
+      // app's cache directory doesn't grow with every upload. Failures here
+      // never propagate - the upload itself already succeeded.
+      void deleteLocalSource(input.localUri);
 
       PENDING_INPUTS.delete(jobId);
       return { post, mediaKey };
