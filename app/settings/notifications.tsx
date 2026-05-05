@@ -178,7 +178,7 @@ export default function NotificationsScreen(): React.ReactElement {
                     source={{ uri: n.postThumbnail }}
                     style={[
                       styles.thumb,
-                      { borderRadius: radius.sm },
+                      { borderRadius: radius.sm, backgroundColor: colors.bgInput },
                     ]}
                     contentFit="cover"
                     accessibilityIgnoresInvertColors
@@ -231,6 +231,5 @@ const styles = StyleSheet.create({
   thumb: {
     width: 44,
     height: 60,
-    backgroundColor: '#00000010',
   },
 });

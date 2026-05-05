@@ -556,6 +556,7 @@ export default function ComposerEditScreen(): React.ReactElement | null {
           style={{ flex: 1 }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets
           contentContainerStyle={{
             padding: spacing.md,
             paddingBottom: spacing.xxl,

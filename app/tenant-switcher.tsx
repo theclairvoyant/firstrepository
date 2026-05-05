@@ -110,7 +110,7 @@ function PendingCard({
   const ws = membership.workspace;
   const isInvite = membership.status === 'pending_invite';
 
-  const dotColor: string = isInvite ? accent.primary : accent.warning;
+  const dotColor: string = isInvite ? accent.info : accent.warning;
   const chipLabel: string = isInvite
     ? t('switcher.pendingInvite')
     : t('switcher.pendingRequest');
