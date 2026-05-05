@@ -15,6 +15,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import type { NativeSyntheticEvent } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -918,16 +919,15 @@ export default function VideoDetailScreen(): React.ReactElement {
     }
   }, [activePost]);
 
-  // Clipboard fallback: expo-clipboard is not installed, so we share the URL.
   const handleCopyLink = useCallback(async (): Promise<void> => {
     if (!activePost) return;
     const url = buildPostUrl(activePost.id);
     setMoreOpen(false);
     try {
-      await Share.share({ url, message: url, title: activePost.title });
+      await Clipboard.setStringAsync(url);
       showToast({ variant: 'info', message: t('video.linkCopied') });
     } catch {
-      // user cancelled; nothing to do
+      showToast({ variant: 'danger', message: t('common.error') });
     }
   }, [activePost, t]);
 

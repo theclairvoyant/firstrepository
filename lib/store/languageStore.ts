@@ -35,6 +35,14 @@ export const useLanguageStore = create<LanguageState>()(
       name: 'enterprise-creator.language',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ preference: state.preference, resolved: state.resolved }),
+      // Bump on any breaking change to the language preference shape.
+      version: 1,
+      migrate: (persistedState, version) => {
+        if (version === 1) {
+          return persistedState as Pick<LanguageState, 'preference' | 'resolved'>;
+        }
+        return { preference: 'system' as const, resolved: 'en' as const };
+      },
     },
   ),
 );

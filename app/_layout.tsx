@@ -1,18 +1,23 @@
 import React, { useEffect, useMemo } from 'react';
 import { Stack, useRouter } from 'expo-router';
-import { I18nManager, View, ActivityIndicator } from 'react-native';
+import { AppState, I18nManager, View, ActivityIndicator } from 'react-native';
+import type { AppStateStatus } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Linking from 'expo-linking';
 import NetInfo from '@react-native-community/netinfo';
 import { useTranslation } from 'react-i18next';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ThemeProvider } from '@/lib/theme/ThemeProvider';
 import { useTheme } from '@/lib/theme/useTheme';
 import { useAppFonts } from '@/lib/theme/fonts';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { OfflineBanner } from '@/components/OfflineBanner';
 import { ToastHost } from '@/components/Toast';
-import { createQueryClient } from '@/lib/api/queries';
+import { createQueryClient, keys } from '@/lib/api/queries';
+import { runStartupMaintenance } from '@/lib/storage/maintenance';
+import type { IdentityMeResponse } from '@/types/api';
 import { initI18n } from '@/lib/i18n';
 import { setUnauthorizedHandler } from '@/lib/api/navigation';
 import { parseDeeplinkUrl } from '@/lib/deeplinks/parser';
@@ -25,11 +30,17 @@ I18nManager.allowRTL(false);
 I18nManager.forceRTL(false);
 initI18n();
 
+// AppState foreground re-runs maintenance after this many ms in background.
+// Picked to skip the noise of brief app switches while still catching the
+// "phone in pocket overnight" case.
+const FOREGROUND_MAINTENANCE_THRESHOLD_MS = 5 * 60 * 1000;
+
 function RootShell(): React.ReactElement {
   const fontsLoaded = useAppFonts();
   const { colors, isDark } = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   // Wire the axios 401 handler to navigate back to welcome and toast the user.
   useEffect(() => {
@@ -76,6 +87,30 @@ function RootShell(): React.ReactElement {
     });
     return () => sub();
   }, []);
+
+  // AppState foreground hook. After the app sits in the background for more
+  // than the threshold, re-run storage maintenance on next foreground so a
+  // long session doesn't accumulate caches between cold boots. Pulls the
+  // current memberships from React Query's cache (no extra fetch) so draft
+  // pruning stays correct.
+  useEffect(() => {
+    let lastBackgroundedAt: number | null = null;
+    const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
+      if (next === 'background' || next === 'inactive') {
+        lastBackgroundedAt = Date.now();
+        return;
+      }
+      if (next !== 'active') return;
+      if (lastBackgroundedAt == null) return;
+      const elapsed = Date.now() - lastBackgroundedAt;
+      lastBackgroundedAt = null;
+      if (elapsed < FOREGROUND_MAINTENANCE_THRESHOLD_MS) return;
+      const cached = queryClient.getQueryData<IdentityMeResponse>(keys.me);
+      const memberships = cached?.memberships ?? [];
+      void runStartupMaintenance(memberships);
+    });
+    return () => sub.remove();
+  }, [queryClient]);
 
   if (!fontsLoaded) {
     return (
@@ -141,6 +176,7 @@ function RootShell(): React.ReactElement {
         />
       </Stack>
       <ToastHost />
+      <OfflineBanner />
     </View>
   );
 }
@@ -148,14 +184,18 @@ function RootShell(): React.ReactElement {
 export default function RootLayout(): React.ReactElement {
   const queryClient = useMemo(() => createQueryClient(), []);
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <RootShell />
-          </ThemeProvider>
-        </QueryClientProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    // ErrorBoundary sits ABOVE every provider so even theme/i18n/router
+    // failures don't blank the app to white.
+    <ErrorBoundary>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+              <RootShell />
+            </ThemeProvider>
+          </QueryClientProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }

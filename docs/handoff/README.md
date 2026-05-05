@@ -5,6 +5,7 @@ This folder contains everything the backend developer and the CTO need to take t
 ## Files
 
 - `CTO_KT.md` - 30-minute orientation for the CTO. Start here. Architecture, security posture, exact backend-wiring steps.
+- `PRE_HANDOFF_CHECKLIST.md` - the punch list. Week-one CTO work, pre-launch must-haves, post-launch backlog. Read after CTO_KT.
 - `FLOW_AUDIT.md` - every flow in the app, every endpoint it touches, every cross-flow ripple, and every open question.
 - `BACKEND_SMOKE_TESTS.sh` - one-shot bash + curl runner. Hits each endpoint in roughly the order a real user would.
 - `../06-api-contracts.md` - the canonical endpoint table (kept up to date with the FE).

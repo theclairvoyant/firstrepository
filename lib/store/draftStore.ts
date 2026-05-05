@@ -101,6 +101,16 @@ export const useDraftStore = create<DraftState>()(
     {
       name: 'enterprise-creator.drafts',
       storage: createJSONStorage(() => AsyncStorage),
+      // Bump on any breaking shape change to ComposerDraft. Add a case to
+      // migrate() and either transform the old payload or return an empty
+      // drafts map to discard.
+      version: 1,
+      migrate: (persistedState, version) => {
+        if (version === 1) {
+          return persistedState as { drafts: Record<string, ComposerDraft> };
+        }
+        return { drafts: {} };
+      },
     },
   ),
 );

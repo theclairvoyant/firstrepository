@@ -117,6 +117,10 @@
     "loadError": "No pudimos conectar con nuestros servidores. Inténtalo de nuevo.",
     "opening": "ABRIENDO"
   },
+  "offline": {
+    "label": "Sin conexión",
+    "dismiss": "Ocultar aviso de sin conexión"
+  },
   "profileTab": {
     "title": "Perfil",
     "noWorkspaceTitle": "Aún no hay espacios",

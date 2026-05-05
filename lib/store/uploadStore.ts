@@ -194,6 +194,19 @@ export const useUploadStore = create<UploadStoreState>()(
       name: 'enterprise-creator.uploads',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ jobs: state.jobs }),
+      // Bump on any breaking shape change to UploadJob (rename a field,
+      // change a state name, change types). Add a case to migrate() that
+      // transforms the old payload to the new shape, or returns null to
+      // discard. Returning the persisted state unchanged is the safe
+      // default for any version we don't know about.
+      version: 1,
+      migrate: (persistedState, version) => {
+        if (version === 1) {
+          return persistedState as { jobs: UploadJob[] };
+        }
+        // Unknown / corrupt persisted state - reset rather than crash.
+        return { jobs: [] };
+      },
     },
   ),
 );

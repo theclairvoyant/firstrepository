@@ -117,6 +117,10 @@
     "loadError": "We couldn't reach our servers. Try again.",
     "opening": "OPENING"
   },
+  "offline": {
+    "label": "No connection",
+    "dismiss": "Dismiss offline notice"
+  },
   "profileTab": {
     "title": "Profile",
     "noWorkspaceTitle": "No workspaces yet",

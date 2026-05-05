@@ -37,6 +37,17 @@ export const useSettingsStore = create<SettingsState>()(
         warnBeforeCellular: state.warnBeforeCellular,
         notificationsEnabled: state.notificationsEnabled,
       }),
+      // Bump on any breaking change to the settings shape.
+      version: 1,
+      migrate: (persistedState, version) => {
+        if (version === 1) {
+          return persistedState as Pick<
+            SettingsState,
+            'warnBeforeCellular' | 'notificationsEnabled'
+          >;
+        }
+        return { warnBeforeCellular: true, notificationsEnabled: false };
+      },
     },
   ),
 );

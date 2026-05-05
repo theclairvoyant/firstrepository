@@ -117,6 +117,10 @@
     "loadError": "Impossible de joindre nos serveurs. Réessayez.",
     "opening": "OUVERTURE"
   },
+  "offline": {
+    "label": "Pas de connexion",
+    "dismiss": "Masquer l'avis hors ligne"
+  },
   "profileTab": {
     "title": "Profil",
     "noWorkspaceTitle": "Aucun espace pour l'instant",
