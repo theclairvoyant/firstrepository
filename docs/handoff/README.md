@@ -1,12 +1,14 @@
 # Backend handoff
 
-This folder contains everything the backend developer needs to verify the API matches what the Enterprise Creator client expects.
+This folder contains everything the backend developer and the CTO need to take this codebase from SCAFFOLD to production against the real Blinklink backend.
 
 ## Files
 
+- `CTO_KT.md` - 30-minute orientation for the CTO. Start here. Architecture, security posture, exact backend-wiring steps.
 - `FLOW_AUDIT.md` - every flow in the app, every endpoint it touches, every cross-flow ripple, and every open question.
 - `BACKEND_SMOKE_TESTS.sh` - one-shot bash + curl runner. Hits each endpoint in roughly the order a real user would.
 - `../06-api-contracts.md` - the canonical endpoint table (kept up to date with the FE).
+- `../../HANDOFF.md` - the deeper SCAFFOLD/FULL boundary doc, env vars, real-device check list. Older but still authoritative for those topics.
 
 ## Quick start
 

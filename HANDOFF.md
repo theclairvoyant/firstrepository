@@ -1,6 +1,10 @@
 # Enterprise Creator - Backend Handoff
 
-This document hands the SCAFFOLD-mode build off to the platform / backend team for production wiring. Read `BUILD.md`, `CLAUDE.md`, and `docs/00-rules-and-mode.md` first.
+This document hands the SCAFFOLD-mode build off to the platform / backend team for production wiring.
+
+> **Read this first**: `docs/handoff/CTO_KT.md` is the focused 30-minute orientation for the CTO. This file (`HANDOFF.md`) is the deeper backend-implementation doc - SCAFFOLD/FULL boundaries, env vars, decisions still needed, real-device checks. Use both together. The flow audit at `docs/handoff/FLOW_AUDIT.md` and the runnable smoke test at `docs/handoff/BACKEND_SMOKE_TESTS.sh` round out the package.
+
+Also worth reading before deeper work: `BUILD.md`, `CLAUDE.md`, and `docs/00-rules-and-mode.md`.
 
 ## Project status
 
@@ -104,12 +108,22 @@ To complete a language: copy the `en.json` tree, translate the leaf strings, dro
 
 ## Known deferrals (out of SCAFFOLD scope)
 
-- **Edit profile editor** - the `global-profile.tsx` drawer Edit profile row toasts `globalProfile.editProfileSoon`. Spec calls for an inline editor for first/last name, username, avatar.
+Many items previously deferred are now built. The current state:
+
+- **Edit global profile** - DONE. `app/edit-global-profile.tsx` is the inline editor for name / username / phone / avatar. Email change uses the dedicated OTP flow at `app/edit-global-email.tsx`.
+- **Edit workspace profile** - DONE. `app/edit-membership.tsx` handles cover, avatar, display name, username, bio with live availability check.
+- **Avatar upload** - DONE. Wired to `POST /v1/identity/avatar` and `POST /v1/memberships/{id}/avatar` (multipart) via the FULL upload paths.
+- **Workspace discovery by verified email** - DONE. `app/search-by-email.tsx` is the three-step flow (enter -> OTP verify -> results) with the inherited-email skip when the global profile already has a verified address.
+- **Pending invite accept / decline** - DONE. `app/tenant-switcher.tsx` collapsible pending section. New endpoints `POST /v1/memberships/{id}/accept` and `POST /v1/memberships/{id}/decline` documented in `docs/06-api-contracts.md`.
+- **Settings: default workspace, notifications, language** - DONE. See `app/settings/{default-workspace,notifications,language}.tsx`.
+- **Compose with edit-existing-post** - DONE. `editingPostId` flag on the draft re-uses the composer pipeline; old post is deleted at submit time.
+
+Still deferred:
+
 - **Cross-workspace post deeplink resolution** - `app/video/[postId].tsx` shows post-not-found if the postId is not in the active workspace's recent feed. FULL should fetch the post by id first to resolve its workspace, then `setActive` and load.
-- **Avatar upload** - profile setup and global profile editor toast "Avatar upload coming soon". Wire to `POST /v1/identity/avatar` (multipart) and the membership-level `POST /v1/memberships/{id}/avatar`.
 - **expo-clipboard** - Copy link in the video detail overflow falls back to `Share.share` because `expo-clipboard` is not installed. `npm i expo-clipboard` and swap `Share.share` for `Clipboard.setStringAsync` in `app/video/[postId].tsx`.
-- **Read-only-with-Change username on profile setup** - spec specifies an auto-generated read-only username with a "Change" link that opens an inline editor. Current implementation is a free-text Input from the start (the live availability check is correctly wired).
-- **Token-discipline cosmetics** - hardcoded `fontSize: 15/16` in the button family (`PrimaryButton`, `SecondaryButton`, `DestructiveButton`, `GhostButton`), tab bar label `fontSize: 11`, OTP cell `fontSize: 20`, and a few raw padding literals (`16`, `12`, `10`) in composer / video / settings. The audit flagged these but they are intentional design choices; reworking the type scale to absorb them would be a follow-up polish.
+- **Real notifications endpoint** - `app/settings/notifications.tsx` is wired to a mock feed derived from seed posts. When push goes live, build `GET /v1/notifications` (proposed schema in `docs/handoff/CTO_KT.md` §3.2.5) and replace `lib/notifications/mockFeed.ts`.
+- **Token-discipline cosmetics** - a handful of token-equivalent raw paddings (`24`, `12`, `16`) and font sizes in the button family. Documented in `docs/handoff/FLOW_AUDIT.md` §"Worth noting but not fixed". Cosmetic, not functional.
 
 ## Where to find things
 
@@ -165,6 +179,12 @@ types/api.ts          - every API shape from docs/06-api-contracts.md
 | 18 | UNVERIFIED | Cannot be proven in this build sandbox. Run `npx expo start` and verify on iOS / Android. |
 | 19 | PASS | `MOCK_API: boolean = true` in `lib/api/config.ts`. Every wrapper short-circuits to its mock. |
 | 20 | PASS | Phase 8 `qa-reviewer` returned PASS_WITH_WARNINGS, 0 FAILs. Top-priority WARNs were addressed in the Phase 8 polish commit; remaining WARNs are token-discipline cosmetics documented above. |
+
+## Security posture
+
+A full security audit ran on 2026-05-05. Verdict: **READY FOR PRODUCTION**. Token storage, HTTPS enforcement, deep link parsing, WebView config, CTA URL validation, workspace header isolation, idempotency keys, sign-out cleanup, and permission scopes all verified clean. Zero HIGH / CRITICAL `npm audit` findings (15 moderate findings are all in Expo's dev-tool transitive chain - never ship in the runtime bundle).
+
+Full breakdown and pre-launch checklist: `docs/handoff/CTO_KT.md` §4.
 
 ## Post-handoff first commit
 

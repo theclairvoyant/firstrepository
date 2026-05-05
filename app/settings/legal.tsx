@@ -80,11 +80,19 @@ export default function LegalWebViewScreen(): React.ReactElement {
         <View style={{ flex: 1, position: 'relative' }}>
           <WebView
             source={{ uri: url }}
+            // Loaded URLs are limited to the build-time EXPO_PUBLIC_PRIVACY_URL
+            // and EXPO_PUBLIC_TERMS_URL (see settings/index.tsx). Deep links
+            // cannot reach this route - the parser in lib/deeplinks/parser.ts
+            // rejects anything outside its 4 known kinds. originWhitelist is
+            // still pinned to https for defense in depth.
             originWhitelist={['https://*']}
             onLoadStart={() => setLoading(true)}
             onLoadEnd={() => setLoading(false)}
             allowsInlineMediaPlayback
             mediaPlaybackRequiresUserAction={false}
+            // domStorageEnabled is acceptable here because the only URLs
+            // loaded are public legal pages. If this route is ever re-used
+            // for auth-protected content, set domStorageEnabled={false}.
             domStorageEnabled
             javaScriptEnabled
             decelerationRate="normal"
