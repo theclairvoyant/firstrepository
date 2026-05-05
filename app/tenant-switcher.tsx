@@ -257,7 +257,13 @@ export default function TenantSwitcherScreen(): React.ReactElement {
 
   const handlePickActive = async (m: WorkspaceMembership): Promise<void> => {
     await setActive(m.workspace.id);
-    if (router.canGoBack()) router.back();
+    // The switcher is a transparentModal. Calling router.back() and
+    // router.replace() in the same tick races - the modal's dismiss
+    // animation collides with the replace and the app freezes. Dismiss
+    // every modal first (synchronous on iOS/Android), then navigate.
+    if (router.canDismiss()) {
+      router.dismissAll();
+    }
     router.replace('/(tabs)/profile');
   };
 
@@ -283,7 +289,9 @@ export default function TenantSwitcherScreen(): React.ReactElement {
         }),
       });
       await setActive(res.membership.workspace.id);
-      if (router.canGoBack()) router.back();
+      if (router.canDismiss()) {
+        router.dismissAll();
+      }
       router.replace('/(tabs)/profile');
     } catch {
       showToast({ variant: 'danger', message: t('common.error') });

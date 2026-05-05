@@ -147,22 +147,24 @@ export default function GlobalProfileScreen(): React.ReactElement {
     }
   };
 
+  // The drawer is a transparentModal. router.back() + router.push/replace in
+  // the same tick races the dismiss animation against the navigation and
+  // freezes the app. dismissAll closes the modal stack synchronously; then
+  // we navigate the underlying tab.
   const handlePickWorkspace = async (m: WorkspaceMembership): Promise<void> => {
     if (m.status !== 'active') return;
     await setActive(m.workspace.id);
-    if (router.canGoBack()) router.back();
+    if (router.canDismiss()) router.dismissAll();
     router.replace('/(tabs)/profile');
   };
 
   const handleEditProfile = (): void => {
-    if (router.canGoBack()) router.back();
+    if (router.canDismiss()) router.dismissAll();
     router.push('/edit-global-profile');
   };
 
   const handleSettings = (): void => {
-    if (router.canGoBack()) {
-      router.back();
-    }
+    if (router.canDismiss()) router.dismissAll();
     router.push('/settings');
   };
 
@@ -174,7 +176,7 @@ export default function GlobalProfileScreen(): React.ReactElement {
     }
     await authSignOut();
     await tenantClear();
-    if (router.canGoBack()) router.back();
+    if (router.canDismiss()) router.dismissAll();
     router.replace('/(auth)/welcome');
   };
 
