@@ -9,6 +9,7 @@ import { useTenantStore } from '@/lib/store/tenantStore';
 import { useDeeplinkIntentStore } from '@/lib/deeplinks/intentStore';
 import { parseDeeplinkUrl } from '@/lib/deeplinks/parser';
 import { useMe } from '@/lib/api/queries';
+import { showToast } from '@/lib/toast';
 import type { WorkspaceMembership } from '@/types/api';
 
 export default function BootScreen(): React.ReactElement {
@@ -73,9 +74,21 @@ export default function BootScreen(): React.ReactElement {
     // Wait for /me to settle.
     if (meQuery.isLoading || meQuery.isFetching) return;
 
-    // If /me errored (non-401), treat as no-creator and route to welcome to allow retry.
-    if (meQuery.isError || !meQuery.data) {
-      // 401 paths handled by axios interceptor + setUnauthorizedHandler.
+    // /me failed for a non-401 reason (network, 5xx, parse). 401 is handled
+    // by the axios interceptor via setUnauthorizedHandler. For any other
+    // error, route the user back to welcome so they can retry instead of
+    // staring at a forever-spinner. The auth store still holds the JWT so
+    // the next attempt is one tap away.
+    if (meQuery.isError) {
+      navigatedRef.current = true;
+      router.replace('/(auth)/welcome');
+      showToast({
+        variant: 'danger',
+        message: t('boot.loadError'),
+      });
+      return;
+    }
+    if (!meQuery.data) {
       return;
     }
 

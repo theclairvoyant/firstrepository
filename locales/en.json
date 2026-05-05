@@ -113,7 +113,8 @@
     "upload": "Upload"
   },
   "boot": {
-    "loading": "Loading"
+    "loading": "Loading",
+    "loadError": "We couldn't reach our servers. Try again."
   },
   "profileTab": {
     "title": "Profile",

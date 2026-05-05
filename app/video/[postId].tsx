@@ -979,8 +979,12 @@ export default function VideoDetailScreen(): React.ReactElement {
   }, [startEdit, t]);
 
   const handleDeletePress = useCallback((): void => {
+    // Two ModalSheets in the same tick - close the more-actions sheet first
+    // and let it fully tear down before opening the confirm sheet. Without
+    // the gap iOS leaves the dimmer layer from the closing sheet on top of
+    // the new one and touches stop registering. Same pattern as edit (above).
     setMoreOpen(false);
-    setConfirmDeleteOpen(true);
+    setTimeout(() => setConfirmDeleteOpen(true), 250);
   }, []);
 
   const handleConfirmDelete = useCallback((): void => {
