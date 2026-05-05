@@ -52,6 +52,10 @@ interface UploadStoreState {
   // cancelled jobs (terminal) are trimmed when the cap is exceeded, oldest
   // first by updatedAt.
   pruneTerminal: (keep?: number) => number;
+  // Drops failed jobs older than maxAgeDays (default 14). Failed jobs are
+  // intentionally preserved so the user can retry from the upload banner,
+  // but anything that's sat there for two weeks isn't getting retried.
+  pruneStaleFailed: (maxAgeDays?: number) => number;
   getActive: () => UploadJob | null;
   getQueued: () => UploadJob[];
   getResumable: () => UploadJob | null;
@@ -142,6 +146,26 @@ export const useUploadStore = create<UploadStoreState>()(
             .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
           if (terminal.length <= keep) return state;
           const drop = new Set(terminal.slice(keep).map((j) => j.id));
+          removed = drop.size;
+          return { jobs: state.jobs.filter((j) => !drop.has(j.id)) };
+        });
+        return removed;
+      },
+
+      pruneStaleFailed: (maxAgeDays = 14) => {
+        let removed = 0;
+        const cutoff = Date.now() - maxAgeDays * 24 * 60 * 60 * 1000;
+        set((state) => {
+          const drop = new Set(
+            state.jobs
+              .filter((j) => j.state === 'failed')
+              .filter((j) => {
+                const ts = Date.parse(j.updatedAt);
+                return !Number.isNaN(ts) && ts < cutoff;
+              })
+              .map((j) => j.id),
+          );
+          if (drop.size === 0) return state;
           removed = drop.size;
           return { jobs: state.jobs.filter((j) => !drop.has(j.id)) };
         });

@@ -261,9 +261,10 @@ export default function SettingsIndexScreen(): React.ReactElement {
     router.push({
       pathname: '/settings/legal',
       params: {
-        url:
-          process.env.EXPO_PUBLIC_PRIVACY_URL ??
-          'https://www.blinklink.com/privacy-policy',
+        // Legal URLs come from build-time env. If unset, the legal screen
+        // renders an EmptyState instead of pointing at a host that should
+        // never appear in user-visible code.
+        url: process.env.EXPO_PUBLIC_PRIVACY_URL ?? '',
         title: t('settings.privacyTitle'),
       },
     });
@@ -273,9 +274,7 @@ export default function SettingsIndexScreen(): React.ReactElement {
     router.push({
       pathname: '/settings/legal',
       params: {
-        url:
-          process.env.EXPO_PUBLIC_TERMS_URL ??
-          'https://www.blinklink.com/terms-and-conditions',
+        url: process.env.EXPO_PUBLIC_TERMS_URL ?? '',
         title: t('settings.termsTitle'),
       },
     });

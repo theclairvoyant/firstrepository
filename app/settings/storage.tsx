@@ -2,7 +2,7 @@
 // user has a manual lever to clean up. The actual rules (what gets cleared)
 // live in lib/storage/maintenance.ts.
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,11 @@ import { useTheme } from '@/lib/theme/useTheme';
 import { useUploadStore } from '@/lib/store/uploadStore';
 import { useDraftStore } from '@/lib/store/draftStore';
 import { useMemberships } from '@/lib/api/queries';
-import { clearAppCache } from '@/lib/storage/maintenance';
+import {
+  clearAppCache,
+  formatBytes,
+  getCacheSizeBytes,
+} from '@/lib/storage/maintenance';
 import { showToast } from '@/lib/toast';
 
 const TERMINAL_STATES = new Set(['done', 'cancelled']);
@@ -30,6 +34,8 @@ export default function StorageScreen(): React.ReactElement {
   const drafts = useDraftStore((s) => s.drafts);
 
   const [busy, setBusy] = useState<boolean>(false);
+  const [cacheBytes, setCacheBytes] = useState<number | null>(null);
+  const [cacheLoading, setCacheLoading] = useState<boolean>(true);
 
   const terminalCount: number = useMemo(
     () => uploadJobs.filter((j) => TERMINAL_STATES.has(j.state)).length,
@@ -39,6 +45,22 @@ export default function StorageScreen(): React.ReactElement {
     () => Object.keys(drafts).length,
     [drafts],
   );
+
+  const refreshCacheSize = useCallback(async (): Promise<void> => {
+    setCacheLoading(true);
+    try {
+      const bytes = await getCacheSizeBytes();
+      setCacheBytes(bytes);
+    } catch {
+      setCacheBytes(0);
+    } finally {
+      setCacheLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshCacheSize();
+  }, [refreshCacheSize]);
 
   const handleBack = useCallback((): void => {
     if (router.canGoBack()) router.back();
@@ -53,10 +75,12 @@ export default function StorageScreen(): React.ReactElement {
       showToast({
         variant: 'success',
         message: t('settings.storage.cleared', {
-          uploads: summary.uploadsPruned,
+          uploads: summary.uploadsPruned + summary.staleFailedPruned,
           drafts: summary.draftsPruned,
         }),
       });
+      // Re-measure after clearing so the displayed size reflects the result.
+      void refreshCacheSize();
     } catch {
       showToast({
         variant: 'danger',
@@ -65,7 +89,7 @@ export default function StorageScreen(): React.ReactElement {
     } finally {
       setBusy(false);
     }
-  }, [busy, memberships.data, t]);
+  }, [busy, memberships.data, refreshCacheSize, t]);
 
   return (
     <ScreenContainer>
@@ -168,10 +192,12 @@ export default function StorageScreen(): React.ReactElement {
               }}
             >
               <ThemedText variant="body" tone="primary">
-                {t('settings.storage.imageCacheLabel')}
+                {t('settings.storage.onDiskLabel')}
               </ThemedText>
               <ThemedText variant="mono" tone="muted">
-                {t('settings.storage.imageCacheManaged')}
+                {cacheLoading
+                  ? t('settings.storage.measuring')
+                  : formatBytes(cacheBytes ?? 0)}
               </ThemedText>
             </View>
           </View>
