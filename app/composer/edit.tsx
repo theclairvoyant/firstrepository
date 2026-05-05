@@ -452,8 +452,11 @@ export default function ComposerEditScreen(): React.ReactElement | null {
     if (activeWorkspaceId) {
       useDraftStore.getState().clearDraft(activeWorkspaceId);
     }
+    // Close the discard ModalSheet first; let it tear down before navigating.
+    // Same anti-pattern as video-detail's edit/delete - a sheet dismiss in
+    // the same tick as router.back() races and can leave the dimmer stuck.
     setDiscardOpen(false);
-    router.back();
+    setTimeout(() => router.back(), 250);
   }, [activeWorkspaceId, router]);
 
   const handleStay = useCallback(() => {

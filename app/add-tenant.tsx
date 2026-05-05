@@ -252,7 +252,11 @@ export default function AddTenantScreen(): React.ReactElement {
       variant: 'success',
       message: t('addTenant.inviteCard.added'),
     });
-    if (router.canGoBack()) router.back();
+    // add-tenant is a normal stack route, but we still don't want back() and
+    // replace() firing in the same tick - back() pops to the previous route,
+    // then replace() runs against that route, so the user briefly sees the
+    // previous screen flash before the profile loads. Use replace alone;
+    // expo-router unwinds the stack as part of the replace.
     router.replace('/(tabs)/profile');
   };
 
