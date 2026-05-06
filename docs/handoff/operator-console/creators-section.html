@@ -539,6 +539,74 @@
   /* INVITES SUB-PANE */
   .invite-subpane { display: none; }
   .invite-subpane.active { display: block; }
+
+  /* WORKSPACE CONTEXT CHIP (read-only display in modals) */
+  .ws-context-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: rgba(124, 58, 237, 0.06);
+    border: 1px solid rgba(124, 58, 237, 0.18);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .ws-context-chip svg { color: var(--primary); }
+  .ws-context-chip strong { font-weight: 600; }
+  .ws-context-sub { color: var(--text-muted); font-size: 12px; flex-basis: 100%; margin-top: 2px; }
+
+  /* SAMPLE DATA TOGGLE */
+  .sample-toggle {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px; padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.03); border-radius: 8px;
+    font-size: 12px; color: var(--text-muted);
+    align-self: flex-end; width: fit-content;
+    margin-left: auto;
+  }
+  .sample-toggle input { cursor: pointer; }
+  .sample-toggle label { cursor: pointer; }
+
+  /* EMPTY STATE inside table */
+  .table-empty {
+    padding: 64px 32px;
+    text-align: center;
+  }
+  .table-empty .icon-wrap {
+    width: 64px; height: 64px; border-radius: 18px;
+    background: rgba(124, 58, 237, 0.08); color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px;
+  }
+  .table-empty h3 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .table-empty p { color: var(--text-muted); font-size: 13.5px; margin-bottom: 20px; max-width: 360px; margin-left: auto; margin-right: auto; }
+  .table-empty .actions { display: inline-flex; gap: 8px; }
+  .table-empty .secondary-link {
+    display: inline-block; margin-top: 12px;
+    color: var(--text-muted); font-size: 12px; cursor: pointer;
+    text-decoration: underline; text-decoration-color: var(--border);
+    text-underline-offset: 3px;
+  }
+  .table-empty .secondary-link:hover { color: var(--primary); }
+
+  /* SMALL EMPTY STATE inside form cards */
+  .form-empty {
+    padding: 24px 16px;
+    text-align: center;
+    border: 1.5px dashed var(--border);
+    border-radius: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .form-empty .icon-wrap {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(124, 58, 237, 0.08); color: var(--primary);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+  }
+  .form-empty .text-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .form-empty .text-sub { font-size: 12px; }
 </style>
 </head>
 <body>
@@ -645,13 +713,21 @@
 
     <div class="content">
 
+      <!-- Sample data toggle. Lets the team flip between the empty state (default)
+           and pre-populated rows so they can inspect the at-scale layouts and
+           panel/modal flows. Drop this whole div when porting to production. -->
+      <div class="sample-toggle">
+        <input type="checkbox" id="sampleData" onchange="toggleSampleData(this.checked)" />
+        <label for="sampleData">Show sample data</label>
+      </div>
+
       <!-- ============================== DIRECTORY ============================== -->
       <section class="tab-pane active" id="paneDirectory">
         <div class="panel-card">
           <div class="actions-row">
             <div class="search">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input placeholder="Search 1,247 creators" />
+              <input placeholder="Search creators" />
             </div>
             <span class="filter-chip active">All
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -670,11 +746,27 @@
             <button class="btn btn-primary" onclick="openModal('inviteModal')">+ Invite</button>
           </div>
 
-          <table class="list">
+          <!-- EMPTY STATE (default) -->
+          <div data-empty="directory">
+            <div class="table-empty">
+              <div class="icon-wrap">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21v-1a7 7 0 0114 0v1"/></svg>
+              </div>
+              <h3>No creators in Pinecrest Sales yet</h3>
+              <p>Invite internal creators by email, drop a CSV of teammates, or share the workspace invite link. They land here once they redeem.</p>
+              <div class="actions">
+                <button class="btn btn-primary" onclick="openModal('inviteModal')">+ Invite first creator</button>
+                <button class="btn btn-secondary" onclick="document.querySelectorAll('.nav-item[data-tab=\'invites\']')[0].click(); document.querySelector('.subtab[data-subtab=\'settings\']').click();">Bulk invite</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- POPULATED (toggleable) -->
+          <table class="list" data-sample="directory" style="display: none;">
             <thead>
               <tr>
                 <th>Creator</th>
-                <th>Workspace handle</th>
+                <th>Type</th>
                 <th>Status</th>
                 <th>Posts</th>
                 <th>Total views</th>
@@ -686,7 +778,7 @@
             <tbody>
               <tr class="row" onclick="openPanel('active', 'Kiran Patel', 'KP', 'kiran.sales', '#f59e0b,#ec4899')">
                 <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #f59e0b, #ec4899);">KP</div><div><div class="creator-name">Kiran Patel</div><div class="creator-handle">@kiran.sales</div></div></div></td>
-                <td><span class="creator-handle">kiran.sales</span></td>
+                <td><span class="pill pill-neutral">Internal</span></td>
                 <td><span class="pill pill-success"><span class="pill-dot"></span>Active</span></td>
                 <td>12</td>
                 <td>184,230</td>
@@ -696,7 +788,7 @@
               </tr>
               <tr class="row" onclick="openPanel('active', 'Priya Shah', 'PS', 'priya.stories', '#06b6d4,#3b82f6')">
                 <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);">PS</div><div><div class="creator-name">Priya Shah</div><div class="creator-handle">@priya.stories</div></div></div></td>
-                <td><span class="creator-handle">priya.stories</span></td>
+                <td><span class="pill pill-neutral">Internal</span></td>
                 <td><span class="pill pill-success"><span class="pill-dot"></span>Active</span></td>
                 <td>34</td>
                 <td>412,890</td>
@@ -706,7 +798,7 @@
               </tr>
               <tr class="row" onclick="openPanel('pending_invite', 'Marcus Anderson', 'MA', 'marcus.cars', '#10b981,#059669')">
                 <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #10b981, #059669);">MA</div><div><div class="creator-name">Marcus Anderson</div><div class="creator-handle">marcus.anderson@velocity-motors.example</div></div></div></td>
-                <td><span class="creator-handle">marcus.cars</span></td>
+                <td><span class="pill pill-neutral">Internal</span></td>
                 <td><span class="pill pill-info"><span class="pill-dot"></span>Pending invite</span></td>
                 <td>0</td>
                 <td>-</td>
@@ -716,7 +808,7 @@
               </tr>
               <tr class="row" onclick="event.stopPropagation();">
                 <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">AL</div><div><div class="creator-name">Anita Lopez</div><div class="creator-handle">anita.lopez@pinecrest-properties.example</div></div></div></td>
-                <td><span class="creator-handle">-</span></td>
+                <td><span class="pill pill-neutral">Internal</span></td>
                 <td><span class="pill pill-warning"><span class="pill-dot"></span>Pending request</span></td>
                 <td>0</td>
                 <td>-</td>
@@ -726,7 +818,7 @@
               </tr>
               <tr class="row" onclick="openPanel('revoked', 'Johnny Cabello', 'JC', 'johnnyc', '#ef4444,#f59e0b')">
                 <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #ef4444, #f59e0b);">JC</div><div><div class="creator-name">Johnny Cabello</div><div class="creator-handle">@johnnyc</div></div></div></td>
-                <td><span class="creator-handle">johnnyc</span></td>
+                <td><span class="pill pill-neutral">Internal</span></td>
                 <td><span class="pill pill-danger"><span class="pill-dot"></span>Revoked</span></td>
                 <td>8</td>
                 <td>23,410</td>
@@ -736,7 +828,7 @@
               </tr>
               <tr class="row" onclick="openPanel('active', 'Samantha Gray', 'SG', 's.gray', '#14b8a6,#06b6d4')">
                 <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #14b8a6, #06b6d4);">SG</div><div><div class="creator-name">Samantha Gray</div><div class="creator-handle">@s.gray</div></div></div></td>
-                <td><span class="creator-handle">s.gray</span></td>
+                <td><span class="pill pill-neutral">Internal</span></td>
                 <td><span class="pill pill-success"><span class="pill-dot"></span>Active</span></td>
                 <td>21</td>
                 <td>89,114</td>
@@ -746,7 +838,7 @@
               </tr>
               <tr class="row" onclick="openPanel('active', 'Mackie Cavil', 'MC', 'mackie', '#f97316,#f59e0b')">
                 <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #f97316, #f59e0b);">MC</div><div><div class="creator-name">Mackie Cavil</div><div class="creator-handle">@mackie</div></div></div></td>
-                <td><span class="creator-handle">mackie</span></td>
+                <td><span class="pill pill-neutral">Internal</span></td>
                 <td><span class="pill pill-success"><span class="pill-dot"></span>Active</span></td>
                 <td>3</td>
                 <td>4,820</td>
@@ -757,7 +849,7 @@
             </tbody>
           </table>
 
-          <div class="pager">
+          <div class="pager" data-sample="directory" style="display: none;">
             <button>‹</button>
             <button class="active">1</button>
             <button>2</button>
@@ -784,21 +876,36 @@
             <div class="actions-row" style="border-bottom: 0;">
               <div class="search">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-                <input placeholder="Search 47 pending invites" />
+                <input placeholder="Search pending invites" />
               </div>
               <div class="spacer"></div>
               <button class="btn btn-secondary">Bulk invite (CSV)</button>
               <button class="btn btn-primary" onclick="openModal('inviteModal')">+ New invite</button>
             </div>
-            <table class="list">
+
+            <div data-empty="invitePending">
+              <div class="table-empty">
+                <div class="icon-wrap">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <h3>No pending invites</h3>
+                <p>Invites you have sent but no creator has redeemed yet will live here. Once they sign in with their code they jump to the Sent tab.</p>
+                <div class="actions">
+                  <button class="btn btn-primary" onclick="openModal('inviteModal')">+ New invite</button>
+                  <button class="btn btn-secondary" onclick="document.querySelector('.subtab[data-subtab=\'settings\']').click();">Bulk invite</button>
+                </div>
+              </div>
+            </div>
+
+            <table class="list" data-sample="invitePending" style="display: none;">
               <thead>
-                <tr><th>Invitee</th><th>Code</th><th>Role</th><th>Sent by</th><th>Sent</th><th>Expires</th><th></th></tr>
+                <tr><th>Invitee</th><th>Code</th><th>Type</th><th>Sent by</th><th>Sent</th><th>Expires</th><th></th></tr>
               </thead>
               <tbody>
                 <tr class="row">
                   <td><strong>marcus.anderson@velocity-motors.example</strong></td>
                   <td><span class="copy-chip">VLCT2X9K <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></span></td>
-                  <td><span class="pill pill-neutral">Creator</span></td>
+                  <td><span class="pill pill-neutral">Internal</span></td>
                   <td><div class="creator-cell" style="gap: 6px;"><div class="avatar-sm">KS</div>Kavin Smith</div></td>
                   <td>2 days ago</td>
                   <td>5 days</td>
@@ -807,7 +914,7 @@
                 <tr class="row">
                   <td><strong>r.singh@pinecrest-properties.example</strong></td>
                   <td><span class="copy-chip">PNCR8B4M <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></span></td>
-                  <td><span class="pill pill-neutral">Creator</span></td>
+                  <td><span class="pill pill-neutral">Internal</span></td>
                   <td><div class="creator-cell" style="gap: 6px;"><div class="avatar-sm" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);">PS</div>Priya Shah</div></td>
                   <td>5 hours ago</td>
                   <td>6 days</td>
@@ -816,7 +923,7 @@
                 <tr class="row">
                   <td><strong>l.morales@cascade-hotels.example</strong></td>
                   <td><span class="copy-chip">CSCD3F7P <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></span></td>
-                  <td><span class="pill pill-neutral">Editor</span></td>
+                  <td><span class="pill pill-neutral">Internal</span></td>
                   <td><div class="creator-cell" style="gap: 6px;"><div class="avatar-sm">KS</div>Kavin Smith</div></td>
                   <td>6 days ago</td>
                   <td style="color: var(--danger); font-weight: 600;">18 hours</td>
@@ -831,7 +938,7 @@
             <div class="actions-row" style="border-bottom: 0;">
               <div class="search">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-                <input placeholder="Search 247 redeemed invites" />
+                <input placeholder="Search redeemed invites" />
               </div>
               <span class="filter-chip">Last 30d
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -839,15 +946,29 @@
               <div class="spacer"></div>
               <button class="btn btn-secondary">Export CSV</button>
             </div>
-            <table class="list">
+
+            <div data-empty="inviteSent">
+              <div class="table-empty">
+                <div class="icon-wrap">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <h3>Nothing redeemed yet</h3>
+                <p>Once a creator opens their invite and signs in, they show up here with the trail of how they got in - email invite, shareable link, or domain auto-provision.</p>
+                <div class="actions">
+                  <button class="btn btn-secondary" onclick="document.querySelector('.subtab[data-subtab=\'pending\']').click();">View pending invites</button>
+                </div>
+              </div>
+            </div>
+
+            <table class="list" data-sample="inviteSent" style="display: none;">
               <thead>
-                <tr><th>Creator</th><th>Code used</th><th>Role granted</th><th>Sent by</th><th>Joined</th><th></th></tr>
+                <tr><th>Creator</th><th>Code used</th><th>Type granted</th><th>Sent by</th><th>Joined</th><th></th></tr>
               </thead>
               <tbody>
                 <tr class="row">
                   <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #f59e0b, #ec4899);">KP</div><div><div class="creator-name">Kiran Patel</div><div class="creator-handle">@kiran.sales</div></div></div></td>
                   <td><span class="copy-chip">PNCR1A2B</span></td>
-                  <td><span class="pill pill-neutral">Creator</span></td>
+                  <td><span class="pill pill-neutral">Internal</span></td>
                   <td><div class="creator-cell" style="gap: 6px;"><div class="avatar-sm">KS</div>Kavin Smith</div></td>
                   <td>2 weeks ago</td>
                   <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
@@ -855,7 +976,7 @@
                 <tr class="row">
                   <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);">PS</div><div><div class="creator-name">Priya Shah</div><div class="creator-handle">@priya.stories</div></div></div></td>
                   <td><span class="copy-chip">PNCR4K7L</span></td>
-                  <td><span class="pill pill-neutral">Lead creator</span></td>
+                  <td><span class="pill pill-neutral">Internal</span></td>
                   <td><div class="creator-cell" style="gap: 6px;"><div class="avatar-sm">KS</div>Kavin Smith</div></td>
                   <td>3 months ago</td>
                   <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
@@ -863,7 +984,7 @@
                 <tr class="row">
                   <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #14b8a6, #06b6d4);">SG</div><div><div class="creator-name">Samantha Gray</div><div class="creator-handle">@s.gray</div></div></div></td>
                   <td><span class="copy-chip">RDR-MMTRX-2026</span></td>
-                  <td><span class="pill pill-neutral">Creator</span></td>
+                  <td><span class="pill pill-neutral">Internal</span></td>
                   <td><span style="color: var(--text-muted); font-style: italic;">shareable link</span></td>
                   <td>1 month ago</td>
                   <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
@@ -871,14 +992,14 @@
                 <tr class="row">
                   <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #f97316, #f59e0b);">MC</div><div><div class="creator-name">Mackie Cavil</div><div class="creator-handle">@mackie</div></div></div></td>
                   <td><span class="copy-chip">domain</span></td>
-                  <td><span class="pill pill-neutral">Creator</span></td>
+                  <td><span class="pill pill-neutral">Internal</span></td>
                   <td><span style="color: var(--text-muted); font-style: italic;">domain auto-provision</span></td>
                   <td>2 days ago</td>
                   <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
                 </tr>
               </tbody>
             </table>
-            <div class="pager">
+            <div class="pager" data-sample="inviteSent" style="display: none;">
               <button>‹</button>
               <button class="active">1</button>
               <button>2</button>
@@ -897,7 +1018,7 @@
               <div class="form-card-sub">Quick path. Sends one email with a fresh code.</div>
               <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; align-items: end;">
                 <div class="form-row" style="margin: 0;"><label>Email</label><input placeholder="creator@company.com" /></div>
-                <div class="form-row" style="margin: 0;"><label>Role</label><select><option>Creator</option><option>Editor</option><option>Lead creator</option></select></div>
+                <div class="form-row" style="margin: 0;"><label>Role</label><select><option value="internal">Internal Creator</option><option value="enterprise" disabled>Enterprise Creator (coming soon)</option></select></div>
                 <div class="form-row" style="margin: 0;"><label>Expires in</label><select><option>7 days</option><option>24 hours</option><option>30 days</option><option>Never</option></select></div>
               </div>
               <div style="display: flex; justify-content: flex-end; margin-top: 14px;"><button class="btn btn-primary">Send invite</button></div>
@@ -919,45 +1040,73 @@
 
             <div class="form-card">
               <h3><span class="form-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span>Domain auto-provision</h3>
-              <div class="form-card-sub">Anyone signing in with an email at these domains is auto-added to this workspace.</div>
+              <div class="form-card-sub">Anyone signing in with an email at these domains is auto-added to <strong>Pinecrest Sales</strong>.</div>
               <div class="toggle-row">
                 <div class="text">
-                  <div class="text-title">Auto-provision enabled for this workspace</div>
+                  <div class="text-title">Auto-provision enabled</div>
                   <div class="text-sub">Master switch. Off means no auto-add even if domains match.</div>
                 </div>
-                <div class="toggle on" onclick="this.classList.toggle('on')"><div class="knob"></div></div>
+                <div class="toggle" onclick="this.classList.toggle('on')"><div class="knob"></div></div>
               </div>
-              <div class="domain-row">
-                <span class="domain-mono" style="flex: 1;">pinecrest-properties.example</span>
-                <span class="pill pill-neutral">Creator</span>
-                <span style="font-size: 12px; color: var(--text-muted);">added 12 Mar</span>
-                <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+
+              <div data-empty="domains">
+                <div class="form-empty">
+                  <div class="icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+                  </div>
+                  <div class="text-title">No domains yet</div>
+                  <div class="text-sub">Add a domain to auto-provision creators who sign in with that email.</div>
+                </div>
               </div>
-              <div class="domain-row">
-                <span class="domain-mono" style="flex: 1;">pinecrest-stories.example</span>
-                <span class="pill pill-neutral">Creator</span>
-                <span style="font-size: 12px; color: var(--text-muted);">added 8 Apr</span>
-                <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+
+              <div data-sample="domains" style="display: none;">
+                <div class="domain-row">
+                  <span class="domain-mono" style="flex: 1;">pinecrest-properties.example</span>
+                  <span class="pill pill-neutral">Internal</span>
+                  <span style="font-size: 12px; color: var(--text-muted);">added 12 Mar</span>
+                  <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+                </div>
+                <div class="domain-row">
+                  <span class="domain-mono" style="flex: 1;">pinecrest-stories.example</span>
+                  <span class="pill pill-neutral">Internal</span>
+                  <span style="font-size: 12px; color: var(--text-muted);">added 8 Apr</span>
+                  <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+                </div>
               </div>
+
               <button class="btn btn-secondary" style="margin-top: 12px;">+ Add domain</button>
             </div>
 
             <div class="form-card">
               <h3><span class="form-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></span>Shareable invite link</h3>
-              <div class="form-card-sub">A single link any creator can open to join. Scoped to this workspace.</div>
-              <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #fafafa; border-radius: 10px; margin-bottom: 12px; font-family: var(--font-mono); font-size: 12.5px;">
-                <span style="flex: 1; word-break: break-all;">enterprisecreator://invite/RDR-MMTRX-2026</span>
-                <button class="btn btn-secondary" style="padding: 6px 12px;">Copy</button>
+              <div class="form-card-sub">A single link any creator can open to join <strong>Pinecrest Sales</strong>. Generate one when you're ready.</div>
+
+              <div data-empty="shareLink">
+                <div class="form-empty">
+                  <div class="icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                  </div>
+                  <div class="text-title">No shareable link yet</div>
+                  <div class="text-sub">Generate a link with a max-uses cap and expiry.</div>
+                </div>
+                <button class="btn btn-primary">Generate invite link</button>
               </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                <div class="form-row" style="margin: 0;"><label>Max uses</label><input value="500" /></div>
-                <div class="form-row" style="margin: 0;"><label>Expiry</label><select><option>30 days</option><option>7 days</option><option>Never</option></select></div>
-                <div class="form-row" style="margin: 0;"><label>Role granted</label><select><option>Creator</option></select></div>
-              </div>
-              <div style="display: flex; gap: 8px; margin-top: 12px;">
-                <button class="btn btn-secondary">Regenerate link</button>
-                <div class="spacer"></div>
-                <button class="btn btn-primary">Save changes</button>
+
+              <div data-sample="shareLink" style="display: none;">
+                <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #fafafa; border-radius: 10px; margin-bottom: 12px; font-family: var(--font-mono); font-size: 12.5px;">
+                  <span style="flex: 1; word-break: break-all;">enterprisecreator://invite/RDR-MMTRX-2026</span>
+                  <button class="btn btn-secondary" style="padding: 6px 12px;">Copy</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                  <div class="form-row" style="margin: 0;"><label>Max uses</label><input value="500" /></div>
+                  <div class="form-row" style="margin: 0;"><label>Expiry</label><select><option>30 days</option><option>7 days</option><option>Never</option></select></div>
+                  <div class="form-row" style="margin: 0;"><label>Type granted</label><select><option value="internal">Internal Creator</option><option value="enterprise" disabled>Enterprise Creator (coming soon)</option></select></div>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                  <button class="btn btn-secondary">Regenerate link</button>
+                  <div class="spacer"></div>
+                  <button class="btn btn-primary">Save changes</button>
+                </div>
               </div>
             </div>
           </div>
@@ -1201,12 +1350,16 @@
       <button class="kebab" onclick="closeModal('inviteModal')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
+      <div class="ws-context-chip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        Inviting to <strong>Pinecrest Sales</strong>
+        <span class="ws-context-sub">Switch workspace from the top bar to invite elsewhere.</span>
+      </div>
       <div class="form-row"><label>Email</label><input placeholder="creator@company.com" /></div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div class="form-row"><label>Role</label><select><option>Creator</option><option>Editor</option><option>Lead creator</option></select></div>
-        <div class="form-row"><label>Workspace</label><select><option>Pinecrest Sales</option><option>Pinecrest Stories</option><option>Velocity Showroom</option></select></div>
+        <div class="form-row"><label>Creator type</label><select><option value="internal">Internal Creator</option><option value="enterprise" disabled>Enterprise Creator (coming soon)</option></select></div>
+        <div class="form-row"><label>Expires in</label><select><option>7 days (default)</option><option>24 hours</option><option>30 days</option><option>Never</option></select></div>
       </div>
-      <div class="form-row"><label>Expires in</label><select><option>7 days (default)</option><option>24 hours</option><option>30 days</option><option>Never</option></select></div>
       <div class="form-row"><label>Personal message (optional)</label><textarea placeholder="Add a short note to the invite email..."></textarea></div>
     </div>
     <div class="modal-foot">
@@ -1251,6 +1404,10 @@
       <button class="kebab" onclick="closeModal('approveRequestModal')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
+      <div class="ws-context-chip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        Adding to <strong>Pinecrest Sales</strong>
+      </div>
       <div class="creator-cell" style="margin-bottom: 14px;">
         <div class="avatar-lg" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">AL</div>
         <div>
@@ -1260,7 +1417,7 @@
         </div>
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div class="form-row"><label>Role to grant</label><select><option>Creator</option><option>Editor</option><option>Lead creator</option></select></div>
+        <div class="form-row"><label>Creator type</label><select><option value="internal">Internal Creator</option><option value="enterprise" disabled>Enterprise Creator (coming soon)</option></select></div>
         <div class="form-row"><label>Display name</label><input value="Anita Lopez" /></div>
       </div>
       <div style="display: flex; align-items: center; gap: 10px; padding: 6px 0;">
@@ -1287,52 +1444,65 @@
       <button class="kebab" onclick="closeModal('tagModal')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
-      <div class="group-card">
-        <div class="group-head">
-          <span class="group-name">Property type</span>
-          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px;">Rename</button>
-          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; color: var(--danger);">Remove</button>
-        </div>
-        <div>
-          <span class="tag-chip">Single family <span class="x">×</span></span>
-          <span class="tag-chip">Condo <span class="x">×</span></span>
-          <span class="tag-chip">Townhouse <span class="x">×</span></span>
-          <span class="tag-chip">Apartment <span class="x">×</span></span>
-          <span class="tag-chip">Land <span class="x">×</span></span>
-          <span class="tag-chip" style="background: rgba(124, 58, 237, 0.06); color: var(--primary); cursor: pointer;">+ Add tag</span>
+      <div data-empty="tags">
+        <div class="form-empty" style="padding: 40px 24px;">
+          <div class="icon-wrap" style="width: 56px; height: 56px; border-radius: 14px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          </div>
+          <div class="text-title" style="font-size: 15px;">No tag categories yet</div>
+          <div class="text-sub">Categories group related tags. For example, "Topic" might contain "Buying", "Selling", "Staging".</div>
+          <button class="btn btn-primary" style="margin-top: 14px;">+ Add first category</button>
         </div>
       </div>
-      <div class="group-card">
-        <div class="group-head">
-          <span class="group-name">Topic</span>
-          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px;">Rename</button>
-          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; color: var(--danger);">Remove</button>
+
+      <div data-sample="tags" style="display: none;">
+        <div class="group-card">
+          <div class="group-head">
+            <span class="group-name">Property type</span>
+            <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px;">Rename</button>
+            <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; color: var(--danger);">Remove</button>
+          </div>
+          <div>
+            <span class="tag-chip">Single family <span class="x">×</span></span>
+            <span class="tag-chip">Condo <span class="x">×</span></span>
+            <span class="tag-chip">Townhouse <span class="x">×</span></span>
+            <span class="tag-chip">Apartment <span class="x">×</span></span>
+            <span class="tag-chip">Land <span class="x">×</span></span>
+            <span class="tag-chip" style="background: rgba(124, 58, 237, 0.06); color: var(--primary); cursor: pointer;">+ Add tag</span>
+          </div>
         </div>
-        <div>
-          <span class="tag-chip">Buying <span class="x">×</span></span>
-          <span class="tag-chip">Selling <span class="x">×</span></span>
-          <span class="tag-chip">Mortgage <span class="x">×</span></span>
-          <span class="tag-chip">Staging <span class="x">×</span></span>
-          <span class="tag-chip">Neighborhood <span class="x">×</span></span>
-          <span class="tag-chip" style="background: rgba(124, 58, 237, 0.06); color: var(--primary); cursor: pointer;">+ Add tag</span>
+        <div class="group-card">
+          <div class="group-head">
+            <span class="group-name">Topic</span>
+            <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px;">Rename</button>
+            <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; color: var(--danger);">Remove</button>
+          </div>
+          <div>
+            <span class="tag-chip">Buying <span class="x">×</span></span>
+            <span class="tag-chip">Selling <span class="x">×</span></span>
+            <span class="tag-chip">Mortgage <span class="x">×</span></span>
+            <span class="tag-chip">Staging <span class="x">×</span></span>
+            <span class="tag-chip">Neighborhood <span class="x">×</span></span>
+            <span class="tag-chip" style="background: rgba(124, 58, 237, 0.06); color: var(--primary); cursor: pointer;">+ Add tag</span>
+          </div>
         </div>
+        <div class="group-card">
+          <div class="group-head">
+            <span class="group-name">Audience</span>
+            <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px;">Rename</button>
+            <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; color: var(--danger);">Remove</button>
+          </div>
+          <div>
+            <span class="tag-chip">First-time buyer <span class="x">×</span></span>
+            <span class="tag-chip">Seller <span class="x">×</span></span>
+            <span class="tag-chip">Investor <span class="x">×</span></span>
+            <span class="tag-chip">Renter <span class="x">×</span></span>
+            <span class="tag-chip">Agent <span class="x">×</span></span>
+            <span class="tag-chip" style="background: rgba(124, 58, 237, 0.06); color: var(--primary); cursor: pointer;">+ Add tag</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="margin-top: 8px;">+ Add category</button>
       </div>
-      <div class="group-card">
-        <div class="group-head">
-          <span class="group-name">Audience</span>
-          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px;">Rename</button>
-          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; color: var(--danger);">Remove</button>
-        </div>
-        <div>
-          <span class="tag-chip">First-time buyer <span class="x">×</span></span>
-          <span class="tag-chip">Seller <span class="x">×</span></span>
-          <span class="tag-chip">Investor <span class="x">×</span></span>
-          <span class="tag-chip">Renter <span class="x">×</span></span>
-          <span class="tag-chip">Agent <span class="x">×</span></span>
-          <span class="tag-chip" style="background: rgba(124, 58, 237, 0.06); color: var(--primary); cursor: pointer;">+ Add tag</span>
-        </div>
-      </div>
-      <button class="btn btn-secondary" style="margin-top: 8px;">+ Add category</button>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('tagModal')">Close</button>
@@ -1352,47 +1522,60 @@
       <button class="kebab" onclick="closeModal('ctaModal')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
-      <div class="cta-row">
-        <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #2563eb, #06b6d4);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div>
-        <div>
-          <div class="cta-name">Talk to a buyer's agent</div>
-          <div class="cta-url">https://pinecrest-properties.example/talk</div>
+      <div data-empty="ctas">
+        <div class="form-empty" style="padding: 40px 24px;">
+          <div class="icon-wrap" style="width: 56px; height: 56px; border-radius: 14px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.24V7.5a3.5 3.5 0 117 0V14"/><path d="M5 14h14l-1 7H6z"/></svg>
+          </div>
+          <div class="text-title" style="font-size: 15px;">No CTA templates yet</div>
+          <div class="text-sub">Templates show up in the creator's composer. Static templates open a fixed URL; dynamic ones let the creator paste their own.</div>
+          <button class="btn btn-primary" style="margin-top: 14px;">+ Add first CTA template</button>
         </div>
-        <span class="pill pill-info">Static</span>
-        <span style="font-size: 12px; color: var(--text-muted);">used 47 times</span>
-        <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
       </div>
-      <div class="cta-row">
-        <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #16a34a, #10b981);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
-        <div>
-          <div class="cta-name">View this listing</div>
-          <div class="cta-url" style="color: var(--primary); font-style: italic;">creator provides URL</div>
+
+      <div data-sample="ctas" style="display: none;">
+        <div class="cta-row">
+          <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #2563eb, #06b6d4);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div>
+          <div>
+            <div class="cta-name">Talk to a buyer's agent</div>
+            <div class="cta-url">https://pinecrest-properties.example/talk</div>
+          </div>
+          <span class="pill pill-info">Static</span>
+          <span style="font-size: 12px; color: var(--text-muted);">used 47 times</span>
+          <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
         </div>
-        <span class="pill pill-warning">Dynamic</span>
-        <span style="font-size: 12px; color: var(--text-muted);">used 124 times</span>
-        <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
-      </div>
-      <div class="cta-row">
-        <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #f59e0b, #ef4444);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        <div>
-          <div class="cta-name">Get the buyer checklist</div>
-          <div class="cta-url">https://pinecrest-properties.example/checklist</div>
+        <div class="cta-row">
+          <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #16a34a, #10b981);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          <div>
+            <div class="cta-name">View this listing</div>
+            <div class="cta-url" style="color: var(--primary); font-style: italic;">creator provides URL</div>
+          </div>
+          <span class="pill pill-warning">Dynamic</span>
+          <span style="font-size: 12px; color: var(--text-muted);">used 124 times</span>
+          <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
         </div>
-        <span class="pill pill-info">Static</span>
-        <span style="font-size: 12px; color: var(--text-muted);">used 31 times</span>
-        <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
-      </div>
-      <div class="cta-row">
-        <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #ec4899, #f59e0b);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
-        <div>
-          <div class="cta-name">Open the staging guide</div>
-          <div class="cta-url">https://pinecrest-properties.example/staging.pdf</div>
+        <div class="cta-row">
+          <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #f59e0b, #ef4444);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+          <div>
+            <div class="cta-name">Get the buyer checklist</div>
+            <div class="cta-url">https://pinecrest-properties.example/checklist</div>
+          </div>
+          <span class="pill pill-info">Static</span>
+          <span style="font-size: 12px; color: var(--text-muted);">used 31 times</span>
+          <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
         </div>
-        <span class="pill pill-info">Static</span>
-        <span style="font-size: 12px; color: var(--text-muted);">used 18 times</span>
-        <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+        <div class="cta-row">
+          <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #ec4899, #f59e0b);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+          <div>
+            <div class="cta-name">Open the staging guide</div>
+            <div class="cta-url">https://pinecrest-properties.example/staging.pdf</div>
+          </div>
+          <span class="pill pill-info">Static</span>
+          <span style="font-size: 12px; color: var(--text-muted);">used 18 times</span>
+          <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+        </div>
+        <button class="btn btn-secondary" style="margin-top: 14px;">+ Add CTA template</button>
       </div>
-      <button class="btn btn-secondary" style="margin-top: 14px;">+ Add CTA template</button>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('ctaModal')">Close</button>
@@ -1501,6 +1684,17 @@
   // Modals
   function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
   function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+  // Sample-data toggle. Flips every empty / sample pair across the section.
+  // Drop this and the .sample-toggle div when porting to production.
+  function toggleSampleData(showSample) {
+    document.querySelectorAll('[data-empty]').forEach(el => {
+      el.style.display = showSample ? 'none' : '';
+    });
+    document.querySelectorAll('[data-sample]').forEach(el => {
+      el.style.display = showSample ? '' : 'none';
+    });
+  }
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.add('hidden'));
