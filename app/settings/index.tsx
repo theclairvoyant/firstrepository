@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -12,7 +12,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import Constants from 'expo-constants';
 import {
   Bell,
-  Bell as BellIcon,
   Building2,
   ChevronLeft,
   ChevronRight,
@@ -41,11 +40,6 @@ import type { LanguageCode } from '@/lib/store/languageStore';
 import { useSettingsStore } from '@/lib/store/settingsStore';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useTenantStore } from '@/lib/store/tenantStore';
-import {
-  getNotificationPreference,
-  registerForPushNotifications,
-  unregisterPushNotifications,
-} from '@/lib/notifications/register';
 import { useSignOut } from '@/lib/api/queries';
 
 type ThemeSegmentKey = 'system' | 'light' | 'dark';
@@ -199,35 +193,9 @@ export default function SettingsIndexScreen(): React.ReactElement {
   const setWarnBeforeCellular = useSettingsStore(
     (s) => s.setWarnBeforeCellular,
   );
-  const notificationsEnabledStored = useSettingsStore(
-    (s) => s.notificationsEnabled,
-  );
-  const setNotificationsEnabled = useSettingsStore(
-    (s) => s.setNotificationsEnabled,
-  );
-
-  const [notificationsOn, setNotificationsOn] = useState<boolean>(
-    notificationsEnabledStored,
-  );
-
   const authSignOut = useAuthStore((s) => s.signOut);
   const tenantClear = useTenantStore((s) => s.clear);
   const signOutMutation = useSignOut();
-
-  // Seed the notifications toggle from the existing AsyncStorage flag so the
-  // setting persists across app launches without diverging from the
-  // notifications register flow's source of truth.
-  useEffect(() => {
-    let cancelled = false;
-    void getNotificationPreference().then((value) => {
-      if (cancelled) return;
-      setNotificationsOn(value);
-      setNotificationsEnabled(value);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [setNotificationsEnabled]);
 
   const handleBack = useCallback((): void => {
     if (router.canGoBack()) {
@@ -236,19 +204,6 @@ export default function SettingsIndexScreen(): React.ReactElement {
       router.replace('/(tabs)/profile');
     }
   }, [router]);
-
-  const handleNotificationsToggle = useCallback(
-    async (value: boolean): Promise<void> => {
-      setNotificationsOn(value);
-      setNotificationsEnabled(value);
-      if (value) {
-        await registerForPushNotifications();
-      } else {
-        await unregisterPushNotifications(null);
-      }
-    },
-    [setNotificationsEnabled],
-  );
 
   const handleCellularToggle = useCallback(
     (value: boolean): void => {
@@ -261,10 +216,12 @@ export default function SettingsIndexScreen(): React.ReactElement {
     router.push({
       pathname: '/settings/legal',
       params: {
-        // Legal URLs come from build-time env. If unset, the legal screen
-        // renders an EmptyState instead of pointing at a host that should
-        // never appear in user-visible code.
-        url: process.env.EXPO_PUBLIC_PRIVACY_URL ?? '',
+        // Legal URL comes from build-time env. The fallback is the
+        // IANA-reserved example.com domain (no real brand) so dev builds
+        // demonstrate the WebView works out of the box. The CTO sets the
+        // real URL via EXPO_PUBLIC_PRIVACY_URL before launch.
+        url:
+          process.env.EXPO_PUBLIC_PRIVACY_URL ?? 'https://example.com/privacy',
         title: t('settings.privacyTitle'),
       },
     });
@@ -274,7 +231,7 @@ export default function SettingsIndexScreen(): React.ReactElement {
     router.push({
       pathname: '/settings/legal',
       params: {
-        url: process.env.EXPO_PUBLIC_TERMS_URL ?? '',
+        url: process.env.EXPO_PUBLIC_TERMS_URL ?? 'https://example.com/terms',
         title: t('settings.termsTitle'),
       },
     });
@@ -504,28 +461,6 @@ export default function SettingsIndexScreen(): React.ReactElement {
           <Card padded={false}>
             <Row
               icon={
-                <BellIcon
-                  size={20}
-                  color={colors.textPrimary}
-                  strokeWidth={1.75}
-                />
-              }
-              label={t('settings.notifications.viewRowLabel')}
-              accessibilityLabel={t('settings.notifications.viewRowLabel')}
-              onPress={handleNotificationsListPress}
-              right={
-                <ChevronRight
-                  size={18}
-                  color={colors.textMuted}
-                  strokeWidth={1.75}
-                />
-              }
-            />
-            <View
-              style={[styles.divider, { backgroundColor: colors.border }]}
-            />
-            <Row
-              icon={
                 <Bell
                   size={20}
                   color={colors.textPrimary}
@@ -533,17 +468,13 @@ export default function SettingsIndexScreen(): React.ReactElement {
                 />
               }
               label={t('settings.notifications.label')}
+              accessibilityLabel={t('settings.notifications.label')}
+              onPress={handleNotificationsListPress}
               right={
-                <Switch
-                  value={notificationsOn}
-                  onValueChange={(v) => {
-                    void handleNotificationsToggle(v);
-                  }}
-                  accessibilityLabel={t('settings.notifications.label')}
-                  trackColor={{
-                    false: colors.bgInput,
-                    true: accent.primary,
-                  }}
+                <ChevronRight
+                  size={18}
+                  color={colors.textMuted}
+                  strokeWidth={1.75}
                 />
               }
             />

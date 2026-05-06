@@ -45,9 +45,10 @@ interface ActiveRowProps {
 }
 
 function ActiveRow({ membership, onPress }: ActiveRowProps): React.ReactElement {
-  const { spacing, colors } = useTheme();
+  const { spacing, colors, accent } = useTheme();
   const { t } = useTranslation();
   const ws = membership.workspace;
+  const isRevoked: boolean = membership.status === 'revoked';
 
   const rowStyle: ViewStyle = {
     flexDirection: 'row',
@@ -56,13 +57,16 @@ function ActiveRow({ membership, onPress }: ActiveRowProps): React.ReactElement 
     paddingHorizontal: spacing.lg,
     gap: spacing.md,
     minHeight: 64,
+    opacity: isRevoked ? 0.7 : 1,
   };
 
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${ws.name}, ${ws.brand.name}, ${t('switcher.selectRow')}`}
+      accessibilityLabel={`${ws.name}, ${ws.brand.name}, ${
+        isRevoked ? t('switcher.revokedPill') : t('switcher.selectRow')
+      }`}
       style={({ pressed }) => [
         rowStyle,
         { backgroundColor: pressed ? colors.bgInput : 'transparent' },
@@ -83,9 +87,27 @@ function ActiveRow({ membership, onPress }: ActiveRowProps): React.ReactElement 
         </ThemedText>
       </View>
       <WorkspaceTypeBadge type={ws.type} style={{ alignSelf: 'center' }} />
-      <ThemedText variant="mono" tone="muted">
-        {t('switcher.postsCount', { count: membership.postCount })}
-      </ThemedText>
+      {isRevoked ? (
+        <View
+          style={{
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            borderRadius: 999,
+            backgroundColor: `${accent.danger}1f`,
+          }}
+        >
+          <ThemedText
+            variant="caption"
+            style={{ color: accent.danger, fontWeight: '600' }}
+          >
+            {t('switcher.revokedPill')}
+          </ThemedText>
+        </View>
+      ) : (
+        <ThemedText variant="mono" tone="muted">
+          {t('switcher.postsCount', { count: membership.postCount })}
+        </ThemedText>
+      )}
     </Pressable>
   );
 }
@@ -244,8 +266,12 @@ export default function TenantSwitcherScreen(): React.ReactElement {
     });
   }, [allMemberships, search]);
 
+  // Active section also includes 'revoked' memberships so the user can
+  // navigate INTO a workspace that kicked them out and see the deactivated
+  // screen + the support email button. Revoked rows are visually marked
+  // (status pill on the right). pending_* rows live in their own section.
   const active: WorkspaceMembership[] = filtered.filter(
-    (m) => m.status === 'active',
+    (m) => m.status === 'active' || m.status === 'revoked',
   );
   const pendingInvites: WorkspaceMembership[] = filtered.filter(
     (m) => m.status === 'pending_invite',

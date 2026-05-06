@@ -151,6 +151,15 @@
       "pendingRequest": "Solicitud pendiente. Te avisaremos cuando se apruebe.",
       "revoked": "Acceso revocado."
     },
+    "revoked": {
+      "title": "Tu acceso fue revocado",
+      "body": "Un admin te eliminó de este espacio. No puedes publicar ni ver contenido aquí. Si crees que es un error, escribe al espacio abajo.",
+      "emailSupport": "Escribir al soporte del espacio",
+      "noSupportEmail": "Este espacio aún no ha configurado una dirección de soporte.",
+      "mailSubject": "Acceso revocado de {{workspace}}",
+      "mailErrorTitle": "No pudimos abrir el correo",
+      "mailErrorBody": "Copia {{email}} y envía un mensaje manualmente."
+    },
     "editProfile": "Editar perfil",
     "editProfileSoon": "Editor de perfil próximamente",
     "shareProfile": "Compartir perfil",
@@ -423,7 +432,8 @@
     "loadError": "No pudimos cargar tus espacios.",
     "selectRow": "seleccionar espacio",
     "pendingInvite": "Invitación esperando",
-    "pendingRequest": "Esperando aprobación"
+    "pendingRequest": "Esperando aprobación",
+    "revokedPill": "Revocado"
   },
   "addTenant": {
     "title": "Añadir un espacio",
@@ -540,8 +550,7 @@
     },
     "notifications": {
       "label": "Notificaciones",
-      "description": "Recibe avisos cuando revisemos tus publicaciones.",
-      "viewRowLabel": "Ver notificaciones"
+      "description": "Recibe avisos cuando revisemos tus publicaciones."
     },
     "cellular": {
       "label": "Avisar antes de subir por datos",
@@ -606,10 +615,21 @@
   },
   "notifications": {
     "title": "Notificaciones",
-    "emptyTitle": "Aún no hay nada",
-    "emptyBody": "Te avisaremos cuando tus publicaciones estén en vivo o cojan tracción.",
-    "liveTitle": "Tu publicación está en vivo",
-    "tractionTitle": "Tu publicación superó las {{formattedCount}} vistas"
+    "heading": "Notificaciones",
+    "body": "Elige qué notificaciones push te enviamos. Los sub-toggles solo se activan si las notificaciones están encendidas.",
+    "master": {
+      "label": "Permitir notificaciones",
+      "description": "Interruptor principal. Pide permiso la primera vez."
+    },
+    "postLive": {
+      "label": "Publicación en vivo",
+      "description": "Cuando un admin aprueba tu publicación y se publica."
+    },
+    "engagement": {
+      "label": "Actualizaciones de tracción",
+      "description": "Cuando tu publicación supera hitos de vistas o consigue likes."
+    },
+    "masterOffHint": "Activa Permitir notificaciones arriba para habilitar los avisos por tipo."
   },
   "video": {
     "title": "Publicación",

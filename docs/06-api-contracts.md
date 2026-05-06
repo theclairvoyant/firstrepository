@@ -60,6 +60,12 @@ A `pending_invite` membership carries `invitedAt` (ISO timestamp) and `invitedBy
 | GET | /v1/workspaces/{id}/tag-topology | TagCategory[] |
 | GET | /v1/workspaces/{id}/ctas | CTA[] |
 
+`Workspace.supportEmail: string` is REQUIRED on every workspace. Surfaced in
+the FE only when the user's membership is `revoked` (the only action they
+have left in that workspace is to email this address). Admins set this in
+the admin console; backend should validate it as a real email and reject
+workspace creation without it.
+
 ## Posts (5)
 
 | Method | Path | Body | Response |

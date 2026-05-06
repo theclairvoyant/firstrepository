@@ -151,6 +151,15 @@
       "pendingRequest": "Demande en attente. Vous serez notifié à l'approbation.",
       "revoked": "Accès révoqué."
     },
+    "revoked": {
+      "title": "Votre accès a été révoqué",
+      "body": "Un admin vous a retiré de cet espace. Vous ne pouvez ni publier ni voir le contenu ici. Si c'est une erreur, écrivez à l'espace ci-dessous.",
+      "emailSupport": "Écrire au support de l'espace",
+      "noSupportEmail": "Cet espace n'a pas encore configuré d'adresse de support.",
+      "mailSubject": "Accès révoqué de {{workspace}}",
+      "mailErrorTitle": "Impossible d'ouvrir le mail",
+      "mailErrorBody": "Copiez {{email}} et envoyez un message manuellement."
+    },
     "editProfile": "Modifier le profil",
     "editProfileSoon": "Éditeur de profil bientôt disponible",
     "shareProfile": "Partager le profil",
@@ -423,7 +432,8 @@
     "loadError": "Impossible de charger vos espaces.",
     "selectRow": "sélectionner l'espace",
     "pendingInvite": "Invitation en attente",
-    "pendingRequest": "En attente d'approbation"
+    "pendingRequest": "En attente d'approbation",
+    "revokedPill": "Révoqué"
   },
   "addTenant": {
     "title": "Ajouter un espace",
@@ -540,8 +550,7 @@
     },
     "notifications": {
       "label": "Notifications",
-      "description": "Recevez des alertes quand nous examinons vos publications.",
-      "viewRowLabel": "Voir les notifications"
+      "description": "Recevez des alertes quand nous examinons vos publications."
     },
     "cellular": {
       "label": "Avertir avant les envois en data",
@@ -606,10 +615,21 @@
   },
   "notifications": {
     "title": "Notifications",
-    "emptyTitle": "Rien pour l'instant",
-    "emptyBody": "Nous vous préviendrons quand vos publications passent en ligne ou prennent de l'élan.",
-    "liveTitle": "Votre publication est en ligne",
-    "tractionTitle": "Votre publication a dépassé {{formattedCount}} vues"
+    "heading": "Notifications",
+    "body": "Choisissez les notifications push que vous voulez recevoir. Les sous-options s'activent quand les notifications sont activées.",
+    "master": {
+      "label": "Autoriser les notifications",
+      "description": "Interrupteur principal. Demande la permission la première fois."
+    },
+    "postLive": {
+      "label": "Publication en ligne",
+      "description": "Quand un admin approuve votre publication et qu'elle passe en ligne."
+    },
+    "engagement": {
+      "label": "Mises à jour d'engagement",
+      "description": "Quand votre publication atteint des paliers de vues ou récolte des likes."
+    },
+    "masterOffHint": "Activez Autoriser les notifications ci-dessus pour activer les alertes par type."
   },
   "video": {
     "title": "Publication",

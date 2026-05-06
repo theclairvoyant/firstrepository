@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
+  Linking,
   Pressable,
   RefreshControl,
   Share,
@@ -24,6 +26,8 @@ import {
   Building2,
   Clock,
   Film,
+  Mail,
+  ShieldOff,
 } from 'lucide-react-native';
 import { Avatar } from '@/components/Avatar';
 import { EmptyState } from '@/components/EmptyState';
@@ -295,7 +299,7 @@ function SkeletonGrid({ count }: SkeletonGridProps): React.ReactElement {
 export default function ProfileTabScreen(): React.ReactElement {
   const router = useRouter();
   const { t } = useTranslation();
-  const { colors, spacing, accent } = useTheme();
+  const { colors, spacing, accent, radius } = useTheme();
   const queryClient = useQueryClient();
 
   const activeWorkspaceId = useTenantStore((s) => s.activeWorkspaceId);
@@ -623,6 +627,110 @@ export default function ProfileTabScreen(): React.ReactElement {
               </View>
             }
           />
+        </View>
+      </ScreenContainer>
+    );
+  }
+
+  // Revoked: dedicated deactivated state. Shows the brand so the user knows
+  // which workspace they're locked out of and one action - email this
+  // workspace's support address so they can ask why / appeal.
+  if (membership.status === 'revoked') {
+    const ws = membership.workspace;
+    const supportEmail: string = ws.supportEmail ?? '';
+    const handleEmailSupport = (): void => {
+      if (!supportEmail) return;
+      const subject = t('profileTab.revoked.mailSubject', {
+        workspace: ws.name,
+      });
+      const url = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}`;
+      Linking.openURL(url).catch(() => {
+        Alert.alert(
+          t('profileTab.revoked.mailErrorTitle'),
+          t('profileTab.revoked.mailErrorBody', { email: supportEmail }),
+        );
+      });
+    };
+    return (
+      <ScreenContainer padded edges={['left', 'right']}>
+        <View
+          style={{
+            flex: 1,
+            paddingHorizontal: spacing.md,
+            paddingBottom: TAB_PILL_RESERVE,
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: spacing.lg,
+          }}
+        >
+          <Avatar
+            size={80}
+            name={ws.name}
+            uri={ws.brand.logoUrl || undefined}
+          />
+          <View style={{ alignItems: 'center', gap: spacing.xs }}>
+            <ThemedText variant="title" tone="primary">
+              {ws.name}
+            </ThemedText>
+            <ThemedText variant="mono" tone="muted">
+              {`@${ws.handle}`}
+            </ThemedText>
+          </View>
+          <View
+            style={{
+              alignItems: 'center',
+              gap: spacing.sm,
+              padding: spacing.lg,
+              borderRadius: radius.lg,
+              backgroundColor: colors.bgCard,
+              borderWidth: 1,
+              borderColor: colors.border,
+              alignSelf: 'stretch',
+            }}
+          >
+            <View
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 22,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: `${accent.danger}1f`,
+              }}
+            >
+              <ShieldOff size={22} color={accent.danger} strokeWidth={1.75} />
+            </View>
+            <ThemedText
+              variant="heading"
+              tone="primary"
+              style={{ textAlign: 'center' }}
+            >
+              {t('profileTab.revoked.title')}
+            </ThemedText>
+            <ThemedText
+              variant="body"
+              tone="secondary"
+              style={{ textAlign: 'center' }}
+            >
+              {t('profileTab.revoked.body')}
+            </ThemedText>
+          </View>
+          {supportEmail ? (
+            <View style={{ alignSelf: 'stretch' }}>
+              <PrimaryButton
+                label={t('profileTab.revoked.emailSupport')}
+                accessibilityLabel={t('profileTab.revoked.emailSupport')}
+                onPress={handleEmailSupport}
+                leftIcon={
+                  <Mail size={18} color="#fff" strokeWidth={2} />
+                }
+              />
+            </View>
+          ) : (
+            <ThemedText variant="caption" tone="muted">
+              {t('profileTab.revoked.noSupportEmail')}
+            </ThemedText>
+          )}
         </View>
       </ScreenContainer>
     );

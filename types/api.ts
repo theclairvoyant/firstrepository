@@ -108,6 +108,11 @@ export type Workspace = {
   handle: string;
   brand: WorkspaceBrand;
   capabilities: WorkspaceCapabilities;
+  // Per-workspace contact email an admin sets for their internal creators.
+  // Surfaced to the user when their access is revoked (the only action they
+  // have left in that workspace). Required - every workspace that
+  // provisions internal creators must configure this.
+  supportEmail: string;
 };
 
 export type MembershipStatus = 'active' | 'pending_invite' | 'pending_request' | 'revoked';

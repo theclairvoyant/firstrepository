@@ -1,73 +1,73 @@
-// Notifications inbox. Two kinds for now (post_live, post_traction) backed
-// by the SCAFFOLD mock feed derived from seed post timestamps + view
-// counts. Real-time subscription wires in for FULL mode.
+// Notifications preferences. Three switches:
+//   - Master notifications on/off (asks for permission, registers push token)
+//   - Post is live - the user's post got approved + published
+//   - Engagement updates - milestone view counts, likes, etc.
+//
+// Sub-toggles are visually disabled when master is off. This screen is
+// read-write only - the FE no longer maintains an in-app notification inbox.
 
-import React, { useCallback, useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { Image as ExpoImage } from 'expo-image';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Pressable, StyleSheet, Switch, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Bell, ChevronLeft, Sparkles, Zap } from 'lucide-react-native';
-import { EmptyState } from '@/components/EmptyState';
+import { Card } from '@/components/Card';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/lib/theme/useTheme';
-import { useTenantStore } from '@/lib/store/tenantStore';
-import { useLanguageStore } from '@/lib/store/languageStore';
-import { getMockNotifications } from '@/lib/notifications/mockFeed';
-import type { AppNotification } from '@/lib/notifications/types';
+import { useSettingsStore } from '@/lib/store/settingsStore';
+import {
+  getNotificationPreference,
+  registerForPushNotifications,
+  unregisterPushNotifications,
+} from '@/lib/notifications/register';
 
-function formatNumber(value: number, locale: string): string {
-  try {
-    return new Intl.NumberFormat(locale).format(value);
-  } catch {
-    return String(value);
-  }
-}
-
-function formatRelative(iso: string, locale: string): string {
-  try {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return '';
-    return new Intl.DateTimeFormat(locale, {
-      month: 'short',
-      day: 'numeric',
-    }).format(d);
-  } catch {
-    return '';
-  }
-}
-
-export default function NotificationsScreen(): React.ReactElement {
+export default function NotificationsSettingsScreen(): React.ReactElement {
   const router = useRouter();
   const { t } = useTranslation();
-  const { colors, spacing, accent, radius } = useTheme();
-  const locale = useLanguageStore((s) => s.resolved);
+  const { colors, spacing, accent } = useTheme();
 
-  const activeWorkspaceId = useTenantStore((s) => s.activeWorkspaceId);
+  const masterStored = useSettingsStore((s) => s.notificationsEnabled);
+  const setMasterStored = useSettingsStore((s) => s.setNotificationsEnabled);
+  const notifyPostLive = useSettingsStore((s) => s.notifyPostLive);
+  const notifyEngagement = useSettingsStore((s) => s.notifyEngagement);
+  const setNotifyPostLive = useSettingsStore((s) => s.setNotifyPostLive);
+  const setNotifyEngagement = useSettingsStore((s) => s.setNotifyEngagement);
 
-  const notifications: AppNotification[] = useMemo(() => {
-    if (!activeWorkspaceId) return [];
-    return getMockNotifications(activeWorkspaceId);
-  }, [activeWorkspaceId]);
+  // Source of truth for the master toggle is the AsyncStorage flag the
+  // notifications register flow owns. Hydrate on mount and mirror writes.
+  const [masterEnabled, setMasterEnabled] = useState<boolean>(masterStored);
+  useEffect(() => {
+    let cancelled = false;
+    void getNotificationPreference().then((value) => {
+      if (cancelled) return;
+      setMasterEnabled(value);
+      setMasterStored(value);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [setMasterStored]);
 
   const handleBack = useCallback((): void => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/settings');
-    }
+    if (router.canGoBack()) router.back();
+    else router.replace('/settings');
   }, [router]);
 
-  const handleOpenPost = useCallback(
-    (n: AppNotification): void => {
-      router.push({
-        pathname: '/video/[postId]',
-        params: { postId: n.postId },
-      });
+  const handleMasterToggle = useCallback(
+    async (value: boolean): Promise<void> => {
+      setMasterEnabled(value);
+      setMasterStored(value);
+      if (value) {
+        await registerForPushNotifications();
+      } else {
+        await unregisterPushNotifications(null);
+      }
     },
-    [router],
+    [setMasterStored],
   );
+
+  const subToggleDisabled: boolean = !masterEnabled;
 
   return (
     <ScreenContainer>
@@ -91,104 +91,154 @@ export default function NotificationsScreen(): React.ReactElement {
             { opacity: pressed ? 0.7 : 1 },
           ]}
         >
-          <ChevronLeft
-            size={24}
-            color={colors.textPrimary}
-            strokeWidth={1.75}
-          />
+          <ChevronLeft size={24} color={colors.textPrimary} strokeWidth={1.75} />
         </Pressable>
         <View style={styles.headerTitleWrap}>
-          <ThemedText variant="heading" tone="primary">
+          <ThemedText
+            variant="heading"
+            tone="primary"
+            numberOfLines={1}
+            style={{ textAlign: 'center' }}
+          >
             {t('notifications.title')}
           </ThemedText>
         </View>
         <View style={styles.headerButton} />
       </View>
 
-      {notifications.length === 0 ? (
-        <View style={styles.center}>
-          <EmptyState
-            icon={Bell}
-            title={t('notifications.emptyTitle')}
-            description={t('notifications.emptyBody')}
-          />
+      <View style={{ padding: spacing.md, gap: spacing.md }}>
+        <View style={{ gap: spacing.sm }}>
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: `${accent.primary}1f`,
+            }}
+          >
+            <Bell size={20} color={accent.primary} strokeWidth={1.75} />
+          </View>
+          <ThemedText variant="title" tone="primary">
+            {t('notifications.heading')}
+          </ThemedText>
+          <ThemedText variant="body" tone="secondary">
+            {t('notifications.body')}
+          </ThemedText>
         </View>
-      ) : (
-        <ScrollView
-          contentContainerStyle={{
-            paddingHorizontal: spacing.md,
-            paddingTop: spacing.sm,
-            paddingBottom: spacing.xl,
-          }}
-        >
-          {notifications.map((n) => {
-            const isLive = n.kind === 'post_live';
-            const Icon = isLive ? Zap : Sparkles;
-            const iconBg = isLive
-              ? `${accent.success}1f`
-              : `${accent.primary}1f`;
-            const iconColor = isLive ? accent.success : accent.primary;
-            const title = isLive
-              ? t('notifications.liveTitle')
-              : t('notifications.tractionTitle', {
-                  count: n.metric ?? 0,
-                  formattedCount: formatNumber(n.metric ?? 0, locale),
-                });
-            return (
-              <Pressable
-                key={n.id}
-                onPress={() => handleOpenPost(n)}
-                accessibilityRole="button"
-                accessibilityLabel={`${title}: ${n.postTitle}`}
-                style={({ pressed }) => [
-                  styles.row,
-                  {
-                    backgroundColor: pressed
-                      ? colors.bgInput
-                      : 'transparent',
-                    paddingVertical: spacing.sm,
-                  },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.iconBubble,
-                    { backgroundColor: iconBg },
-                  ]}
+
+        <Card padded={false}>
+          <View style={{ paddingHorizontal: spacing.md }}>
+            <View
+              style={[
+                styles.row,
+                { paddingVertical: spacing.sm },
+              ]}
+            >
+              <View style={styles.iconBox}>
+                <Bell size={20} color={colors.textPrimary} strokeWidth={1.75} />
+              </View>
+              <View style={{ flex: 1, gap: 2 }}>
+                <ThemedText variant="body" tone="primary">
+                  {t('notifications.master.label')}
+                </ThemedText>
+                <ThemedText variant="caption" tone="muted">
+                  {t('notifications.master.description')}
+                </ThemedText>
+              </View>
+              <Switch
+                value={masterEnabled}
+                onValueChange={(v) => {
+                  void handleMasterToggle(v);
+                }}
+                accessibilityLabel={t('notifications.master.label')}
+                trackColor={{ false: colors.bgInput, true: accent.primary }}
+              />
+            </View>
+
+            <View
+              style={[styles.divider, { backgroundColor: colors.border }]}
+            />
+
+            <View
+              style={[
+                styles.row,
+                { paddingVertical: spacing.sm },
+              ]}
+            >
+              <View style={styles.iconBox}>
+                <Sparkles
+                  size={20}
+                  color={subToggleDisabled ? colors.textMuted : accent.success}
+                  strokeWidth={1.75}
+                />
+              </View>
+              <View style={{ flex: 1, gap: 2 }}>
+                <ThemedText
+                  variant="body"
+                  tone={subToggleDisabled ? 'muted' : 'primary'}
                 >
-                  <Icon size={18} color={iconColor} strokeWidth={1.75} />
-                </View>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <ThemedText variant="bodyMed" tone="primary">
-                    {title}
-                  </ThemedText>
-                  <ThemedText
-                    variant="caption"
-                    tone="secondary"
-                    numberOfLines={1}
-                  >
-                    {n.postTitle}
-                  </ThemedText>
-                  <ThemedText variant="mono" tone="muted">
-                    {formatRelative(n.createdAt, locale)}
-                  </ThemedText>
-                </View>
-                {n.postThumbnail ? (
-                  <ExpoImage
-                    source={{ uri: n.postThumbnail }}
-                    style={[
-                      styles.thumb,
-                      { borderRadius: radius.sm, backgroundColor: colors.bgInput },
-                    ]}
-                    contentFit="cover"
-                    accessibilityIgnoresInvertColors
-                  />
-                ) : null}
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-      )}
+                  {t('notifications.postLive.label')}
+                </ThemedText>
+                <ThemedText variant="caption" tone="muted">
+                  {t('notifications.postLive.description')}
+                </ThemedText>
+              </View>
+              <Switch
+                value={notifyPostLive && masterEnabled}
+                onValueChange={setNotifyPostLive}
+                disabled={subToggleDisabled}
+                accessibilityLabel={t('notifications.postLive.label')}
+                trackColor={{ false: colors.bgInput, true: accent.primary }}
+              />
+            </View>
+
+            <View
+              style={[styles.divider, { backgroundColor: colors.border }]}
+            />
+
+            <View
+              style={[
+                styles.row,
+                { paddingVertical: spacing.sm },
+              ]}
+            >
+              <View style={styles.iconBox}>
+                <Zap
+                  size={20}
+                  color={subToggleDisabled ? colors.textMuted : accent.primary}
+                  strokeWidth={1.75}
+                />
+              </View>
+              <View style={{ flex: 1, gap: 2 }}>
+                <ThemedText
+                  variant="body"
+                  tone={subToggleDisabled ? 'muted' : 'primary'}
+                >
+                  {t('notifications.engagement.label')}
+                </ThemedText>
+                <ThemedText variant="caption" tone="muted">
+                  {t('notifications.engagement.description')}
+                </ThemedText>
+              </View>
+              <Switch
+                value={notifyEngagement && masterEnabled}
+                onValueChange={setNotifyEngagement}
+                disabled={subToggleDisabled}
+                accessibilityLabel={t('notifications.engagement.label')}
+                trackColor={{ false: colors.bgInput, true: accent.primary }}
+              />
+            </View>
+          </View>
+        </Card>
+
+        {subToggleDisabled ? (
+          <ThemedText variant="caption" tone="muted">
+            {t('notifications.masterOffHint')}
+          </ThemedText>
+        ) : null}
+      </View>
     </ScreenContainer>
   );
 }
@@ -198,11 +248,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
-    minHeight: 48,
   },
   headerButton: {
-    minWidth: 44,
-    minHeight: 44,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -210,26 +259,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    minHeight: 56,
   },
-  iconBubble: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  iconBox: {
+    width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  thumb: {
-    width: 44,
-    height: 60,
+  divider: {
+    height: 1,
+    marginLeft: 36,
   },
 });

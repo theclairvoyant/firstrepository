@@ -16,10 +16,11 @@ import { ThemedText } from '@/components/ThemedText';
 import { showToast } from '@/lib/toast';
 import { useTheme } from '@/lib/theme/useTheme';
 
-// Build-time env var. Empty fallback - the screen toasts a "support email
-// not configured" notice rather than pointing at a host the user-visible
-// code is forbidden from referencing.
-const SUPPORT_EMAIL: string = process.env.EXPO_PUBLIC_SUPPORT_EMAIL ?? '';
+// Build-time env var. Falls back to an IANA-reserved example.com address
+// (no real brand) so dev builds show a working mailto link. The CTO sets
+// the real address via EXPO_PUBLIC_SUPPORT_EMAIL before launch.
+const SUPPORT_EMAIL: string =
+  process.env.EXPO_PUBLIC_SUPPORT_EMAIL ?? 'support@example.com';
 
 export default function SupportScreen(): React.ReactElement {
   const router = useRouter();

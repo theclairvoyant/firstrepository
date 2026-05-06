@@ -151,6 +151,15 @@
       "pendingRequest": "Request pending. You will be notified when approved.",
       "revoked": "Access revoked."
     },
+    "revoked": {
+      "title": "Your access was revoked",
+      "body": "An admin removed you from this workspace. You can't post or see content here. If you think this is a mistake, email the workspace below.",
+      "emailSupport": "Email workspace support",
+      "noSupportEmail": "This workspace hasn't set a support address yet.",
+      "mailSubject": "Access revoked from {{workspace}}",
+      "mailErrorTitle": "Couldn't open mail",
+      "mailErrorBody": "Copy {{email}} and send a message manually."
+    },
     "editProfile": "Edit profile",
     "editProfileSoon": "Profile editor coming soon",
     "shareProfile": "Share profile",
@@ -423,7 +432,8 @@
     "loadError": "We couldn't load your workspaces.",
     "selectRow": "select workspace",
     "pendingInvite": "Invite waiting",
-    "pendingRequest": "Awaiting admin approval"
+    "pendingRequest": "Awaiting admin approval",
+    "revokedPill": "Revoked"
   },
   "addTenant": {
     "title": "Add a workspace",
@@ -540,8 +550,7 @@
     },
     "notifications": {
       "label": "Notifications",
-      "description": "Get alerts when posts are reviewed.",
-      "viewRowLabel": "View notifications"
+      "description": "Get alerts when posts are reviewed."
     },
     "cellular": {
       "label": "Warn on cellular uploads",
@@ -606,10 +615,21 @@
   },
   "notifications": {
     "title": "Notifications",
-    "emptyTitle": "Nothing yet",
-    "emptyBody": "We'll let you know when your posts go live or pick up traction.",
-    "liveTitle": "Your post is live",
-    "tractionTitle": "Your post passed {{formattedCount}} views"
+    "heading": "Notifications",
+    "body": "Pick which push notifications we send you. Sub-toggles only fire when notifications are on.",
+    "master": {
+      "label": "Allow notifications",
+      "description": "Master switch. Asks for permission the first time."
+    },
+    "postLive": {
+      "label": "Post is live",
+      "description": "When an admin approves your post and it goes live."
+    },
+    "engagement": {
+      "label": "Engagement updates",
+      "description": "When your post hits view milestones or picks up likes."
+    },
+    "masterOffHint": "Turn on Allow notifications above to enable per-type alerts."
   },
   "video": {
     "title": "Post",

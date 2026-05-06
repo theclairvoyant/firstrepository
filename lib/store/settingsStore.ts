@@ -16,8 +16,17 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 interface SettingsState {
   warnBeforeCellular: boolean;
   notificationsEnabled: boolean;
+  // Per-type push notification toggles. Master switch is
+  // notificationsEnabled; these are sub-categories the user controls
+  // separately so they can opt in to one and not the other. Backend
+  // should respect both: master OFF means send nothing, master ON +
+  // a specific type OFF means skip that type.
+  notifyPostLive: boolean;
+  notifyEngagement: boolean;
   setWarnBeforeCellular: (value: boolean) => void;
   setNotificationsEnabled: (value: boolean) => void;
+  setNotifyPostLive: (value: boolean) => void;
+  setNotifyEngagement: (value: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -25,10 +34,15 @@ export const useSettingsStore = create<SettingsState>()(
     (set) => ({
       warnBeforeCellular: true,
       notificationsEnabled: false,
+      notifyPostLive: true,
+      notifyEngagement: true,
       setWarnBeforeCellular: (value: boolean) =>
         set({ warnBeforeCellular: value }),
       setNotificationsEnabled: (value: boolean) =>
         set({ notificationsEnabled: value }),
+      setNotifyPostLive: (value: boolean) => set({ notifyPostLive: value }),
+      setNotifyEngagement: (value: boolean) =>
+        set({ notifyEngagement: value }),
     }),
     {
       name: 'enterprise-creator.settings',
@@ -36,17 +50,41 @@ export const useSettingsStore = create<SettingsState>()(
       partialize: (state) => ({
         warnBeforeCellular: state.warnBeforeCellular,
         notificationsEnabled: state.notificationsEnabled,
+        notifyPostLive: state.notifyPostLive,
+        notifyEngagement: state.notifyEngagement,
       }),
-      // Bump on any breaking change to the settings shape.
-      version: 1,
+      // Bump on any breaking change to the settings shape. v1 didn't have
+      // the per-type notification toggles; v2 added them. v1 -> v2: keep
+      // existing prefs and default new toggles to true (matches FE default).
+      version: 2,
       migrate: (persistedState, version) => {
-        if (version === 1) {
+        if (version === 2) {
           return persistedState as Pick<
+            SettingsState,
+            | 'warnBeforeCellular'
+            | 'notificationsEnabled'
+            | 'notifyPostLive'
+            | 'notifyEngagement'
+          >;
+        }
+        if (version === 1) {
+          const v1 = persistedState as Pick<
             SettingsState,
             'warnBeforeCellular' | 'notificationsEnabled'
           >;
+          return {
+            warnBeforeCellular: v1.warnBeforeCellular,
+            notificationsEnabled: v1.notificationsEnabled,
+            notifyPostLive: true,
+            notifyEngagement: true,
+          };
         }
-        return { warnBeforeCellular: true, notificationsEnabled: false };
+        return {
+          warnBeforeCellular: true,
+          notificationsEnabled: false,
+          notifyPostLive: true,
+          notifyEngagement: true,
+        };
       },
     },
   ),

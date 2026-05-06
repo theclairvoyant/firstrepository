@@ -199,6 +199,7 @@ export const seedWorkspaces: Workspace[] = [
       allowedCtas: acmeSkillsCtas,
       creatorJoinPolicy: 'invite_only',
     },
+    supportEmail: 'creators@pinecrest-properties.example',
   },
   {
     id: 'ws_social_acme',
@@ -220,6 +221,7 @@ export const seedWorkspaces: Workspace[] = [
       allowedCtas: acmeSocialCtas,
       creatorJoinPolicy: 'open',
     },
+    supportEmail: 'stories-team@pinecrest-properties.example',
   },
   {
     id: 'ws_skills_globex',
@@ -241,6 +243,7 @@ export const seedWorkspaces: Workspace[] = [
       allowedCtas: acmeSkillsCtas,
       creatorJoinPolicy: 'request',
     },
+    supportEmail: 'showroom-creators@velocity-motors.example',
   },
   {
     id: 'ws_partner_initech',
@@ -262,6 +265,7 @@ export const seedWorkspaces: Workspace[] = [
       allowedCtas: acmeSkillsCtas,
       creatorJoinPolicy: 'request',
     },
+    supportEmail: 'concierge-partners@cascade-hotels.example',
   },
 ];
 
@@ -317,8 +321,11 @@ export const seedMemberships: WorkspaceMembership[] = [
   {
     membershipId: 'mem_partner_initech',
     workspace: seedWorkspaces[3],
-    status: 'pending_request',
-    workspaceUsername: '',
+    // Revoked seed so the "your access was revoked" screen has a workspace
+    // to demo against. The user lands on it via the switcher's active
+    // section (revoked memberships are included there with a status pill).
+    status: 'revoked',
+    workspaceUsername: 'kiran.cascade',
     workspaceAvatarUrl: MOCK_ASSETS.workspaces.cascadeConcierge.avatarUrl,
     bannerUrl: MOCK_ASSETS.workspaces.cascadeConcierge.bannerUrl,
     bio: '',
@@ -326,7 +333,7 @@ export const seedMemberships: WorkspaceMembership[] = [
     totalViews: 0,
     totalClicks: 0,
     totalLikes: 0,
-    joinedAt: null,
+    joinedAt: isoOffset(20),
   },
 ];
 
