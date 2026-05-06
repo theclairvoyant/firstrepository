@@ -3,16 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Operator Console - Creators section mockup</title>
+<title>Operator Console - Creators</title>
 <style>
   :root {
     --sidebar-bg: #1a0d3f;
     --sidebar-bg-2: #2a1466;
     --sidebar-text: #e4dffb;
     --sidebar-text-muted: #8b80b8;
-    --sidebar-selected-bg: rgba(255, 255, 255, 0.07);
+    --sidebar-selected: rgba(255, 255, 255, 0.07);
     --sidebar-accent: #8b5cf6;
+    --topbar-bg: #1a0d3f;
     --main-bg: #faf9fc;
+    --main-bg-top: #f3effb;
     --card-bg: #ffffff;
     --card-border: #ebe9f1;
     --card-shadow: 0 1px 2px rgba(20, 14, 60, 0.04), 0 0 0 1px rgba(20, 14, 60, 0.02);
@@ -23,60 +25,37 @@
     --border: #ebe9f1;
     --border-strong: #d4d4d8;
     --border-focus: #8b5cf6;
-    --primary-gradient: linear-gradient(135deg, #7c3aed 0%, #d946ef 100%);
-    --primary-solid: #7c3aed;
-    --success: #10b981;
-    --success-bg: rgba(16, 185, 129, 0.13);
-    --info: #3b82f6;
-    --info-bg: rgba(59, 130, 246, 0.13);
-    --warning: #f59e0b;
-    --warning-bg: rgba(245, 158, 11, 0.15);
-    --danger: #ef4444;
-    --danger-bg: rgba(239, 68, 68, 0.12);
-    --neutral: #71717a;
-    --neutral-bg: rgba(113, 113, 122, 0.12);
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-pill: 999px;
-    --space-1: 4px;
-    --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 16px;
-    --space-5: 20px;
-    --space-6: 24px;
-    --space-8: 32px;
-    --space-10: 40px;
+    --primary-grad: linear-gradient(135deg, #7c3aed 0%, #d946ef 100%);
+    --primary: #7c3aed;
+    --success: #10b981; --success-bg: rgba(16, 185, 129, 0.13); --success-fg: #047857;
+    --info: #3b82f6; --info-bg: rgba(59, 130, 246, 0.13); --info-fg: #1d4ed8;
+    --warning: #f59e0b; --warning-bg: rgba(245, 158, 11, 0.15); --warning-fg: #b45309;
+    --danger: #ef4444; --danger-bg: rgba(239, 68, 68, 0.12); --danger-fg: #b91c1c;
+    --neutral: #71717a; --neutral-bg: rgba(113, 113, 122, 0.12);
+    --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-pill: 999px;
     --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
     --font-mono: 'SF Mono', Monaco, 'JetBrains Mono', 'Roboto Mono', monospace;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
   body {
-    font-family: var(--font-sans);
-    color: var(--text-primary);
-    background: var(--main-bg);
-    font-size: 14px;
-    line-height: 1.5;
+    font-family: var(--font-sans); color: var(--text-primary);
+    background: var(--main-bg); font-size: 14px; line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
+  button { font-family: inherit; }
 
   .app { display: grid; grid-template-columns: 232px 1fr; height: 100vh; }
 
   /* SIDEBAR */
   .sidebar {
-    background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--sidebar-bg-2) 100%);
+    background: linear-gradient(180deg, var(--sidebar-bg), var(--sidebar-bg-2));
     color: var(--sidebar-text);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    display: flex; flex-direction: column; overflow: hidden;
   }
   .ws-block {
-    padding: 16px 16px 16px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 16px;
+    display: flex; align-items: center; gap: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
   .ws-icon {
@@ -88,57 +67,35 @@
   .ws-meta { flex: 1; min-width: 0; }
   .ws-name { font-size: 13px; font-weight: 600; line-height: 1.2; }
   .ws-sub { font-size: 11px; color: var(--sidebar-text-muted); margin-top: 2px; }
-  .ws-toggle {
-    color: var(--sidebar-text-muted);
-    background: transparent; border: 0; cursor: pointer; padding: 4px;
-    display: flex; align-items: center;
-  }
+  .ws-toggle { color: var(--sidebar-text-muted); background: transparent; border: 0; cursor: pointer; padding: 4px; display: flex; }
+
   .nav { padding: 12px 8px; flex: 1; overflow-y: auto; }
   .nav-section-label {
-    color: var(--sidebar-text-muted);
-    font-size: 11px; font-weight: 500;
-    padding: 14px 16px 6px 16px;
-    text-transform: none;
-    letter-spacing: 0.02em;
+    color: var(--sidebar-text-muted); font-size: 11px; font-weight: 500;
+    padding: 14px 16px 6px;
   }
   .nav-item {
     display: flex; align-items: center; gap: 12px;
-    padding: 9px 12px;
-    border-radius: 10px;
-    color: var(--sidebar-text);
-    text-decoration: none;
-    cursor: pointer;
-    font-size: 13.5px;
-    font-weight: 500;
-    position: relative;
-    margin-bottom: 1px;
+    padding: 9px 12px; border-radius: 10px;
+    color: var(--sidebar-text); text-decoration: none; cursor: pointer;
+    font-size: 13.5px; font-weight: 500; position: relative; margin-bottom: 1px;
+    background: transparent; border: 0; width: 100%; text-align: left;
   }
   .nav-item:hover { background: rgba(255, 255, 255, 0.04); }
-  .nav-item.active {
-    background: var(--sidebar-selected-bg);
-  }
+  .nav-item.active { background: var(--sidebar-selected); }
   .nav-item.active::before {
-    content: '';
-    position: absolute;
-    left: -8px; top: 8px; bottom: 8px;
-    width: 3px; border-radius: 0 3px 3px 0;
-    background: var(--sidebar-accent);
+    content: ''; position: absolute; left: -8px; top: 8px; bottom: 8px;
+    width: 3px; border-radius: 0 3px 3px 0; background: var(--sidebar-accent);
   }
   .nav-item svg { color: var(--sidebar-text-muted); flex-shrink: 0; }
   .nav-item.active svg { color: white; }
-  .nav-item.sub { padding-left: 12px; }
+
   .user-card {
-    margin: 8px 12px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 12px;
-    display: flex; align-items: center; gap: 10px;
-    cursor: pointer;
+    margin: 8px 12px; padding: 10px;
+    background: rgba(255, 255, 255, 0.04); border-radius: 12px;
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
   }
-  .user-card .avatar {
-    width: 32px; height: 32px; border-radius: 999px; flex-shrink: 0;
-    background: linear-gradient(135deg, #06b6d4, #3b82f6);
-  }
+  .user-card .avatar { width: 32px; height: 32px; border-radius: 999px; flex-shrink: 0; background: linear-gradient(135deg, #06b6d4, #3b82f6); }
   .user-card .meta { flex: 1; min-width: 0; }
   .user-card .name { font-size: 13px; font-weight: 600; }
   .user-card .role { font-size: 11px; color: var(--sidebar-text-muted); margin-top: 1px; }
@@ -149,35 +106,19 @@
   .topbar {
     height: 60px; padding: 0 24px;
     display: flex; align-items: center; gap: 16px;
-    background: linear-gradient(180deg, #1a0d3f 0%, #1a0d3f 100%);
-    color: white;
+    background: var(--topbar-bg); color: white;
   }
   .topbar h1 { font-size: 16px; font-weight: 600; flex: 1; min-width: 0; color: white; }
-  .topbar .tabs { display: flex; gap: 28px; margin-right: 16px; }
-  .topbar .tab {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 14px; font-weight: 500;
-    padding: 6px 0; cursor: pointer;
-    border-bottom: 2px solid transparent;
-    background: transparent; border-top: 0; border-left: 0; border-right: 0;
-  }
-  .topbar .tab.active {
-    color: white; border-bottom-color: var(--sidebar-accent);
-  }
-  .topbar-right { display: flex; align-items: center; gap: 12px; }
   .invite-btn {
-    background: rgba(255, 255, 255, 0.1);
-    color: white; border: 0;
-    padding: 8px 18px; border-radius: 10px;
-    font-size: 13px; font-weight: 500; cursor: pointer;
+    background: rgba(255, 255, 255, 0.1); color: white; border: 0;
+    padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer;
   }
   .ws-switch {
-    background: white; color: var(--text-primary);
-    border: 0; padding: 6px 14px 6px 8px; border-radius: 10px;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
+    background: white; color: var(--text-primary); border: 0;
+    padding: 6px 14px 6px 8px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; gap: 8px;
   }
-  .ws-switch .ws-switch-icon {
+  .ws-switch-icon {
     width: 22px; height: 22px; border-radius: 6px;
     background: linear-gradient(135deg, #06b6d4, #3b82f6);
     color: white; display: flex; align-items: center; justify-content: center;
@@ -186,97 +127,62 @@
 
   .content {
     flex: 1; padding: 24px;
-    background: linear-gradient(180deg, #f3effb 0%, #faf9fc 200px);
+    background: linear-gradient(180deg, var(--main-bg-top) 0%, var(--main-bg) 200px);
     overflow-y: auto; position: relative;
   }
   .panel-card {
-    background: var(--card-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--card-border);
+    background: var(--card-bg); border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow); border: 1px solid var(--card-border);
     overflow: hidden;
   }
 
-  /* Top action row */
+  /* ACTIONS ROW (search + filters + buttons) */
   .actions-row {
     display: flex; align-items: center; gap: 12px;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--card-border);
+    padding: 16px 20px; border-bottom: 1px solid var(--card-border);
+    flex-wrap: wrap;
   }
-  .search {
-    flex: 1; max-width: 360px;
-    position: relative;
-    display: flex; align-items: center;
-  }
+  .search { flex: 1; max-width: 360px; position: relative; display: flex; align-items: center; }
   .search input {
     width: 100%; padding: 10px 12px 10px 36px;
-    border: 1px solid var(--border);
-    background: white;
-    border-radius: 10px;
-    font-size: 13px;
-    font-family: inherit;
+    border: 1px solid var(--border); background: white; border-radius: 10px;
+    font-size: 13px; font-family: inherit;
   }
   .search input:focus { outline: none; border-color: var(--border-focus); }
   .search svg { position: absolute; left: 12px; color: var(--text-muted); }
   .filter-chip {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 12px;
-    border: 1px solid var(--border);
-    background: white;
-    border-radius: var(--radius-pill);
-    font-size: 12.5px; font-weight: 500;
-    color: var(--text-secondary);
-    cursor: pointer;
+    padding: 7px 12px; border: 1px solid var(--border); background: white;
+    border-radius: var(--radius-pill); font-size: 12.5px; font-weight: 500;
+    color: var(--text-secondary); cursor: pointer;
   }
-  .filter-chip.active {
-    border-color: var(--primary-solid);
-    color: var(--primary-solid);
-    background: rgba(124, 58, 237, 0.06);
-  }
-  .filter-chip svg { color: var(--text-muted); }
+  .filter-chip.active { border-color: var(--primary); color: var(--primary); background: rgba(124, 58, 237, 0.06); }
   .spacer { flex: 1; }
+
+  /* BUTTONS */
   .btn {
-    border: 0; cursor: pointer;
-    padding: 9px 16px;
-    border-radius: 10px;
-    font-size: 13px; font-weight: 600;
-    font-family: inherit;
+    border: 0; cursor: pointer; padding: 9px 16px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; font-family: inherit;
     display: inline-flex; align-items: center; gap: 6px;
   }
-  .btn-primary {
-    background: var(--primary-gradient);
-    color: white;
-    box-shadow: 0 1px 2px rgba(124, 58, 237, 0.4);
-  }
-  .btn-secondary {
-    background: white;
-    color: var(--text-primary);
-    border: 1px solid var(--border);
-  }
-  .btn-ghost {
-    background: transparent;
-    color: var(--text-secondary);
-  }
-  .btn-danger {
-    background: var(--danger);
-    color: white;
-  }
+  .btn-primary { background: var(--primary-grad); color: white; box-shadow: 0 1px 2px rgba(124, 58, 237, 0.4); }
+  .btn-secondary { background: white; color: var(--text-primary); border: 1px solid var(--border); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger-outline { background: white; color: var(--danger); border: 1px solid var(--danger); }
+  .btn-success { background: var(--success); color: white; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* TABLE */
   table.list { width: 100%; border-collapse: collapse; }
   table.list th {
-    text-align: left;
-    font-size: 12px; font-weight: 500;
-    color: var(--text-muted-2);
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--card-border);
-    background: #fcfbfe;
+    text-align: left; font-size: 12px; font-weight: 500;
+    color: var(--text-muted-2); padding: 12px 20px;
+    border-bottom: 1px solid var(--card-border); background: #fcfbfe;
   }
   table.list td {
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--card-border);
-    vertical-align: middle;
-    font-size: 13.5px;
+    padding: 14px 20px; border-bottom: 1px solid var(--card-border);
+    vertical-align: middle; font-size: 13.5px;
   }
   table.list tr:last-child td { border-bottom: 0; }
   table.list tr.row { cursor: pointer; }
@@ -286,197 +192,207 @@
     width: 36px; height: 36px; border-radius: 999px;
     background: linear-gradient(135deg, #6366f1, #d946ef);
     color: white; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 600;
-    flex-shrink: 0;
+    font-size: 13px; font-weight: 600; flex-shrink: 0;
+  }
+  .avatar-sm {
+    width: 24px; height: 24px; border-radius: 999px;
+    background: linear-gradient(135deg, #f59e0b, #ec4899);
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; flex-shrink: 0;
   }
   .creator-name { font-weight: 600; font-size: 14px; }
-  .creator-handle {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 1px;
-  }
+  .creator-handle { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
   /* PILLS */
   .pill {
     display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px;
-    border-radius: var(--radius-pill);
-    font-size: 12px; font-weight: 600;
-    line-height: 1.2;
+    padding: 4px 10px; border-radius: var(--radius-pill);
+    font-size: 12px; font-weight: 600; line-height: 1.2;
   }
-  .pill-success { background: var(--success-bg); color: #047857; }
-  .pill-info { background: var(--info-bg); color: #1d4ed8; }
-  .pill-warning { background: var(--warning-bg); color: #b45309; }
-  .pill-danger { background: var(--danger-bg); color: #b91c1c; }
+  .pill-success { background: var(--success-bg); color: var(--success-fg); }
+  .pill-info { background: var(--info-bg); color: var(--info-fg); }
+  .pill-warning { background: var(--warning-bg); color: var(--warning-fg); }
+  .pill-danger { background: var(--danger-bg); color: var(--danger-fg); }
   .pill-neutral { background: var(--neutral-bg); color: var(--neutral); }
-  .pill-dot {
-    width: 6px; height: 6px; border-radius: 999px;
-    background: currentColor;
-    display: inline-block;
-  }
+  .pill-dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; display: inline-block; }
+  .pill-sm { padding: 2px 6px; font-size: 10px; }
 
   /* KEBAB */
   .kebab {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    border: 0; background: transparent;
-    cursor: pointer;
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 0; background: transparent; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     color: var(--text-muted);
   }
   .kebab:hover { background: var(--border); }
+  .kebab-menu {
+    position: absolute; right: 12px; top: 100%;
+    background: white; border: 1px solid var(--border);
+    border-radius: 12px; box-shadow: 0 8px 24px rgba(20, 14, 60, 0.12);
+    padding: 6px; min-width: 180px; z-index: 20;
+  }
+  .kebab-menu.hidden { display: none; }
+  .kebab-menu button {
+    width: 100%; text-align: left; padding: 8px 12px;
+    border: 0; background: transparent; cursor: pointer;
+    font-size: 13px; border-radius: 8px;
+    display: flex; align-items: center; gap: 10px;
+    color: var(--text-primary);
+  }
+  .kebab-menu button:hover { background: #f4f4f5; }
+  .kebab-menu button.danger { color: var(--danger); }
 
   /* PAGINATION */
-  .pager {
-    display: flex; align-items: center; gap: 4px;
-    padding: 12px 20px;
-    justify-content: flex-end;
-  }
+  .pager { display: flex; align-items: center; gap: 4px; padding: 12px 20px; justify-content: flex-end; }
   .pager button {
-    border: 0; background: transparent;
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    cursor: pointer;
-    color: var(--text-secondary);
+    border: 0; background: transparent; width: 32px; height: 32px;
+    border-radius: 8px; cursor: pointer; color: var(--text-secondary);
     font-size: 13px; font-weight: 500;
-    font-family: inherit;
   }
-  .pager button.active { background: var(--primary-solid); color: white; }
+  .pager button.active { background: var(--primary); color: white; }
   .pager button:not(.active):hover { background: var(--border); }
 
-  /* SUB-TABS within a page */
+  /* SUB-TABS */
   .subtabs {
-    display: flex; gap: 4px;
-    padding: 0 20px;
-    border-bottom: 1px solid var(--card-border);
-    background: white;
+    display: flex; gap: 4px; padding: 0 20px;
+    border-bottom: 1px solid var(--card-border); background: white;
   }
   .subtab {
-    padding: 14px 16px;
-    background: transparent; border: 0;
-    border-bottom: 2px solid transparent;
-    color: var(--text-secondary);
-    font-size: 13.5px; font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
+    padding: 14px 16px; background: transparent; border: 0;
+    border-bottom: 2px solid transparent; color: var(--text-secondary);
+    font-size: 13.5px; font-weight: 500; cursor: pointer;
   }
-  .subtab.active {
-    color: var(--primary-solid);
-    border-bottom-color: var(--primary-solid);
-  }
+  .subtab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-  /* PAGE HEADER */
-  .page-head {
-    display: flex; align-items: center; gap: 16px;
-    margin-bottom: 16px;
-  }
-  .page-head h2 { font-size: 18px; font-weight: 600; }
-
-  /* RIGHT SIDE PANEL */
+  /* RIGHT PANEL */
   .right-panel {
-    position: absolute;
-    top: 0; right: 0; bottom: 0;
-    width: 460px;
-    background: white;
-    box-shadow: -8px 0 32px rgba(20, 14, 60, 0.08);
+    position: absolute; top: 0; right: 0; bottom: 0; width: 480px;
+    background: white; box-shadow: -8px 0 32px rgba(20, 14, 60, 0.08);
     border-left: 1px solid var(--card-border);
-    display: flex; flex-direction: column;
-    z-index: 10;
+    display: flex; flex-direction: column; z-index: 10;
   }
   .right-panel.hidden { display: none; }
-  .panel-head {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--card-border);
-  }
-  .panel-creator {
-    display: flex; align-items: center; gap: 14px;
-    margin-bottom: 12px;
-  }
+  .panel-head { padding: 20px 24px; border-bottom: 1px solid var(--card-border); position: relative; }
+  .panel-creator { display: flex; align-items: center; gap: 14px; }
   .avatar-lg {
     width: 56px; height: 56px; border-radius: 999px;
     background: linear-gradient(135deg, #6366f1, #d946ef);
-    color: white;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 600;
-    flex-shrink: 0;
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 600; flex-shrink: 0;
   }
   .panel-name { font-size: 18px; font-weight: 600; }
-  .panel-handle { font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); }
+  .panel-handle { font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); margin-top: 2px; }
   .panel-tabs {
-    display: flex; gap: 4px;
-    margin-top: 12px;
-    border-bottom: 1px solid var(--card-border);
-    margin: 12px -24px 0 -24px;
-    padding: 0 24px;
+    display: flex; gap: 4px; margin: 16px -24px -20px;
+    padding: 0 24px; border-bottom: 1px solid var(--card-border);
   }
   .panel-tab {
-    padding: 10px 12px;
-    border: 0; background: transparent;
-    color: var(--text-secondary);
-    font-size: 13px; font-weight: 500;
-    border-bottom: 2px solid transparent;
-    cursor: pointer; font-family: inherit;
+    padding: 10px 12px; border: 0; background: transparent;
+    color: var(--text-secondary); font-size: 13px; font-weight: 500;
+    border-bottom: 2px solid transparent; cursor: pointer;
   }
-  .panel-tab.active { color: var(--primary-solid); border-bottom-color: var(--primary-solid); }
-  .panel-body {
-    padding: 20px 24px;
-    overflow-y: auto; flex: 1;
+  .panel-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .panel-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+  .panel-foot {
+    padding: 14px 24px; border-top: 1px solid var(--card-border);
+    background: #fafafa; display: flex; gap: 8px;
   }
   .panel-close {
     position: absolute; top: 16px; right: 16px;
     width: 32px; height: 32px; border-radius: 8px;
     border: 0; background: transparent; cursor: pointer;
-    color: var(--text-muted);
-    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); display: flex; align-items: center; justify-content: center;
   }
   .panel-close:hover { background: var(--border); }
+  .panel-pane { display: none; }
+  .panel-pane.active { display: block; }
 
   .fact-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--card-border);
-    font-size: 13px;
+    padding: 10px 0; border-bottom: 1px solid var(--card-border); font-size: 13px;
   }
   .fact-row:last-child { border-bottom: 0; }
   .fact-label { color: var(--text-muted); }
   .fact-value { font-weight: 500; }
 
   .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
-  .stat-card {
-    background: #faf9fc; border-radius: 12px;
-    padding: 12px;
-  }
+  .stat-card { background: #faf9fc; border-radius: 12px; padding: 12px; }
   .stat-num { font-size: 20px; font-weight: 700; }
   .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
 
-  /* SECTION GROUPS */
-  .section-block { margin-bottom: 16px; }
   .section-title {
-    font-size: 11px; font-weight: 600;
-    color: var(--text-muted-2);
+    font-size: 11px; font-weight: 600; color: var(--text-muted-2);
     text-transform: uppercase; letter-spacing: 0.06em;
-    margin-bottom: 8px;
-    padding: 0 4px;
+    margin: 16px 0 8px; padding: 0 4px;
   }
 
-  /* CARDS for forms */
-  .form-card {
-    background: white; border-radius: 16px;
-    border: 1px solid var(--card-border);
-    box-shadow: var(--card-shadow);
-    padding: 20px;
+  /* NOTICE box (for revoked/pending state in panel) */
+  .notice {
+    border-radius: 12px; padding: 14px 16px;
+    display: flex; align-items: flex-start; gap: 12px;
     margin-bottom: 16px;
   }
+  .notice-info { background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); }
+  .notice-warning { background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.25); }
+  .notice-danger { background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.25); }
+  .notice-icon { flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .notice-info .notice-icon { background: var(--info-bg); color: var(--info-fg); }
+  .notice-warning .notice-icon { background: var(--warning-bg); color: var(--warning-fg); }
+  .notice-danger .notice-icon { background: var(--danger-bg); color: var(--danger-fg); }
+  .notice-title { font-size: 13.5px; font-weight: 600; }
+  .notice-body { font-size: 12.5px; color: var(--text-secondary); margin-top: 4px; }
+
+  /* POSTS LIST in panel */
+  .post-row {
+    display: grid; grid-template-columns: 56px 1fr auto; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--card-border); align-items: center;
+    cursor: pointer;
+  }
+  .post-row:hover { background: #fbfaff; }
+  .post-row:last-child { border-bottom: 0; }
+  .post-thumb {
+    width: 48px; height: 64px; border-radius: 8px;
+    background: linear-gradient(135deg, #1e293b, #475569);
+    flex-shrink: 0; position: relative; overflow: hidden;
+  }
+  .post-thumb::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.4));
+  }
+  .post-title { font-size: 13px; font-weight: 500; }
+  .post-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .post-stat { font-size: 12px; color: var(--text-secondary); text-align: right; font-weight: 600; }
+
+  /* ACTIVITY in panel */
+  .activity-item {
+    display: grid; grid-template-columns: 24px 1fr; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--card-border);
+  }
+  .activity-item:last-child { border-bottom: 0; }
+  .activity-dot {
+    width: 8px; height: 8px; border-radius: 999px; background: var(--primary);
+    margin-top: 6px; margin-left: 8px;
+  }
+  .activity-dot.success { background: var(--success); }
+  .activity-dot.danger { background: var(--danger); }
+  .activity-dot.warning { background: var(--warning); }
+  .activity-text { font-size: 13px; line-height: 1.5; }
+  .activity-text strong { font-weight: 600; }
+  .activity-time { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+  /* FORM CARDS for Policy + Settings */
+  .form-card {
+    background: white; border-radius: 16px;
+    border: 1px solid var(--card-border); box-shadow: var(--card-shadow);
+    padding: 20px; margin-bottom: 16px;
+  }
   .form-card h3 {
-    font-size: 15px; font-weight: 600;
-    margin-bottom: 6px;
+    font-size: 15px; font-weight: 600; margin-bottom: 6px;
     display: flex; align-items: center; gap: 8px;
   }
-  .form-card .form-card-icon {
+  .form-card-icon {
     width: 32px; height: 32px; border-radius: 8px;
-    background: rgba(124, 58, 237, 0.12);
-    color: var(--primary-solid);
+    background: rgba(124, 58, 237, 0.12); color: var(--primary);
     display: flex; align-items: center; justify-content: center;
   }
   .form-card-sub { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; }
@@ -485,203 +401,144 @@
   .form-row input,
   .form-row select,
   .form-row textarea {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 9px 12px;
-    font-size: 13.5px;
-    font-family: inherit;
-    background: white;
+    width: 100%; border: 1px solid var(--border); border-radius: 10px;
+    padding: 9px 12px; font-size: 13.5px; font-family: inherit; background: white;
   }
   .form-row textarea { min-height: 72px; resize: vertical; }
   .form-row .helper { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
 
   .toggle {
-    display: inline-flex; align-items: center;
-    width: 40px; height: 22px;
+    display: inline-flex; width: 40px; height: 22px;
     background: var(--border-strong); border-radius: 999px;
-    cursor: pointer; padding: 2px;
-    transition: background 0.15s;
+    cursor: pointer; padding: 2px; transition: background 0.15s;
   }
-  .toggle.on { background: var(--primary-solid); }
+  .toggle.on { background: var(--primary); }
   .toggle .knob {
     width: 18px; height: 18px; border-radius: 999px;
-    background: white; transform: translateX(0);
-    transition: transform 0.15s;
+    background: white; transform: translateX(0); transition: transform 0.15s;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
   .toggle.on .knob { transform: translateX(18px); }
 
   .toggle-row {
     display: flex; align-items: center; gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--card-border);
+    padding: 10px 0; border-bottom: 1px solid var(--card-border);
   }
   .toggle-row:last-child { border-bottom: 0; }
   .toggle-row .text { flex: 1; }
   .toggle-row .text-title { font-size: 13.5px; font-weight: 500; }
   .toggle-row .text-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-  /* DOMAIN PROVISION rows */
   .domain-row {
     display: flex; align-items: center; gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--card-border);
-    font-size: 13.5px;
+    padding: 10px 0; border-bottom: 1px solid var(--card-border); font-size: 13.5px;
   }
   .domain-row:last-child { border-bottom: 0; }
   .domain-mono { font-family: var(--font-mono); }
 
   /* MODAL */
   .modal-backdrop {
-    position: fixed; inset: 0;
-    background: rgba(20, 14, 60, 0.32);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100;
+    position: fixed; inset: 0; background: rgba(20, 14, 60, 0.32);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
   }
   .modal-backdrop.hidden { display: none; }
   .modal {
-    background: white;
-    border-radius: 16px;
-    width: 520px; max-width: calc(100% - 32px);
-    max-height: 90vh;
-    overflow: hidden;
-    display: flex; flex-direction: column;
+    background: white; border-radius: 16px;
+    width: 540px; max-width: calc(100% - 32px); max-height: 90vh;
+    overflow: hidden; display: flex; flex-direction: column;
   }
+  .modal.wide { width: 720px; }
   .modal-head {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--card-border);
-    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px; border-bottom: 1px solid var(--card-border);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
   }
   .modal-head h3 { font-size: 16px; font-weight: 600; }
-  .modal-head .sub { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+  .modal-head .sub { font-size: 12.5px; color: var(--text-muted); margin-top: 4px; }
   .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
   .modal-foot {
-    padding: 14px 24px;
-    border-top: 1px solid var(--card-border);
-    display: flex; gap: 8px; justify-content: flex-end;
-    background: #fafafa;
+    padding: 14px 24px; border-top: 1px solid var(--card-border);
+    display: flex; gap: 8px; justify-content: flex-end; background: #fafafa;
   }
 
-  /* DANGER ZONE */
-  .danger-card {
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    background: rgba(239, 68, 68, 0.02);
-  }
+  .danger-card { border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.02); }
   .danger-card h3 { color: var(--danger); }
-  .danger-card .form-card-icon { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+  .danger-card .form-card-icon { background: var(--danger-bg); color: var(--danger); }
 
-  /* COPY CHIP */
   .copy-chip {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 10px;
-    background: #f4f4f5;
-    border-radius: 8px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-primary);
+    padding: 4px 10px; background: #f4f4f5; border-radius: 8px;
+    font-family: var(--font-mono); font-size: 12px; color: var(--text-primary);
     cursor: pointer;
   }
   .copy-chip:hover { background: var(--border); }
 
-  /* DEMO ROUTER */
-  .demo-router {
-    position: fixed; bottom: 20px; left: 240px;
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 4px;
-    display: flex; gap: 2px;
-    box-shadow: 0 4px 16px rgba(20, 14, 60, 0.12);
-    z-index: 50;
-  }
-  .demo-router button {
-    border: 0; background: transparent;
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 12px; font-weight: 500;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .demo-router button.active {
-    background: var(--primary-gradient); color: white;
-  }
-
-  /* INVITE CARD specials */
-  .invite-card {
-    display: grid; grid-template-columns: 56px 1fr;
-    gap: 14px;
-    padding: 14px;
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    margin-bottom: 10px;
-  }
-  .invite-card .icon-wrap {
-    width: 48px; height: 48px; border-radius: 12px;
-    background: rgba(124, 58, 237, 0.1); color: var(--primary-solid);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .invite-card-title { font-size: 14.5px; font-weight: 600; margin-bottom: 4px; }
-  .invite-card-sub { font-size: 12.5px; color: var(--text-muted); }
-
-  .post-row {
-    display: grid; grid-template-columns: 60px 1fr auto;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--card-border);
-    align-items: center;
-  }
-  .post-row:last-child { border-bottom: 0; }
-  .post-thumb {
-    width: 50px; height: 70px; border-radius: 8px;
-    background: linear-gradient(135deg, #1e293b, #475569);
-    flex-shrink: 0;
-  }
-  .post-title { font-size: 13px; font-weight: 500; }
-  .post-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; }
-  .post-stat { font-size: 12px; color: var(--text-muted); text-align: right; }
-
-  .activity-item {
-    display: grid; grid-template-columns: 32px 1fr;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--card-border);
-  }
-  .activity-item:last-child { border-bottom: 0; }
-  .activity-dot {
-    width: 8px; height: 8px; border-radius: 999px;
-    background: var(--primary-solid);
-    margin-top: 6px; margin-left: 12px;
-  }
-  .activity-text { font-size: 13px; }
-  .activity-time { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
-
-  /* DROP ZONE */
   .dropzone {
-    border: 1.5px dashed var(--border-strong);
-    border-radius: 12px;
-    padding: 28px;
-    text-align: center;
-    color: var(--text-muted);
-    background: #fafafa;
-    cursor: pointer;
+    border: 1.5px dashed var(--border-strong); border-radius: 12px;
+    padding: 28px; text-align: center; color: var(--text-muted);
+    background: #fafafa; cursor: pointer;
   }
-  .dropzone:hover { border-color: var(--primary-solid); color: var(--primary-solid); }
+  .dropzone:hover { border-color: var(--primary); color: var(--primary); }
 
-  .empty-state {
-    padding: 56px 24px;
-    text-align: center;
-  }
+  .empty-state { padding: 56px 24px; text-align: center; }
   .empty-state .icon-wrap {
     width: 56px; height: 56px; border-radius: 16px;
-    background: rgba(124, 58, 237, 0.1);
-    color: var(--primary-solid);
+    background: rgba(124, 58, 237, 0.1); color: var(--primary);
     display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 16px auto;
+    margin: 0 auto 16px;
   }
   .empty-state h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
   .empty-state p { color: var(--text-muted); font-size: 13.5px; margin-bottom: 20px; }
+
+  /* TAG / CTA management modals */
+  .group-card {
+    border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 14px; margin-bottom: 10px;
+  }
+  .group-head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .group-name { font-weight: 600; font-size: 13.5px; flex: 1; }
+  .tag-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px 4px 12px;
+    background: #f4f4f5; border-radius: 999px;
+    font-size: 12px; margin: 2px;
+  }
+  .tag-chip .x { cursor: pointer; color: var(--text-muted); }
+  .tag-chip .x:hover { color: var(--danger); }
+
+  .cta-row {
+    display: grid; grid-template-columns: 36px 1fr auto auto auto;
+    gap: 12px; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--card-border);
+  }
+  .cta-row:last-child { border-bottom: 0; }
+  .cta-icon-wrap {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 16px;
+  }
+  .cta-name { font-size: 13.5px; font-weight: 500; }
+  .cta-url { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+  /* Inline approve/reject buttons in row */
+  .row-actions { display: inline-flex; gap: 6px; }
+  .row-action {
+    border: 0; cursor: pointer; padding: 5px 10px;
+    border-radius: 8px; font-size: 12px; font-weight: 600;
+    font-family: inherit;
+  }
+  .row-action.approve { background: var(--success); color: white; }
+  .row-action.reject { background: white; color: var(--danger); border: 1px solid var(--danger); }
+
+  /* TABS PANE */
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* INVITES SUB-PANE */
+  .invite-subpane { display: none; }
+  .invite-subpane.active { display: block; }
 </style>
 </head>
 <body>
@@ -696,81 +553,81 @@
         <div class="ws-name">rider-training</div>
         <div class="ws-sub">Skills Workspace</div>
       </div>
-      <button class="ws-toggle" aria-label="Toggle">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9l-5 3 5 3z"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      <button class="ws-toggle" aria-label="Toggle sidebar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M14 9l-5 3 5 3z"/></svg>
       </button>
     </div>
 
     <nav class="nav">
-      <a class="nav-item" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.24V7.5a3.5 3.5 0 117 0V14"/><path d="M5 14h14l-1 7H6z"/></svg>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.24V7.5a3.5 3.5 0 117 0V14"/><path d="M5 14h14l-1 7H6z"/></svg>
         Conversions
-      </a>
-      <a class="nav-item" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </button>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         Uploads
-      </a>
-      <a class="nav-item" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         Feeds
-      </a>
-      <a class="nav-item" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-3V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM9 5h6v2H9z"/></svg>
+      </button>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-3V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM9 5h6v2H9z"/></svg>
         Assets
-      </a>
-      <a class="nav-item" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      </button>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
         Courses
-      </a>
-      <a class="nav-item" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><circle cx="17" cy="7" r="3"/><path d="M21 21v-2a4 4 0 00-3-3.87"/></svg>
+      </button>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><circle cx="17" cy="7" r="3"/><path d="M21 21v-2a4 4 0 00-3-3.87"/></svg>
         Users
-      </a>
-      <a class="nav-item" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </button>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Experience
-      </a>
-      <a class="nav-item" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </button>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         Answers
-      </a>
+      </button>
 
       <div class="nav-section-label">Creators</div>
-      <a class="nav-item sub active" data-tab="directory" id="navDirectory">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21v-1a7 7 0 0114 0v1"/></svg>
+      <button class="nav-item active" data-tab="directory">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21v-1a7 7 0 0114 0v1"/></svg>
         Directory
-      </a>
-      <a class="nav-item sub" data-tab="invites" id="navInvites">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </button>
+      <button class="nav-item" data-tab="invites">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Invites
-      </a>
-      <a class="nav-item sub" data-tab="policy" id="navPolicy">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </button>
+      <button class="nav-item" data-tab="policy">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Policy
-      </a>
+      </button>
 
       <div class="nav-section-label">Analytics</div>
-      <a class="nav-item sub" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         Engagement
-      </a>
-      <a class="nav-item sub" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+      </button>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
         Distribution
-      </a>
-      <a class="nav-item sub" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+      </button>
+      <button class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
         Skills
-      </a>
+      </button>
     </nav>
 
     <div class="user-card">
       <div class="avatar"></div>
       <div class="meta">
         <div class="name">Kavin Smith</div>
-        <div class="role">Moderator</div>
+        <div class="role">Admin</div>
       </div>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
   </aside>
 
@@ -779,34 +636,35 @@
     <header class="topbar">
       <h1 id="topbarTitle">Manage Creators</h1>
       <button class="invite-btn" onclick="openModal('inviteModal')">Invite</button>
-      <div class="ws-switch">
+      <button class="ws-switch">
         <span class="ws-switch-icon">M</span>
         MindMatrix
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
     </header>
 
-    <div class="content" id="content">
-      <!-- DIRECTORY -->
-      <section class="tab-pane" id="paneDirectory">
+    <div class="content">
+
+      <!-- ============================== DIRECTORY ============================== -->
+      <section class="tab-pane active" id="paneDirectory">
         <div class="panel-card">
           <div class="actions-row">
             <div class="search">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
               <input placeholder="Search 1,247 creators" />
             </div>
             <span class="filter-chip active">All
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </span>
             <span class="filter-chip">Active</span>
             <span class="filter-chip">Pending</span>
             <span class="filter-chip">Revoked</span>
             <span class="filter-chip">Last 30d
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </span>
             <div class="spacer"></div>
             <button class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export CSV
             </button>
             <button class="btn btn-primary" onclick="openModal('inviteModal')">+ Invite</button>
@@ -826,131 +684,75 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="row" onclick="openSidePanel()">
-                <td>
-                  <div class="creator-cell">
-                    <div class="avatar-md" style="background: linear-gradient(135deg, #f59e0b, #ec4899);">KP</div>
-                    <div>
-                      <div class="creator-name">Kiran Patel</div>
-                      <div class="creator-handle">@kiran.sales</div>
-                    </div>
-                  </div>
-                </td>
+              <tr class="row" onclick="openPanel('active', 'Kiran Patel', 'KP', 'kiran.sales', '#f59e0b,#ec4899')">
+                <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #f59e0b, #ec4899);">KP</div><div><div class="creator-name">Kiran Patel</div><div class="creator-handle">@kiran.sales</div></div></div></td>
                 <td><span class="creator-handle">kiran.sales</span></td>
                 <td><span class="pill pill-success"><span class="pill-dot"></span>Active</span></td>
                 <td>12</td>
                 <td>184,230</td>
                 <td>2 weeks ago</td>
                 <td>1 hr ago</td>
-                <td><button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
               </tr>
-              <tr class="row">
-                <td>
-                  <div class="creator-cell">
-                    <div class="avatar-md" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);">PS</div>
-                    <div>
-                      <div class="creator-name">Priya Shah</div>
-                      <div class="creator-handle">@priya.stories</div>
-                    </div>
-                  </div>
-                </td>
+              <tr class="row" onclick="openPanel('active', 'Priya Shah', 'PS', 'priya.stories', '#06b6d4,#3b82f6')">
+                <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);">PS</div><div><div class="creator-name">Priya Shah</div><div class="creator-handle">@priya.stories</div></div></div></td>
                 <td><span class="creator-handle">priya.stories</span></td>
                 <td><span class="pill pill-success"><span class="pill-dot"></span>Active</span></td>
                 <td>34</td>
                 <td>412,890</td>
                 <td>3 months ago</td>
                 <td>22 mins ago</td>
-                <td><button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
               </tr>
-              <tr class="row">
-                <td>
-                  <div class="creator-cell">
-                    <div class="avatar-md" style="background: linear-gradient(135deg, #10b981, #059669);">MA</div>
-                    <div>
-                      <div class="creator-name">Marcus Anderson</div>
-                      <div class="creator-handle">@marcus.cars</div>
-                    </div>
-                  </div>
-                </td>
+              <tr class="row" onclick="openPanel('pending_invite', 'Marcus Anderson', 'MA', 'marcus.cars', '#10b981,#059669')">
+                <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #10b981, #059669);">MA</div><div><div class="creator-name">Marcus Anderson</div><div class="creator-handle">marcus.anderson@velocity-motors.example</div></div></div></td>
                 <td><span class="creator-handle">marcus.cars</span></td>
                 <td><span class="pill pill-info"><span class="pill-dot"></span>Pending invite</span></td>
                 <td>0</td>
                 <td>-</td>
                 <td>-</td>
                 <td>Invited 2d ago</td>
-                <td><button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
               </tr>
-              <tr class="row">
-                <td>
-                  <div class="creator-cell">
-                    <div class="avatar-md" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">AL</div>
-                    <div>
-                      <div class="creator-name">Anita Lopez</div>
-                      <div class="creator-handle">@anita.stories</div>
-                    </div>
-                  </div>
-                </td>
-                <td><span class="creator-handle">anita.stories</span></td>
+              <tr class="row" onclick="event.stopPropagation();">
+                <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">AL</div><div><div class="creator-name">Anita Lopez</div><div class="creator-handle">anita.lopez@pinecrest-properties.example</div></div></div></td>
+                <td><span class="creator-handle">-</span></td>
                 <td><span class="pill pill-warning"><span class="pill-dot"></span>Pending request</span></td>
                 <td>0</td>
                 <td>-</td>
                 <td>-</td>
-                <td>Requested 5h ago</td>
-                <td><button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                <td>5h ago</td>
+                <td><div class="row-actions"><button class="row-action approve" onclick="event.stopPropagation(); openModal('approveRequestModal');">Approve</button><button class="row-action reject" onclick="event.stopPropagation();">Reject</button></div></td>
               </tr>
-              <tr class="row">
-                <td>
-                  <div class="creator-cell">
-                    <div class="avatar-md" style="background: linear-gradient(135deg, #ef4444, #f59e0b);">JC</div>
-                    <div>
-                      <div class="creator-name">Johnny Cabello</div>
-                      <div class="creator-handle">@johnnyc</div>
-                    </div>
-                  </div>
-                </td>
+              <tr class="row" onclick="openPanel('revoked', 'Johnny Cabello', 'JC', 'johnnyc', '#ef4444,#f59e0b')">
+                <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #ef4444, #f59e0b);">JC</div><div><div class="creator-name">Johnny Cabello</div><div class="creator-handle">@johnnyc</div></div></div></td>
                 <td><span class="creator-handle">johnnyc</span></td>
                 <td><span class="pill pill-danger"><span class="pill-dot"></span>Revoked</span></td>
                 <td>8</td>
                 <td>23,410</td>
                 <td>4 months ago</td>
                 <td>3 weeks ago</td>
-                <td><button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
               </tr>
-              <tr class="row">
-                <td>
-                  <div class="creator-cell">
-                    <div class="avatar-md" style="background: linear-gradient(135deg, #14b8a6, #06b6d4);">SG</div>
-                    <div>
-                      <div class="creator-name">Samantha Gray</div>
-                      <div class="creator-handle">@s.gray</div>
-                    </div>
-                  </div>
-                </td>
+              <tr class="row" onclick="openPanel('active', 'Samantha Gray', 'SG', 's.gray', '#14b8a6,#06b6d4')">
+                <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #14b8a6, #06b6d4);">SG</div><div><div class="creator-name">Samantha Gray</div><div class="creator-handle">@s.gray</div></div></div></td>
                 <td><span class="creator-handle">s.gray</span></td>
                 <td><span class="pill pill-success"><span class="pill-dot"></span>Active</span></td>
                 <td>21</td>
                 <td>89,114</td>
                 <td>1 month ago</td>
                 <td>4 hrs ago</td>
-                <td><button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
               </tr>
-              <tr class="row">
-                <td>
-                  <div class="creator-cell">
-                    <div class="avatar-md" style="background: linear-gradient(135deg, #f97316, #f59e0b);">MC</div>
-                    <div>
-                      <div class="creator-name">Mackie Cavil</div>
-                      <div class="creator-handle">@mackie</div>
-                    </div>
-                  </div>
-                </td>
+              <tr class="row" onclick="openPanel('active', 'Mackie Cavil', 'MC', 'mackie', '#f97316,#f59e0b')">
+                <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #f97316, #f59e0b);">MC</div><div><div class="creator-name">Mackie Cavil</div><div class="creator-handle">@mackie</div></div></div></td>
                 <td><span class="creator-handle">mackie</span></td>
                 <td><span class="pill pill-success"><span class="pill-dot"></span>Active</span></td>
                 <td>3</td>
                 <td>4,820</td>
                 <td>2 days ago</td>
                 <td>2 days ago</td>
-                <td><button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
               </tr>
             </tbody>
           </table>
@@ -968,20 +770,20 @@
         </div>
       </section>
 
-      <!-- INVITES -->
-      <section class="tab-pane" id="paneInvites" style="display:none;">
+      <!-- ============================== INVITES ============================== -->
+      <section class="tab-pane" id="paneInvites">
         <div class="panel-card">
           <div class="subtabs">
-            <button class="subtab active" data-subtab="pending" onclick="showInviteSubtab('pending')">Pending</button>
-            <button class="subtab" data-subtab="sent" onclick="showInviteSubtab('sent')">Sent</button>
-            <button class="subtab" data-subtab="settings" onclick="showInviteSubtab('settings')">Settings</button>
+            <button class="subtab active" data-subtab="pending">Pending</button>
+            <button class="subtab" data-subtab="sent">Sent</button>
+            <button class="subtab" data-subtab="settings">Settings</button>
           </div>
 
-          <!-- PENDING SUBTAB -->
-          <div class="invite-subpane" id="invitePending">
+          <!-- PENDING -->
+          <div class="invite-subpane active" id="invitePending">
             <div class="actions-row" style="border-bottom: 0;">
               <div class="search">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
                 <input placeholder="Search 47 pending invites" />
               </div>
               <div class="spacer"></div>
@@ -990,121 +792,133 @@
             </div>
             <table class="list">
               <thead>
-                <tr>
-                  <th>Invitee</th>
-                  <th>Code</th>
-                  <th>Role</th>
-                  <th>Sent by</th>
-                  <th>Sent</th>
-                  <th>Expires</th>
-                  <th></th>
-                </tr>
+                <tr><th>Invitee</th><th>Code</th><th>Role</th><th>Sent by</th><th>Sent</th><th>Expires</th><th></th></tr>
               </thead>
               <tbody>
                 <tr class="row">
                   <td><strong>marcus.anderson@velocity-motors.example</strong></td>
-                  <td><span class="copy-chip">VLCT2X9K
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                  </span></td>
+                  <td><span class="copy-chip">VLCT2X9K <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></span></td>
                   <td><span class="pill pill-neutral">Creator</span></td>
-                  <td>
-                    <div class="creator-cell" style="gap: 6px;">
-                      <div class="avatar-md" style="width: 24px; height: 24px; font-size: 10px;">KS</div>
-                      Kavin Smith
-                    </div>
-                  </td>
+                  <td><div class="creator-cell" style="gap: 6px;"><div class="avatar-sm">KS</div>Kavin Smith</div></td>
                   <td>2 days ago</td>
                   <td>5 days</td>
-                  <td><button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                  <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
                 </tr>
                 <tr class="row">
                   <td><strong>r.singh@pinecrest-properties.example</strong></td>
-                  <td><span class="copy-chip">PNCR8B4M
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                  </span></td>
+                  <td><span class="copy-chip">PNCR8B4M <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></span></td>
                   <td><span class="pill pill-neutral">Creator</span></td>
-                  <td>
-                    <div class="creator-cell" style="gap: 6px;">
-                      <div class="avatar-md" style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #06b6d4, #3b82f6);">PS</div>
-                      Priya Shah
-                    </div>
-                  </td>
+                  <td><div class="creator-cell" style="gap: 6px;"><div class="avatar-sm" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);">PS</div>Priya Shah</div></td>
                   <td>5 hours ago</td>
                   <td>6 days</td>
-                  <td><button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                  <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
                 </tr>
                 <tr class="row">
                   <td><strong>l.morales@cascade-hotels.example</strong></td>
-                  <td><span class="copy-chip">CSCD3F7P
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                  </span></td>
+                  <td><span class="copy-chip">CSCD3F7P <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></span></td>
                   <td><span class="pill pill-neutral">Editor</span></td>
-                  <td>
-                    <div class="creator-cell" style="gap: 6px;">
-                      <div class="avatar-md" style="width: 24px; height: 24px; font-size: 10px;">KS</div>
-                      Kavin Smith
-                    </div>
-                  </td>
+                  <td><div class="creator-cell" style="gap: 6px;"><div class="avatar-sm">KS</div>Kavin Smith</div></td>
                   <td>6 days ago</td>
                   <td style="color: var(--danger); font-weight: 600;">18 hours</td>
-                  <td><button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                  <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <!-- SENT SUBTAB -->
-          <div class="invite-subpane" id="inviteSent" style="display: none;">
-            <div class="empty-state">
-              <div class="icon-wrap">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <!-- SENT -->
+          <div class="invite-subpane" id="inviteSent">
+            <div class="actions-row" style="border-bottom: 0;">
+              <div class="search">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input placeholder="Search 247 redeemed invites" />
               </div>
-              <h3>247 invites redeemed</h3>
-              <p>Joined creators with their invite trail. Filterable + searchable.<br/>Same table shape as Pending; "Joined" column replaces "Expires".</p>
-              <button class="btn btn-secondary">View all</button>
+              <span class="filter-chip">Last 30d
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+              <div class="spacer"></div>
+              <button class="btn btn-secondary">Export CSV</button>
+            </div>
+            <table class="list">
+              <thead>
+                <tr><th>Creator</th><th>Code used</th><th>Role granted</th><th>Sent by</th><th>Joined</th><th></th></tr>
+              </thead>
+              <tbody>
+                <tr class="row">
+                  <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #f59e0b, #ec4899);">KP</div><div><div class="creator-name">Kiran Patel</div><div class="creator-handle">@kiran.sales</div></div></div></td>
+                  <td><span class="copy-chip">PNCR1A2B</span></td>
+                  <td><span class="pill pill-neutral">Creator</span></td>
+                  <td><div class="creator-cell" style="gap: 6px;"><div class="avatar-sm">KS</div>Kavin Smith</div></td>
+                  <td>2 weeks ago</td>
+                  <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                </tr>
+                <tr class="row">
+                  <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);">PS</div><div><div class="creator-name">Priya Shah</div><div class="creator-handle">@priya.stories</div></div></div></td>
+                  <td><span class="copy-chip">PNCR4K7L</span></td>
+                  <td><span class="pill pill-neutral">Lead creator</span></td>
+                  <td><div class="creator-cell" style="gap: 6px;"><div class="avatar-sm">KS</div>Kavin Smith</div></td>
+                  <td>3 months ago</td>
+                  <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                </tr>
+                <tr class="row">
+                  <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #14b8a6, #06b6d4);">SG</div><div><div class="creator-name">Samantha Gray</div><div class="creator-handle">@s.gray</div></div></div></td>
+                  <td><span class="copy-chip">RDR-MMTRX-2026</span></td>
+                  <td><span class="pill pill-neutral">Creator</span></td>
+                  <td><span style="color: var(--text-muted); font-style: italic;">shareable link</span></td>
+                  <td>1 month ago</td>
+                  <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                </tr>
+                <tr class="row">
+                  <td><div class="creator-cell"><div class="avatar-md" style="background: linear-gradient(135deg, #f97316, #f59e0b);">MC</div><div><div class="creator-name">Mackie Cavil</div><div class="creator-handle">@mackie</div></div></div></td>
+                  <td><span class="copy-chip">domain</span></td>
+                  <td><span class="pill pill-neutral">Creator</span></td>
+                  <td><span style="color: var(--text-muted); font-style: italic;">domain auto-provision</span></td>
+                  <td>2 days ago</td>
+                  <td><button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="pager">
+              <button>‹</button>
+              <button class="active">1</button>
+              <button>2</button>
+              <button>3</button>
+              <button>4</button>
+              <button>...</button>
+              <button>10</button>
+              <button>›</button>
             </div>
           </div>
 
-          <!-- SETTINGS SUBTAB -->
-          <div class="invite-subpane" id="inviteSettings" style="display: none; padding: 20px;">
+          <!-- SETTINGS -->
+          <div class="invite-subpane" id="inviteSettings" style="padding: 20px;">
             <div class="form-card">
-              <h3><span class="form-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>Single invite</h3>
+              <h3><span class="form-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>Single invite</h3>
               <div class="form-card-sub">Quick path. Sends one email with a fresh code.</div>
               <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; align-items: end;">
-                <div class="form-row" style="margin: 0;">
-                  <label>Email</label>
-                  <input placeholder="creator@company.com" />
-                </div>
-                <div class="form-row" style="margin: 0;">
-                  <label>Role</label>
-                  <select><option>Creator</option><option>Editor</option><option>Lead creator</option></select>
-                </div>
-                <div class="form-row" style="margin: 0;">
-                  <label>Expires in</label>
-                  <select><option>7 days</option><option>24 hours</option><option>30 days</option><option>Never</option></select>
-                </div>
+                <div class="form-row" style="margin: 0;"><label>Email</label><input placeholder="creator@company.com" /></div>
+                <div class="form-row" style="margin: 0;"><label>Role</label><select><option>Creator</option><option>Editor</option><option>Lead creator</option></select></div>
+                <div class="form-row" style="margin: 0;"><label>Expires in</label><select><option>7 days</option><option>24 hours</option><option>30 days</option><option>Never</option></select></div>
               </div>
-              <div style="display: flex; justify-content: flex-end; margin-top: 14px;">
-                <button class="btn btn-primary">Send invite</button>
-              </div>
+              <div style="display: flex; justify-content: flex-end; margin-top: 14px;"><button class="btn btn-primary">Send invite</button></div>
             </div>
 
             <div class="form-card">
-              <h3><span class="form-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>Bulk invite (CSV)</h3>
+              <h3><span class="form-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>Bulk invite (CSV)</h3>
               <div class="form-card-sub">One invite per row. Download the template, fill it, drop it back here.</div>
               <div class="dropzone">
                 <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 4px;">Drop CSV here, or click to browse</div>
                 <div style="font-size: 12px;">Up to 5,000 rows per file</div>
               </div>
               <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
-                <a href="#" style="font-size: 12.5px; color: var(--primary-solid); font-weight: 500; text-decoration: none;">Download template</a>
+                <a style="font-size: 12.5px; color: var(--primary); font-weight: 500; text-decoration: none; cursor: pointer;">Download template</a>
                 <span style="color: var(--text-muted); font-size: 12.5px;">·</span>
                 <span style="font-size: 12.5px; color: var(--text-muted);">Columns: email, role, first_name, last_name</span>
               </div>
             </div>
 
             <div class="form-card">
-              <h3><span class="form-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span>Domain auto-provision</h3>
+              <h3><span class="form-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span>Domain auto-provision</h3>
               <div class="form-card-sub">Anyone signing in with an email at these domains is auto-added to this workspace.</div>
               <div class="toggle-row">
                 <div class="text">
@@ -1117,37 +931,28 @@
                 <span class="domain-mono" style="flex: 1;">pinecrest-properties.example</span>
                 <span class="pill pill-neutral">Creator</span>
                 <span style="font-size: 12px; color: var(--text-muted);">added 12 Mar</span>
-                <button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+                <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
               </div>
               <div class="domain-row">
                 <span class="domain-mono" style="flex: 1;">pinecrest-stories.example</span>
                 <span class="pill pill-neutral">Creator</span>
                 <span style="font-size: 12px; color: var(--text-muted);">added 8 Apr</span>
-                <button class="kebab"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+                <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
               </div>
               <button class="btn btn-secondary" style="margin-top: 12px;">+ Add domain</button>
             </div>
 
             <div class="form-card">
-              <h3><span class="form-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></span>Shareable invite link</h3>
+              <h3><span class="form-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></span>Shareable invite link</h3>
               <div class="form-card-sub">A single link any creator can open to join. Scoped to this workspace.</div>
               <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #fafafa; border-radius: 10px; margin-bottom: 12px; font-family: var(--font-mono); font-size: 12.5px;">
                 <span style="flex: 1; word-break: break-all;">enterprisecreator://invite/RDR-MMTRX-2026</span>
                 <button class="btn btn-secondary" style="padding: 6px 12px;">Copy</button>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                <div class="form-row" style="margin: 0;">
-                  <label>Max uses</label>
-                  <input value="500" />
-                </div>
-                <div class="form-row" style="margin: 0;">
-                  <label>Expiry</label>
-                  <select><option>30 days</option><option>7 days</option><option>Never</option></select>
-                </div>
-                <div class="form-row" style="margin: 0;">
-                  <label>Role granted</label>
-                  <select><option>Creator</option></select>
-                </div>
+                <div class="form-row" style="margin: 0;"><label>Max uses</label><input value="500" /></div>
+                <div class="form-row" style="margin: 0;"><label>Expiry</label><select><option>30 days</option><option>7 days</option><option>Never</option></select></div>
+                <div class="form-row" style="margin: 0;"><label>Role granted</label><select><option>Creator</option></select></div>
               </div>
               <div style="display: flex; gap: 8px; margin-top: 12px;">
                 <button class="btn btn-secondary">Regenerate link</button>
@@ -1159,85 +964,56 @@
         </div>
       </section>
 
-      <!-- POLICY -->
-      <section class="tab-pane" id="panePolicy" style="display:none;">
+      <!-- ============================== POLICY ============================== -->
+      <section class="tab-pane" id="panePolicy">
         <div class="form-card">
-          <h3><span class="form-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></span>Workspace identity</h3>
+          <h3><span class="form-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></span>Workspace identity</h3>
           <div class="form-card-sub">How this workspace is presented to creators inside the app.</div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="form-row"><label>Workspace name</label><input value="Pinecrest Sales" /></div>
+            <div class="form-row"><label>Handle</label><input value="pinecrest-sales" disabled style="background: #f4f4f5; color: var(--text-muted);" /><div class="helper">Read-only. Used in deep links.</div></div>
+            <div class="form-row"><label>Brand name</label><input value="Pinecrest Properties" /></div>
+            <div class="form-row"><label>Primary color</label><div style="display: flex; gap: 8px; align-items: center;"><div style="width: 36px; height: 36px; border-radius: 8px; background: #2A6DF4; border: 1px solid var(--border);"></div><input value="#2A6DF4" style="flex: 1;" /></div></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3><span class="form-card-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--warning);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>Creator support contact</h3>
+          <div class="form-card-sub">Required. Surfaced to revoked creators as their only way to reach this workspace.</div>
+          <div class="form-row">
+            <label>Support email</label>
+            <input value="creators@pinecrest-properties.example" />
+            <div class="helper">Validated as a real address. Shown verbatim to creators on the deactivated screen.</div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3><span class="form-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span>Creator content rules</h3>
+          <div class="form-card-sub">What creators in this workspace are allowed to upload.</div>
+          <div class="toggle-row">
+            <div class="text"><div class="text-title">Require admin approval before content goes live</div><div class="text-sub">When off, creator posts publish instantly.</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="knob"></div></div>
+          </div>
+          <div class="toggle-row">
+            <div class="text"><div class="text-title">Tagging enabled by creators</div><div class="text-sub">Creators can attach workspace tags to their posts.</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="knob"></div></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;">
+            <div class="form-row"><label>Max video length (seconds)</label><input value="60" /></div>
+            <div class="form-row"><label>Max file size (MB)</label><input value="200" /></div>
+            <div class="form-row"><label>Required aspect ratio</label><select><option>9:16 (vertical)</option><option>1:1 (square)</option><option>9:16 or 1:1</option></select></div>
             <div class="form-row">
-              <label>Workspace name</label>
-              <input value="Pinecrest Sales" />
-            </div>
-            <div class="form-row">
-              <label>Handle</label>
-              <input value="pinecrest-sales" disabled style="background: #f4f4f5; color: var(--text-muted);" />
-              <div class="helper">Read-only. Used in deep links.</div>
-            </div>
-            <div class="form-row">
-              <label>Brand name</label>
-              <input value="Pinecrest Properties" />
-            </div>
-            <div class="form-row">
-              <label>Primary color</label>
-              <div style="display: flex; gap: 8px; align-items: center;">
-                <div style="width: 36px; height: 36px; border-radius: 8px; background: #2A6DF4; border: 1px solid var(--border);"></div>
-                <input value="#2A6DF4" style="flex: 1;" />
+              <label>Workspace taxonomies</label>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="openModal('tagModal')">Manage tags</button>
+                <button class="btn btn-secondary" style="flex: 1;" onclick="openModal('ctaModal')">Manage CTAs</button>
               </div>
             </div>
           </div>
         </div>
 
         <div class="form-card">
-          <h3><span class="form-card-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--warning);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>Creator support contact</h3>
-          <div class="form-card-sub">Required. Surfaced to revoked creators as their only way to reach this workspace.</div>
-          <div class="form-row">
-            <label>Support email</label>
-            <input value="creators@pinecrest-properties.example" />
-            <div class="helper">Validate as a real address. Shown verbatim to creators on the deactivated screen.</div>
-          </div>
-        </div>
-
-        <div class="form-card">
-          <h3><span class="form-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></span>Creator content rules</h3>
-          <div class="form-card-sub">What creators in this workspace are allowed to upload.</div>
-          <div class="toggle-row">
-            <div class="text">
-              <div class="text-title">Require admin approval before content goes live</div>
-              <div class="text-sub">When off, creator posts publish instantly.</div>
-            </div>
-            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="knob"></div></div>
-          </div>
-          <div class="toggle-row">
-            <div class="text">
-              <div class="text-title">Tagging enabled by creators</div>
-              <div class="text-sub">Creators can attach workspace tags to their posts.</div>
-            </div>
-            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="knob"></div></div>
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;">
-            <div class="form-row">
-              <label>Max video length (seconds)</label>
-              <input value="60" />
-            </div>
-            <div class="form-row">
-              <label>Max file size (MB)</label>
-              <input value="200" />
-            </div>
-            <div class="form-row">
-              <label>Required aspect ratio</label>
-              <select><option>9:16 (vertical)</option><option>1:1 (square)</option><option>9:16 or 1:1</option></select>
-            </div>
-            <div class="form-row">
-              <label>Allowed CTAs</label>
-              <select><option>4 selected</option></select>
-              <div class="helper">Click to manage the workspace's CTA templates.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-card">
-          <h3><span class="form-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11l-3-3m0 0l-3 3m3-3v8"/></svg></span>How creators join</h3>
+          <h3><span class="form-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11l-3-3m0 0l-3 3m3-3v8"/></svg></span>How creators join</h3>
           <div class="form-card-sub">Controls how new creators get into this workspace.</div>
           <div class="form-row">
             <label>Join policy</label>
@@ -1250,90 +1026,75 @@
         </div>
 
         <div class="form-card danger-card">
-          <h3><span class="form-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>Danger zone</h3>
+          <h3><span class="form-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>Danger zone</h3>
           <div class="form-card-sub">Heavy actions. Destructive, mostly irreversible.</div>
           <div class="toggle-row">
-            <div class="text">
-              <div class="text-title">Pause uploads</div>
-              <div class="text-sub">Block all new creator uploads. Existing posts stay visible.</div>
-            </div>
+            <div class="text"><div class="text-title">Pause uploads</div><div class="text-sub">Block all new creator uploads. Existing posts stay visible.</div></div>
             <div class="toggle" onclick="this.classList.toggle('on')"><div class="knob"></div></div>
           </div>
           <div class="toggle-row" style="border-bottom: 0;">
-            <div class="text">
-              <div class="text-title">Archive workspace</div>
-              <div class="text-sub">Removes the workspace from creators' lists. Posts retained per retention policy.</div>
-            </div>
-            <button class="btn btn-secondary" style="border-color: var(--danger); color: var(--danger);">Archive...</button>
+            <div class="text"><div class="text-title">Archive workspace</div><div class="text-sub">Removes the workspace from creators' lists. Posts retained per retention policy.</div></div>
+            <button class="btn btn-danger-outline">Archive...</button>
           </div>
         </div>
 
-        <div style="display: flex; gap: 8px; justify-content: flex-end; padding: 16px 0 32px 0; position: sticky; bottom: 0;">
+        <div style="display: flex; gap: 8px; justify-content: flex-end; padding: 16px 0 32px 0;">
           <button class="btn btn-ghost">Discard changes</button>
           <button class="btn btn-primary">Save changes</button>
         </div>
       </section>
 
-      <!-- ============================ RIGHT-SIDE CREATOR DETAIL PANEL ============================ -->
+      <!-- ============================== RIGHT SIDE PANEL ============================== -->
       <aside class="right-panel hidden" id="sidePanel">
-        <button class="panel-close" onclick="closeSidePanel()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <button class="panel-close" onclick="closePanel()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
         <div class="panel-head">
           <div class="panel-creator">
-            <div class="avatar-lg" style="background: linear-gradient(135deg, #f59e0b, #ec4899);">KP</div>
+            <div class="avatar-lg" id="panelAvatar">KP</div>
             <div style="flex: 1;">
-              <div class="panel-name">Kiran Patel</div>
-              <div class="panel-handle">@kiran.sales</div>
-              <div style="margin-top: 6px;"><span class="pill pill-success"><span class="pill-dot"></span>Active</span></div>
+              <div class="panel-name" id="panelName">Kiran Patel</div>
+              <div class="panel-handle" id="panelHandle">@kiran.sales</div>
+              <div style="margin-top: 6px;" id="panelStatus"></div>
             </div>
           </div>
           <div class="panel-tabs">
-            <button class="panel-tab active">Overview</button>
-            <button class="panel-tab">Posts (12)</button>
-            <button class="panel-tab">Activity</button>
+            <button class="panel-tab active" data-pt="overview">Overview</button>
+            <button class="panel-tab" data-pt="posts">Posts</button>
+            <button class="panel-tab" data-pt="activity">Activity</button>
           </div>
         </div>
         <div class="panel-body">
-          <div class="section-block">
-            <div class="section-title">Profile</div>
-            <div class="fact-row"><span class="fact-label">Email</span><span class="fact-value">kiran.patel@pinecrest-properties.example <span class="pill pill-success" style="padding: 2px 6px; font-size: 10px; margin-left: 4px;">Verified</span></span></div>
-            <div class="fact-row"><span class="fact-label">Phone</span><span class="fact-value">+1 555 010 4419</span></div>
-            <div class="fact-row"><span class="fact-label">Joined</span><span class="fact-value">2 weeks ago</span></div>
-            <div class="fact-row"><span class="fact-label">Invited by</span><span class="fact-value">Priya Shah</span></div>
-            <div class="fact-row"><span class="fact-label">Last active</span><span class="fact-value">1 hour ago</span></div>
-          </div>
+          <!-- OVERVIEW -->
+          <div class="panel-pane active" id="panelOverview">
+            <div id="panelNotice"></div>
 
-          <div class="section-block">
+            <div class="section-title">Profile</div>
+            <div class="fact-row"><span class="fact-label">Email</span><span class="fact-value">kiran.patel@pinecrest-properties.example <span class="pill pill-success pill-sm">Verified</span></span></div>
+            <div class="fact-row"><span class="fact-label">Phone</span><span class="fact-value">+1 555 010 4419</span></div>
+            <div class="fact-row"><span class="fact-label">Joined</span><span class="fact-value" id="panelJoined">2 weeks ago</span></div>
+            <div class="fact-row"><span class="fact-label">Invited by</span><span class="fact-value">Priya Shah</span></div>
+            <div class="fact-row"><span class="fact-label">Last active</span><span class="fact-value" id="panelLastActive">1 hour ago</span></div>
+
             <div class="section-title">Engagement in this workspace</div>
             <div class="stat-grid">
-              <div class="stat-card">
-                <div class="stat-num">12</div>
-                <div class="stat-label">Posts</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-num">184k</div>
-                <div class="stat-label">Views</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-num">22k</div>
-                <div class="stat-label">Likes</div>
-              </div>
+              <div class="stat-card"><div class="stat-num" id="panelPosts">12</div><div class="stat-label">Posts</div></div>
+              <div class="stat-card"><div class="stat-num" id="panelViews">184k</div><div class="stat-label">Views</div></div>
+              <div class="stat-card"><div class="stat-num" id="panelLikes">22k</div><div class="stat-label">Likes</div></div>
             </div>
-          </div>
 
-          <div class="section-block">
             <div class="section-title">Bio</div>
             <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">Senior agent sharing buyer-side training and listing walkthroughs.</p>
           </div>
 
-          <div class="section-block">
-            <div class="section-title">Recent posts</div>
+          <!-- POSTS -->
+          <div class="panel-pane" id="panelPosts2">
+            <div class="section-title">Posts in this workspace</div>
             <div class="post-row">
               <div class="post-thumb"></div>
               <div>
                 <div class="post-title">Walking buyers through a coastal condo</div>
-                <div class="post-meta"><span class="pill pill-success" style="padding: 2px 6px; font-size: 10px;">Live</span> 24.8k views · 2d ago</div>
+                <div class="post-meta"><span class="pill pill-success pill-sm">Live</span> 24.8k views · 2d ago</div>
               </div>
               <div class="post-stat">7.1% CTR</div>
             </div>
@@ -1341,7 +1102,7 @@
               <div class="post-thumb"></div>
               <div>
                 <div class="post-title">Q2 market update for downtown condos</div>
-                <div class="post-meta"><span class="pill pill-info" style="padding: 2px 6px; font-size: 10px;">In review</span> 6 days ago</div>
+                <div class="post-meta"><span class="pill pill-info pill-sm">In review</span> 6 days ago</div>
               </div>
               <div class="post-stat">-</div>
             </div>
@@ -1349,23 +1110,87 @@
               <div class="post-thumb"></div>
               <div>
                 <div class="post-title">Listing photos that actually sell</div>
-                <div class="post-meta"><span class="pill pill-success" style="padding: 2px 6px; font-size: 10px;">Live</span> 12.2k views · 1w ago</div>
+                <div class="post-meta"><span class="pill pill-success pill-sm">Live</span> 12.2k views · 1w ago</div>
               </div>
               <div class="post-stat">5.4% CTR</div>
             </div>
+            <div class="post-row">
+              <div class="post-thumb"></div>
+              <div>
+                <div class="post-title">Open house pitch that converts in 30 seconds</div>
+                <div class="post-meta"><span class="pill pill-warning pill-sm">Edits requested</span> 4d ago</div>
+              </div>
+              <div class="post-stat">-</div>
+            </div>
+            <div class="post-row">
+              <div class="post-thumb"></div>
+              <div>
+                <div class="post-title">Home inspection essentials before you offer</div>
+                <div class="post-meta"><span class="pill pill-info pill-sm">In review</span> 1w ago</div>
+              </div>
+              <div class="post-stat">-</div>
+            </div>
+            <div class="post-row">
+              <div class="post-thumb"></div>
+              <div>
+                <div class="post-title">Hot take on a competing brokerage</div>
+                <div class="post-meta"><span class="pill pill-danger pill-sm">Rejected</span> 2w ago</div>
+              </div>
+              <div class="post-stat">-</div>
+            </div>
+            <button class="btn btn-secondary" style="margin-top: 12px; width: 100%;">View all 12 posts in moderation queue</button>
           </div>
 
-          <div style="display: flex; gap: 8px; padding-top: 8px; border-top: 1px solid var(--card-border);">
-            <button class="btn btn-secondary" style="flex: 1;">Send message</button>
-            <button class="btn btn-secondary" style="flex: 1; border-color: var(--danger); color: var(--danger);" onclick="closeSidePanel(); openModal('revokeModal');">Revoke access</button>
+          <!-- ACTIVITY -->
+          <div class="panel-pane" id="panelActivity">
+            <div class="section-title">Audit log</div>
+            <div class="activity-item">
+              <div class="activity-dot success"></div>
+              <div>
+                <div class="activity-text">Post <strong>"Walking buyers through a coastal condo"</strong> approved by <strong>Kavin Smith</strong></div>
+                <div class="activity-time">2 days ago at 14:32</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-text">Posted <strong>"Walking buyers through a coastal condo"</strong></div>
+                <div class="activity-time">2 days ago at 11:08</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot warning"></div>
+              <div>
+                <div class="activity-text">Edits requested on <strong>"Open house pitch that converts in 30 seconds"</strong> by <strong>Kavin Smith</strong></div>
+                <div class="activity-time">4 days ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot success"></div>
+              <div>
+                <div class="activity-text">Membership activated. Joined as <strong>Creator</strong></div>
+                <div class="activity-time">2 weeks ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-text">Invited by <strong>Priya Shah</strong> with role <strong>Creator</strong></div>
+                <div class="activity-time">2 weeks ago</div>
+              </div>
+            </div>
           </div>
+        </div>
+        <div class="panel-foot" id="panelFoot">
+          <button class="btn btn-secondary" style="flex: 1;">Send message</button>
+          <button class="btn btn-secondary btn-danger-outline" style="flex: 1;" onclick="openModal('revokeModal')">Revoke access</button>
         </div>
       </aside>
     </div>
   </main>
 </div>
 
-<!-- ============================ INVITE CREATION MODAL ============================ -->
+<!-- ============================== INVITE MODAL ============================== -->
 <div class="modal-backdrop hidden" id="inviteModal" onclick="if(event.target===this) closeModal('inviteModal')">
   <div class="modal">
     <div class="modal-head">
@@ -1373,33 +1198,16 @@
         <h3>Invite a creator</h3>
         <div class="sub">Sends a one-time code to this email. Expires per your default policy.</div>
       </div>
-      <button class="kebab" onclick="closeModal('inviteModal')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <button class="kebab" onclick="closeModal('inviteModal')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
-      <div class="form-row">
-        <label>Email</label>
-        <input placeholder="creator@company.com" />
-      </div>
+      <div class="form-row"><label>Email</label><input placeholder="creator@company.com" /></div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div class="form-row">
-          <label>Role</label>
-          <select><option>Creator</option><option>Editor</option><option>Lead creator</option></select>
-        </div>
-        <div class="form-row">
-          <label>Workspace</label>
-          <select><option>Pinecrest Sales</option><option>Pinecrest Stories</option><option>Velocity Showroom</option></select>
-        </div>
+        <div class="form-row"><label>Role</label><select><option>Creator</option><option>Editor</option><option>Lead creator</option></select></div>
+        <div class="form-row"><label>Workspace</label><select><option>Pinecrest Sales</option><option>Pinecrest Stories</option><option>Velocity Showroom</option></select></div>
       </div>
-      <div class="form-row">
-        <label>Expires in</label>
-        <select><option>7 days (default)</option><option>24 hours</option><option>30 days</option><option>Never</option></select>
-      </div>
-      <div class="form-row">
-        <label>Personal message (optional)</label>
-        <textarea placeholder="Add a short note to the invite email..."></textarea>
-      </div>
+      <div class="form-row"><label>Expires in</label><select><option>7 days (default)</option><option>24 hours</option><option>30 days</option><option>Never</option></select></div>
+      <div class="form-row"><label>Personal message (optional)</label><textarea placeholder="Add a short note to the invite email..."></textarea></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('inviteModal')">Cancel</button>
@@ -1408,26 +1216,21 @@
   </div>
 </div>
 
-<!-- ============================ REVOKE CONFIRMATION MODAL ============================ -->
+<!-- ============================== REVOKE MODAL ============================== -->
 <div class="modal-backdrop hidden" id="revokeModal" onclick="if(event.target===this) closeModal('revokeModal')">
   <div class="modal">
     <div class="modal-head">
       <div>
-        <h3>Revoke Kiran Patel from Pinecrest Sales?</h3>
-        <div class="sub">Their 12 posts stay live. They will see a deactivated screen with only an email link to your workspace support address.</div>
+        <h3>Revoke <span id="revokeName">Kiran Patel</span> from Pinecrest Sales?</h3>
+        <div class="sub">Their posts stay live. They will see a deactivated screen with only an email link to your workspace support address.</div>
       </div>
-      <button class="kebab" onclick="closeModal('revokeModal')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <button class="kebab" onclick="closeModal('revokeModal')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
-      <div class="form-row">
-        <label>Reason (saved to audit log)</label>
-        <textarea placeholder="e.g. Left the team, role change, policy violation..."></textarea>
-      </div>
+      <div class="form-row"><label>Reason (saved to audit log)</label><textarea placeholder="e.g. Left the team, role change, policy violation..."></textarea></div>
       <div style="display: flex; align-items: center; gap: 10px; padding: 10px 0;">
         <input type="checkbox" id="notifyCreator" checked />
-        <label for="notifyCreator" style="font-size: 13.5px; cursor: pointer;">Email Kiran a notification of this change</label>
+        <label for="notifyCreator" style="font-size: 13.5px; cursor: pointer;">Email the creator a notification of this change</label>
       </div>
     </div>
     <div class="modal-foot">
@@ -1437,50 +1240,272 @@
   </div>
 </div>
 
-<!-- DEMO ROUTER (not part of the production design - lets the team flip between tab states) -->
-<div class="demo-router">
-  <button class="active" onclick="showTab('directory', this)">Directory</button>
-  <button onclick="showTab('invites', this)">Invites</button>
-  <button onclick="showTab('policy', this)">Policy</button>
-  <button onclick="openSidePanel(); event.stopPropagation();">+ Side panel</button>
-  <button onclick="openModal('inviteModal'); event.stopPropagation();">+ Invite modal</button>
-  <button onclick="openModal('revokeModal'); event.stopPropagation();">+ Revoke modal</button>
+<!-- ============================== APPROVE REQUEST MODAL ============================== -->
+<div class="modal-backdrop hidden" id="approveRequestModal" onclick="if(event.target===this) closeModal('approveRequestModal')">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3>Approve Anita Lopez's request to join Pinecrest Sales?</h3>
+        <div class="sub">They will be added as an active member. They can start posting immediately.</div>
+      </div>
+      <button class="kebab" onclick="closeModal('approveRequestModal')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="creator-cell" style="margin-bottom: 14px;">
+        <div class="avatar-lg" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">AL</div>
+        <div>
+          <div class="creator-name">Anita Lopez</div>
+          <div class="creator-handle">anita.lopez@pinecrest-properties.example</div>
+          <div style="margin-top: 4px; font-size: 12px; color: var(--text-muted);">Verified work email · domain matches workspace allowlist</div>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-row"><label>Role to grant</label><select><option>Creator</option><option>Editor</option><option>Lead creator</option></select></div>
+        <div class="form-row"><label>Display name</label><input value="Anita Lopez" /></div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 6px 0;">
+        <input type="checkbox" id="welcomeEmail" checked />
+        <label for="welcomeEmail" style="font-size: 13.5px; cursor: pointer;">Send a welcome email with workspace policies</label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('approveRequestModal')">Cancel</button>
+      <button class="btn btn-danger-outline">Reject request</button>
+      <button class="btn btn-success">Approve and add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== TAG MANAGEMENT MODAL ============================== -->
+<div class="modal-backdrop hidden" id="tagModal" onclick="if(event.target===this) closeModal('tagModal')">
+  <div class="modal wide">
+    <div class="modal-head">
+      <div>
+        <h3>Manage tag taxonomy</h3>
+        <div class="sub">Tags creators can attach to posts in this workspace. Grouped by category.</div>
+      </div>
+      <button class="kebab" onclick="closeModal('tagModal')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="group-card">
+        <div class="group-head">
+          <span class="group-name">Property type</span>
+          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px;">Rename</button>
+          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; color: var(--danger);">Remove</button>
+        </div>
+        <div>
+          <span class="tag-chip">Single family <span class="x">×</span></span>
+          <span class="tag-chip">Condo <span class="x">×</span></span>
+          <span class="tag-chip">Townhouse <span class="x">×</span></span>
+          <span class="tag-chip">Apartment <span class="x">×</span></span>
+          <span class="tag-chip">Land <span class="x">×</span></span>
+          <span class="tag-chip" style="background: rgba(124, 58, 237, 0.06); color: var(--primary); cursor: pointer;">+ Add tag</span>
+        </div>
+      </div>
+      <div class="group-card">
+        <div class="group-head">
+          <span class="group-name">Topic</span>
+          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px;">Rename</button>
+          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; color: var(--danger);">Remove</button>
+        </div>
+        <div>
+          <span class="tag-chip">Buying <span class="x">×</span></span>
+          <span class="tag-chip">Selling <span class="x">×</span></span>
+          <span class="tag-chip">Mortgage <span class="x">×</span></span>
+          <span class="tag-chip">Staging <span class="x">×</span></span>
+          <span class="tag-chip">Neighborhood <span class="x">×</span></span>
+          <span class="tag-chip" style="background: rgba(124, 58, 237, 0.06); color: var(--primary); cursor: pointer;">+ Add tag</span>
+        </div>
+      </div>
+      <div class="group-card">
+        <div class="group-head">
+          <span class="group-name">Audience</span>
+          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px;">Rename</button>
+          <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 12px; color: var(--danger);">Remove</button>
+        </div>
+        <div>
+          <span class="tag-chip">First-time buyer <span class="x">×</span></span>
+          <span class="tag-chip">Seller <span class="x">×</span></span>
+          <span class="tag-chip">Investor <span class="x">×</span></span>
+          <span class="tag-chip">Renter <span class="x">×</span></span>
+          <span class="tag-chip">Agent <span class="x">×</span></span>
+          <span class="tag-chip" style="background: rgba(124, 58, 237, 0.06); color: var(--primary); cursor: pointer;">+ Add tag</span>
+        </div>
+      </div>
+      <button class="btn btn-secondary" style="margin-top: 8px;">+ Add category</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('tagModal')">Close</button>
+      <button class="btn btn-primary">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== CTA MANAGEMENT MODAL ============================== -->
+<div class="modal-backdrop hidden" id="ctaModal" onclick="if(event.target===this) closeModal('ctaModal')">
+  <div class="modal wide">
+    <div class="modal-head">
+      <div>
+        <h3>Manage CTA templates</h3>
+        <div class="sub">Conversion buttons creators can attach to their posts. Static templates open a fixed URL; dynamic ones let the creator provide one.</div>
+      </div>
+      <button class="kebab" onclick="closeModal('ctaModal')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="cta-row">
+        <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #2563eb, #06b6d4);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div>
+        <div>
+          <div class="cta-name">Talk to a buyer's agent</div>
+          <div class="cta-url">https://pinecrest-properties.example/talk</div>
+        </div>
+        <span class="pill pill-info">Static</span>
+        <span style="font-size: 12px; color: var(--text-muted);">used 47 times</span>
+        <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      </div>
+      <div class="cta-row">
+        <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #16a34a, #10b981);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+        <div>
+          <div class="cta-name">View this listing</div>
+          <div class="cta-url" style="color: var(--primary); font-style: italic;">creator provides URL</div>
+        </div>
+        <span class="pill pill-warning">Dynamic</span>
+        <span style="font-size: 12px; color: var(--text-muted);">used 124 times</span>
+        <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      </div>
+      <div class="cta-row">
+        <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #f59e0b, #ef4444);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        <div>
+          <div class="cta-name">Get the buyer checklist</div>
+          <div class="cta-url">https://pinecrest-properties.example/checklist</div>
+        </div>
+        <span class="pill pill-info">Static</span>
+        <span style="font-size: 12px; color: var(--text-muted);">used 31 times</span>
+        <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      </div>
+      <div class="cta-row">
+        <div class="cta-icon-wrap" style="background: linear-gradient(135deg, #ec4899, #f59e0b);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+        <div>
+          <div class="cta-name">Open the staging guide</div>
+          <div class="cta-url">https://pinecrest-properties.example/staging.pdf</div>
+        </div>
+        <span class="pill pill-info">Static</span>
+        <span style="font-size: 12px; color: var(--text-muted);">used 18 times</span>
+        <button class="kebab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      </div>
+      <button class="btn btn-secondary" style="margin-top: 14px;">+ Add CTA template</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('ctaModal')">Close</button>
+      <button class="btn btn-primary">Save changes</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  function showTab(name, btn) {
-    document.querySelectorAll('.tab-pane').forEach(el => el.style.display = 'none');
-    document.getElementById('pane' + name.charAt(0).toUpperCase() + name.slice(1)).style.display = 'block';
-    document.querySelectorAll('.demo-router button').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    document.querySelectorAll('.nav-item.sub[data-tab]').forEach(n => n.classList.remove('active'));
-    const navMap = { directory: 'navDirectory', invites: 'navInvites', policy: 'navPolicy' };
-    const navItem = document.getElementById(navMap[name]);
-    if (navItem) navItem.classList.add('active');
-    document.getElementById('topbarTitle').textContent = ({
-      directory: 'Manage Creators',
-      invites: 'Invite creators to Pinecrest Sales',
-      policy: 'Workspace creator policy',
-    })[name];
-    closeSidePanel();
+  // Sidebar nav -> tab switcher
+  const titles = { directory: 'Manage Creators', invites: 'Invite creators to Pinecrest Sales', policy: 'Workspace creator policy' };
+  document.querySelectorAll('.nav-item[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const name = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById('pane' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+      document.querySelectorAll('.nav-item[data-tab]').forEach(n => n.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('topbarTitle').textContent = titles[name];
+      closePanel();
+    });
+  });
+
+  // Invites sub-tabs
+  document.querySelectorAll('.subtab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const name = btn.getAttribute('data-subtab');
+      document.querySelectorAll('.invite-subpane').forEach(p => p.classList.remove('active'));
+      document.getElementById('invite' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+      document.querySelectorAll('.subtab').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Side panel open with status-aware content
+  function openPanel(status, name, initials, handle, gradient) {
+    const panel = document.getElementById('sidePanel');
+    panel.classList.remove('hidden');
+    document.getElementById('panelName').textContent = name;
+    document.getElementById('panelHandle').textContent = '@' + handle;
+    document.getElementById('panelAvatar').textContent = initials;
+    if (gradient) {
+      document.getElementById('panelAvatar').style.background = `linear-gradient(135deg, ${gradient.split(',').join(', ')})`;
+    }
+    document.getElementById('revokeName').textContent = name;
+
+    // Status pill
+    const statusEl = document.getElementById('panelStatus');
+    const noticeEl = document.getElementById('panelNotice');
+    const footEl = document.getElementById('panelFoot');
+    if (status === 'active') {
+      statusEl.innerHTML = '<span class="pill pill-success"><span class="pill-dot"></span>Active</span>';
+      noticeEl.innerHTML = '';
+      footEl.innerHTML = '<button class="btn btn-secondary" style="flex: 1;">Send message</button><button class="btn btn-secondary btn-danger-outline" style="flex: 1;" onclick="openModal(\'revokeModal\')">Revoke access</button>';
+    } else if (status === 'pending_invite') {
+      statusEl.innerHTML = '<span class="pill pill-info"><span class="pill-dot"></span>Pending invite</span>';
+      noticeEl.innerHTML = `
+        <div class="notice notice-info">
+          <div class="notice-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="notice-title">Invite sent 2 days ago by Kavin Smith</div>
+            <div class="notice-body">Code <strong>VLCT2X9K</strong>. Expires in 5 days. They have not signed in yet.</div>
+          </div>
+        </div>`;
+      footEl.innerHTML = '<button class="btn btn-secondary" style="flex: 1;">Resend invite</button><button class="btn btn-secondary btn-danger-outline" style="flex: 1;">Cancel invite</button>';
+    } else if (status === 'revoked') {
+      statusEl.innerHTML = '<span class="pill pill-danger"><span class="pill-dot"></span>Revoked</span>';
+      noticeEl.innerHTML = `
+        <div class="notice notice-danger">
+          <div class="notice-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="4" y1="4" x2="20" y2="20"/></svg>
+          </div>
+          <div>
+            <div class="notice-title">Revoked 3 weeks ago by Kavin Smith</div>
+            <div class="notice-body">Reason: "Left the team. No longer a Pinecrest employee."<br/>Their 8 posts remain live in this workspace.</div>
+          </div>
+        </div>`;
+      footEl.innerHTML = '<button class="btn btn-secondary" style="flex: 1;">View posts</button><button class="btn btn-primary" style="flex: 1;">Re-invite</button>';
+    }
+
+    // Reset to overview tab
+    document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.panel-tab[data-pt="overview"]').classList.add('active');
+    document.querySelectorAll('.panel-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('panelOverview').classList.add('active');
   }
-  function showInviteSubtab(name) {
-    document.querySelectorAll('.invite-subpane').forEach(el => el.style.display = 'none');
-    document.getElementById('invite' + name.charAt(0).toUpperCase() + name.slice(1)).style.display = 'block';
-    document.querySelectorAll('.subtab').forEach(b => b.classList.remove('active'));
-    document.querySelector('.subtab[data-subtab="' + name + '"]').classList.add('active');
+
+  function closePanel() {
+    document.getElementById('sidePanel').classList.add('hidden');
   }
-  function openSidePanel() { document.getElementById('sidePanel').classList.remove('hidden'); }
-  function closeSidePanel() { document.getElementById('sidePanel').classList.add('hidden'); }
+
+  // Panel tabs
+  document.querySelectorAll('.panel-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const name = btn.getAttribute('data-pt');
+      document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.panel-pane').forEach(p => p.classList.remove('active'));
+      const map = { overview: 'panelOverview', posts: 'panelPosts2', activity: 'panelActivity' };
+      document.getElementById(map[name]).classList.add('active');
+    });
+  });
+
+  // Modals
   function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
   function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-  document.querySelectorAll('.nav-item.sub[data-tab]').forEach(n => {
-    n.addEventListener('click', e => {
-      e.preventDefault();
-      const name = n.getAttribute('data-tab');
-      const routerBtn = Array.from(document.querySelectorAll('.demo-router button')).find(b => b.textContent.toLowerCase() === name);
-      showTab(name, routerBtn);
-    });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.add('hidden'));
+      closePanel();
+    }
   });
 </script>
 
